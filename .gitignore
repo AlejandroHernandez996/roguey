@@ -1,0 +1,68 @@
+# UE5 folders to ignore
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Ignore specific platform folders
+.vs/
+*.VC.db
+*.VC.opendb
+
+# Ignore compiled assets
+*.pdb
+*.obj
+*.exe
+*.dll
+*.lib
+*.app
+*.dSYM
+*.so
+*.a
+
+# Ignore generated project files (optional if using Visual Studio generator)
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Mac-specific
+.DS_Store
+
+# Linux-specific
+*.swp
+*~
+
+# Xcode-specific
+*.xcworkspace/
+*.xcuserdata/
+*.xcuserstate
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Project-specific cache or backups
+*.log
+*.tmp
+*.bak
+*.cache
+
+# Ignore plugins you don’t want to track
+Plugins/*/Intermediate/
+Plugins/*/Binaries/
+Plugins/*/Saved/
+
+# Ignore local settings
+.vscode/
+.idea/
+*.code-workspace
+*.iml
+
+# Optional: ignore auto-generated JSON and asset registry
+*.AssetRegistry.bin
+*.AssetRegistry.json
