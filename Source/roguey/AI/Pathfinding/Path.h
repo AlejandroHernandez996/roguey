@@ -11,11 +11,11 @@ struct FPath
 	UPROPERTY()
 	TArray<FIntVector2> MovementPath;
 	UPROPERTY()
-	uint32 PathIndex = -1;
+	int32 PathIndex = -1;
 
 	bool IsPathComplete() const
 	{
-		return MovementPath.IsEmpty() || PathIndex == -1 || MovementPath.Num()-1 == PathIndex;
+		return MovementPath.IsEmpty() || PathIndex == -1 || PathIndex == MovementPath.Num();
 	}
 
 	FIntVector2 GetMovementLocation()

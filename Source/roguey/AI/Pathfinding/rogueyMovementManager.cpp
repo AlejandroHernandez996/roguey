@@ -8,29 +8,51 @@
 
 void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 {
-	while (MovementQueue.IsEmpty())
+	while (!MovementQueue.IsEmpty())
 	{
 		FMovement ProcessMovement;
 		MovementQueue.Dequeue(ProcessMovement);
+		UE_LOG(LogTemp, Log, TEXT("Processing Movement - Tick: %u,Destination: %s, Actor: %s"),
+			  ProcessMovement.Tick,
+			  *ProcessMovement.Destination.ToString(),
+			  ProcessMovement.Actor ? *ProcessMovement.Actor->GetName() : TEXT("None")
+		  );
 		if (ProcessMovement.Actor != nullptr)
 		{
 			FPath NewPath = UrogueyPathfinder::FindAndGeneratePath(ProcessMovement, GridManager->Grid);
 			if (ActivePaths.Contains(ProcessMovement.Actor))
 			{
 				ActivePaths.Remove(ProcessMovement.Actor);
-				ActivePaths.Add(ProcessMovement.Actor, NewPath);
 			}
+			ActivePaths.Add(ProcessMovement.Actor, NewPath);
+
+			FString PathString = FString::Printf(TEXT("Actor %p Path: "), ProcessMovement.Actor);
+
+			for (const FIntVector2& Point : NewPath.MovementPath)
+			{
+				PathString += FString::Printf(TEXT("(%d, %d) -> "), Point.X, Point.Y);
+			}
+			PathString.RemoveFromEnd(TEXT(" -> ")); // Remove the last arrow
+
+			UE_LOG(LogTemp, Log, TEXT("%s"), *PathString);
 		}
 	}
 
-	TSet<ArogueyActor*> FinishedAPathActors;
+	TSet<AActor*> FinishedAPathActors;
 	for (auto& ActorAndPath : ActivePaths)
 	{
-		ArogueyActor* PathActor = ActorAndPath.Key;
-		FPath Path = ActorAndPath.Value;
+		AActor* PathActor = ActorAndPath.Key;
+		FPath& Path = ActivePaths[ActorAndPath.Key];
 
-		FGridEvent MoveEvent = FGridEvent(TickIndex, Path.GetMovementLocation(), PathActor, EGridEventType::MOVE);
-		GridManager->EnqueueGridEvent(MoveEvent);
+		FGridEvent GridEvent = FGridEvent(TickIndex, Path.GetMovementLocation(), PathActor, EGridEventType::MOVE);
+		GridManager->EnqueueGridEvent(GridEvent);
+		UE_LOG(LogTemp, Log, TEXT("GridEvent Enqueued -- Tick: %u, EventType: %s, Actor: %s, Location: (%d, %d)"),
+			GridEvent.Tick,
+			*UEnum::GetValueAsString(GridEvent.EventType),
+			GridEvent.Actor ? *GridEvent.Actor->GetName() : TEXT("None"),
+			GridEvent.Location.X,
+			GridEvent.Location.Y
+		);
 		Path.PathIndex += 1;
 		if (Path.IsPathComplete())
 		{
@@ -45,5 +67,11 @@ void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 
 void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 {
+
+	UE_LOG(LogTemp, Log, TEXT("Movement Enqueued - Tick: %u,Destination: %s, Actor: %s"),
+			  Movement.Tick,
+			  *Movement.Destination.ToString(),
+			  Movement.Actor ? *Movement.Actor->GetName() : TEXT("None")
+		  );
 	MovementQueue.Enqueue(Movement);
 }

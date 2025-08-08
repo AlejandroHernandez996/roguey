@@ -28,5 +28,5 @@ private:
 	TQueue<FMovement> MovementQueue;
 
 	UPROPERTY()
-	TMap<ArogueyActor*, FPath> ActivePaths;
+	TMap<AActor*, FPath> ActivePaths;
 };

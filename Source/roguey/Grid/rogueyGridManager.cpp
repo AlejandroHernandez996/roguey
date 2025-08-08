@@ -11,6 +11,14 @@ void UrogueyGridManager::RogueyTick(uint32 TickIndex)
 		FGridEvent GridEvent;
 		GridQueue.Dequeue(GridEvent);
 
+		UE_LOG(LogTemp, Log, TEXT("GridEvent Processing -- Tick: %u, EventType: %s, Actor: %s, Location: (%d, %d)"),
+			GridEvent.Tick,
+			*UEnum::GetValueAsString(GridEvent.EventType),
+			GridEvent.Actor ? *GridEvent.Actor->GetName() : TEXT("None"),
+			GridEvent.Location.X,
+			GridEvent.Location.Y
+		);
+		
 		switch (GridEvent.EventType)
 		{
 		case EGridEventType::MOVE:
@@ -28,11 +36,11 @@ void UrogueyGridManager::RogueyTick(uint32 TickIndex)
 	}
 }
 
-void UrogueyGridManager::AddActorToGrid(ArogueyActor* Actor, FIntVector2 Location)
+void UrogueyGridManager::AddActorToGrid(AActor* Actor, FIntVector2 Location)
 {
 	if (Actor)
 	{
-		ActorMapLocation.Add(Actor, Location);
+		Grid.ActorMapLocation.Add(Actor, Location);
 		if (!Grid.GridMap.Contains(Location))
 		{
 			Grid.GridMap.Add(Location, FTile());
@@ -41,12 +49,12 @@ void UrogueyGridManager::AddActorToGrid(ArogueyActor* Actor, FIntVector2 Locatio
 	}
 }
 
-void UrogueyGridManager::RemoveActorFromGrid(ArogueyActor* Actor)
+void UrogueyGridManager::RemoveActorFromGrid(AActor* Actor)
 {
-	if (Actor && ActorMapLocation.Contains(Actor))
+	if (Actor && Grid.ActorMapLocation.Contains(Actor))
 	{
-		FIntVector2 Location = ActorMapLocation[Actor];
-		ActorMapLocation.Remove(Actor);
+		FIntVector2 Location = Grid.ActorMapLocation[Actor];
+		Grid.ActorMapLocation.Remove(Actor);
 		if (Grid.GridMap.Contains(Location))
 		{
 			Grid.GridMap[Location].ActorsInTile.Remove(Actor);
@@ -54,15 +62,28 @@ void UrogueyGridManager::RemoveActorFromGrid(ArogueyActor* Actor)
 	}
 }
 
-void UrogueyGridManager::MoveActorInGrid(ArogueyActor* Actor, FIntVector2 Destination)
+void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
 {
 	RemoveActorFromGrid(Actor);
 	AddActorToGrid(Actor, Destination);
-
-	Actor->SetActorLocation(FVector(GridUtils::GridToWorld(Destination)));
+	FVector WorldLocation = GridUtils::GridToWorld(Destination);
+	WorldLocation.Z = Actor->GetActorLocation().Z;
+	Actor->SetActorLocation(WorldLocation);
 }
 
 void UrogueyGridManager::EnqueueGridEvent(const FGridEvent& GridEvent)
 {
 	GridQueue.Enqueue(GridEvent);
+}
+
+void UrogueyGridManager::Init()
+{
+	for (int i = 0; i < GridSize.X ; i++)
+	{
+		for (int j = 0; j < GridSize.Y ; j++)
+		{
+			FTile Tile = FTile();
+			Grid.GridMap.Add(FIntVector2(i, j), Tile);
+		}
+	}
 }

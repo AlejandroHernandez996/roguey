@@ -10,11 +10,16 @@
 
 void UrogueyInputManager::RogueyTick(uint32 TickIndex)
 {
-	while (InputQueue.IsEmpty() || InputQueue.Peek()->InputTick > TickIndex)
+	while (!InputQueue.IsEmpty())
 	{
 		FInput ProcessInput;
 		InputQueue.Dequeue(ProcessInput);
-
+		UE_LOG(LogTemp, Log, TEXT("Input Processing - Tick: %u, Type: %d, Location: %s, Actor: %s"),
+			  ProcessInput.InputTick,
+			  static_cast<int32>(ProcessInput.InputType),
+			  *ProcessInput.InputWorldLocation.ToString(),
+			  ProcessInput.InputActor ? *ProcessInput.InputActor->GetName() : TEXT("None")
+		  );
 		switch (ProcessInput.InputType)
 		{
 		case EInputType::MOVEMENT_INPUT:
@@ -38,5 +43,11 @@ void UrogueyInputManager::RogueyTick(uint32 TickIndex)
 void UrogueyInputManager::EnqueueInput(const FInput& Input)
 {
 	if (Input.InputType == EInputType::NONE) return;
+	UE_LOG(LogTemp, Log, TEXT("Input Enqueued - Tick: %u, Type: %d, Location: %s, Actor: %s"),
+	  Input.InputTick,
+	  static_cast<int32>(Input.InputType),
+	  *Input.InputWorldLocation.ToString(),
+	  Input.InputActor ? *Input.InputActor->GetName() : TEXT("None")
+  );
 	InputQueue.Enqueue(Input);
 }

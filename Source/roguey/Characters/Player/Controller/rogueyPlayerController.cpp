@@ -12,6 +12,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "rogueyGameMode.h"
 #include "Engine/LocalPlayer.h"
+#include "Grid/Util/GridUtils.h"
 #include "Input/Input.h"
 #include "Input/rogueyInputManager.h"
 
@@ -27,6 +28,7 @@ void ArogueyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
+	RogueyGameMode->GridManager->AddActorToGrid(GetCharacter(),GridUtils::WorldToGrid(GetCharacter()->GetActorLocation()));
 }
 
 void ArogueyPlayerController::SetupInputComponent()
@@ -50,17 +52,18 @@ void ArogueyPlayerController::SetupInputComponent()
 
 void ArogueyPlayerController::OnInputStarted()
 {
+	FHitResult Hit;
+	if (GetHitResultUnderCursor(ECC_Visibility, true, Hit) && RogueyGameMode)
+	{
+		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, GetCharacter());
+		RogueyGameMode->InputManager->EnqueueInput(Input);
+	}
 }
 
 void ArogueyPlayerController::OnInputTriggered()
 {
 	
-	FHitResult Hit;
-	if (GetHitResultUnderCursor(ECC_Visibility, true, Hit) && RogueyGameMode)
-	{
-		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, Cast<ArogueyActor>(GetCharacter()));
-		RogueyGameMode->InputManager->EnqueueInput(Input);
-	}
+	
 }
 
 void ArogueyPlayerController::OnInputReleased()

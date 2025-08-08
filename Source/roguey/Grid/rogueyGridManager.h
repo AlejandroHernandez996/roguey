@@ -21,23 +21,23 @@ public:
 	virtual void RogueyTick(uint32 TickIndex) override;
 	UPROPERTY()
 	FGrid Grid;
-	UPROPERTY()
-	TMap<ArogueyActor*, FIntVector2> ActorMapLocation;
 
 	UFUNCTION()
-	void AddActorToGrid(ArogueyActor* Actor, FIntVector2 Location);
+	void AddActorToGrid(AActor* Actor, FIntVector2 Location);
 
 	UFUNCTION()
-	void RemoveActorFromGrid(ArogueyActor* Actor);
+	void RemoveActorFromGrid(AActor* Actor);
 
 	UFUNCTION()
-	void MoveActorInGrid(ArogueyActor* Actor, FIntVector2 Destination);
+	void MoveActorInGrid(AActor* Actor, FIntVector2 Destination);
 
 	TQueue<FGridEvent> GridQueue;
 
 	UFUNCTION()
 	void EnqueueGridEvent(const FGridEvent& GridEvent);
 
+	UFUNCTION()
+	void Init();
 
 private:
 	 FIntVector2 GridSize = {64, 64};

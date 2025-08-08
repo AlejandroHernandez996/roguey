@@ -8,17 +8,21 @@
 
 ArogueyGameMode::ArogueyGameMode()
 {
-	Engine = NewObject<UrogueyEngine>(this, UrogueyEngine::StaticClass(), "Roguey Engine");
-	MovementManager = NewObject<UrogueyMovementManager>(this, UrogueyMovementManager::StaticClass(), "Movement Manager");
-	GridManager = NewObject<UrogueyGridManager>(this, UrogueyGridManager::StaticClass(), "Grid Manager");
-	InputManager = NewObject<UrogueyInputManager>(this, UrogueyInputManager::StaticClass(), "Input Manager");
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ArogueyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Engine = NewObject<UrogueyEngine>(this, UrogueyEngine::StaticClass(), "Roguey Engine");
+	MovementManager = NewObject<UrogueyMovementManager>(this, UrogueyMovementManager::StaticClass(), "Movement Manager");
+	GridManager = NewObject<UrogueyGridManager>(this, UrogueyGridManager::StaticClass(), "Grid Manager");
+	InputManager = NewObject<UrogueyInputManager>(this, UrogueyInputManager::StaticClass(), "Input Manager");
+	
 	InputManager->MovementManager = MovementManager;
 	MovementManager->GridManager = GridManager;
+	GridManager->Init();
 	Engine->Init({InputManager, MovementManager, GridManager});
 }
 

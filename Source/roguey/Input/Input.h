@@ -2,8 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "InputType.h"
-#include "Characters/rogueyActor.h"
-#include "Characters/Player/rogueyCharacter.h"
 #include "Input.generated.h"
 
 USTRUCT(BlueprintType)
@@ -20,11 +18,11 @@ struct FInput
 	FVector InputWorldLocation = FVector::ZeroVector;
 
 	UPROPERTY()
-	ArogueyActor* InputActor = nullptr;
+	APawn* InputActor = nullptr;
 
 	FInput() {}
 
-	FInput(uint32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, ArogueyActor* InInputActor)
+	FInput(uint32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, APawn* InInputActor)
 		: InputTick(InInputTick)
 		, InputType(InInputType)
 		, InputWorldLocation(InInputWorldLocation)
