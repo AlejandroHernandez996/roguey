@@ -26,6 +26,9 @@ public:
 	UPROPERTY()
 	class UrogueyInputManager* InputManager;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
+	UTexture2D* Texture;
+	
 	UFUNCTION()
 	uint32 GetCurrentTick() const
 	{

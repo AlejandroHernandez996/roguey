@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActorPath.h"
 #include "Movement.h"
 #include "Path.h"
 #include "Core/Engine/Tickable.h"
@@ -24,9 +25,14 @@ public:
 
 	UPROPERTY()
 	class UrogueyGridManager* GridManager;
+
+	void Tick(float DeltaTime);
 private:
 	TQueue<FMovement> MovementQueue;
 
 	UPROPERTY()
 	TMap<AActor*, FPath> ActivePaths;
+
+	UPROPERTY()
+	TMap<AActor*, FActorPath> ActorPaths;
 };

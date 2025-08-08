@@ -29,6 +29,7 @@ void ArogueyPlayerController::BeginPlay()
 	Super::BeginPlay();
 	RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
 	RogueyGameMode->GridManager->AddActorToGrid(GetCharacter(),GridUtils::WorldToGrid(GetCharacter()->GetActorLocation()));
+	RogueyGameMode->GridManager->MoveActorInGrid(GetCharacter(),GridUtils::WorldToGrid(GetCharacter()->GetActorLocation()));
 }
 
 void ArogueyPlayerController::SetupInputComponent()

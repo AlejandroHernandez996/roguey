@@ -24,6 +24,7 @@ void ArogueyGameMode::BeginPlay()
 	MovementManager->GridManager = GridManager;
 	GridManager->Init();
 	Engine->Init({InputManager, MovementManager, GridManager});
+
 }
 
 void ArogueyGameMode::Tick(float DeltaTime)

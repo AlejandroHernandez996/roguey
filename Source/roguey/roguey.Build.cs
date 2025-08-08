@@ -22,7 +22,7 @@ public class roguey : ModuleRules
 			"UMG"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[] {});
 
 		PublicIncludePaths.AddRange(new string[] {
 			"roguey",

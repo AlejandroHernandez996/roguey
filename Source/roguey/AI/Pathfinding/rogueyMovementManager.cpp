@@ -1,10 +1,13 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "rogueyMovementManager.h"
+
+#include "ActorPath.h"
 #include "rogueyPathfinder.h"
 
 #include "Path.h"
 #include "Grid/rogueyGridManager.h"
+#include "Grid/Util/GridUtils.h"
 
 void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 {
@@ -25,6 +28,10 @@ void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 				ActivePaths.Remove(ProcessMovement.Actor);
 			}
 			ActivePaths.Add(ProcessMovement.Actor, NewPath);
+			
+			FActorPath ActorPath;
+			ActorPath.MovementPath = NewPath.MovementPath;
+			ActorPaths.Add(ProcessMovement.Actor, ActorPath);
 
 			FString PathString = FString::Printf(TEXT("Actor %p Path: "), ProcessMovement.Actor);
 
@@ -43,7 +50,6 @@ void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 	{
 		AActor* PathActor = ActorAndPath.Key;
 		FPath& Path = ActivePaths[ActorAndPath.Key];
-
 		FGridEvent GridEvent = FGridEvent(TickIndex, Path.GetMovementLocation(), PathActor, EGridEventType::MOVE);
 		GridManager->EnqueueGridEvent(GridEvent);
 		UE_LOG(LogTemp, Log, TEXT("GridEvent Enqueued -- Tick: %u, EventType: %s, Actor: %s, Location: (%d, %d)"),
@@ -74,4 +80,9 @@ void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 			  Movement.Actor ? *Movement.Actor->GetName() : TEXT("None")
 		  );
 	MovementQueue.Enqueue(Movement);
+}
+
+void UrogueyMovementManager::Tick(float DeltaTime)
+{
+	
 }

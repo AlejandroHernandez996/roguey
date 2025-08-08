@@ -13,7 +13,6 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
 
     if (Start == Destination)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Start and Destination are the same."));
         return Path;
     }
 
@@ -35,19 +34,15 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
     Open.Enqueue(Start);
     Visited.Add(Start);
 
-    UE_LOG(LogTemp, Log, TEXT("Starting pathfinding from (%d, %d) to (%d, %d)"), Start.X, Start.Y, Destination.X, Destination.Y);
-
     bool PathFound = false;
     while (!Open.IsEmpty())
     {
         FIntVector2 Current;
         Open.Dequeue(Current);
-        UE_LOG(LogTemp, Log, TEXT("Visiting node (%d, %d)"), Current.X, Current.Y);
 
         if (Current == Destination)
         {
             PathFound = true;
-            UE_LOG(LogTemp, Log, TEXT("Destination reached at (%d, %d)"), Current.X, Current.Y);
             break;
         }
 
@@ -62,14 +57,12 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
             Open.Enqueue(Neighbor);
             Visited.Add(Neighbor);
             CameFrom.Add(Neighbor, Current);
-            UE_LOG(LogTemp, Log, TEXT("Adding neighbor (%d, %d) to open list"), Neighbor.X, Neighbor.Y);
         }
     }
 
     if (!PathFound)
     {
         Path.PathIndex = -1;
-        UE_LOG(LogTemp, Warning, TEXT("No path found to destination."));
         return Path; // No path
     }
 
@@ -80,13 +73,12 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
     {
         ReversePath.Add(Step);
         Step = CameFrom[Step];
-        UE_LOG(LogTemp, Log, TEXT("Backtracking step (%d, %d)"), Step.X, Step.Y);
     }
     ReversePath.Add(Start);
     Algo::Reverse(ReversePath);
 
     Path.MovementPath = ReversePath;
-    Path.PathIndex = 0;
+    Path.PathIndex = 1;
 
     // Log the entire path
     FString PathString = "Path: ";
