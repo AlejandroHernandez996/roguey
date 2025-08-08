@@ -12,15 +12,17 @@ struct FGridEvent
 	UPROPERTY()
 	ArogueyActor* Actor;
 	UPROPERTY()
-	FVector2d Location;
+	FIntVector2 Location;
 	UPROPERTY()
 	uint32 Tick;
 	UPROPERTY()
 	EGridEventType EventType = EGridEventType::NONE;
 
-	FGridEvent() {}
+	FGridEvent(): Actor(nullptr), Location(), Tick(0)
+	{
+	}
 
-	FGridEvent(uint32 InTick,const FVector2d& InLocation, ArogueyActor* InInputActor, EGridEventType InEventType)
+	FGridEvent(uint32 InTick,const FIntVector2& InLocation, ArogueyActor* InInputActor, EGridEventType InEventType)
 		: Tick(InTick)
 		, Location(InLocation)
 		, Actor(InInputActor)

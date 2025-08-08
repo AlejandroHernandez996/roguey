@@ -17,14 +17,14 @@ struct FInput
 	UPROPERTY()
 	EInputType InputType = EInputType::NONE;
 
-	FVector2d InputWorldLocation = FVector2d::ZeroVector;
+	FVector InputWorldLocation = FVector::ZeroVector;
 
 	UPROPERTY()
 	ArogueyActor* InputActor = nullptr;
 
 	FInput() {}
 
-	FInput(uint32 InInputTick, EInputType InInputType, const FVector2d& InInputWorldLocation, ArogueyActor* InInputActor)
+	FInput(uint32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, ArogueyActor* InInputActor)
 		: InputTick(InInputTick)
 		, InputType(InInputType)
 		, InputWorldLocation(InInputWorldLocation)

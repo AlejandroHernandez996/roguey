@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Movement.h"
+#include "Path.h"
 #include "Core/Engine/Tickable.h"
 #include "UObject/Object.h"
 #include "rogueyMovementManager.generated.h"

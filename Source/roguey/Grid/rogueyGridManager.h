@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Grid.h"
 #include "GridEvent.h"
-#include "Chaos/PBDSuspensionConstraintData.h"
 #include "Core/Engine/Tickable.h"
 #include "UObject/Object.h"
 #include "rogueyGridManager.generated.h"
@@ -20,10 +19,10 @@ class ROGUEY_API UrogueyGridManager : public UObject, public ITickable
 
 public:
 	virtual void RogueyTick(uint32 TickIndex) override;
-
 	UPROPERTY()
 	FGrid Grid;
-	TMap<ArogueyActor*, FIntVector2>* ActorMapLocation;
+	UPROPERTY()
+	TMap<ArogueyActor*, FIntVector2> ActorMapLocation;
 
 	UFUNCTION()
 	void AddActorToGrid(ArogueyActor* Actor, FIntVector2 Location);
@@ -32,9 +31,13 @@ public:
 	void RemoveActorFromGrid(ArogueyActor* Actor);
 
 	UFUNCTION()
-	void MoveActor(ArogueyActor* Actor, FIntVector2 Destination);
+	void MoveActorInGrid(ArogueyActor* Actor, FIntVector2 Destination);
 
 	TQueue<FGridEvent> GridQueue;
+
+	UFUNCTION()
+	void EnqueueGridEvent(const FGridEvent& GridEvent);
+
 
 private:
 	 FIntVector2 GridSize = {64, 64};

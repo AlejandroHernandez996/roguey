@@ -5,7 +5,7 @@
 class ROGUEY_API GridUtils
 {
 public:
-	static FIntPoint WorldToGrid(const FVector2d& WorldPosition);
-	static FVector GridToWorld(const FIntPoint& GridPosition);
+	static FIntPoint WorldToGrid(const FVector& WorldPosition);
+	static FVector GridToWorld(const FIntVector2& GridPosition);
 	static constexpr uint32 TileSize = 10;
 };

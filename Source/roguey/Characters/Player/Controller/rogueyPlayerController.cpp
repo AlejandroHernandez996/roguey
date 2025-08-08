@@ -58,7 +58,7 @@ void ArogueyPlayerController::OnInputTriggered()
 	FHitResult Hit;
 	if (GetHitResultUnderCursor(ECC_Visibility, true, Hit) && RogueyGameMode)
 	{
-		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, FVector2d(Hit.Location.X, Hit.Location.Y), Cast<ArogueyActor>(GetCharacter()));
+		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, Cast<ArogueyActor>(GetCharacter()));
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
 }

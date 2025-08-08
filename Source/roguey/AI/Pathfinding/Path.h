@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "Grid/Tile.h"
 #include "Path.generated.h"
 
 USTRUCT(BlueprintType)
@@ -10,12 +9,21 @@ struct FPath
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TArray<FTile> TilePath;
+	TArray<FIntVector2> MovementPath;
 	UPROPERTY()
 	uint32 PathIndex = -1;
 
 	bool IsPathComplete() const
 	{
-		return TilePath.IsEmpty() || PathIndex == -1 || TilePath.Num()-1 == PathIndex;
+		return MovementPath.IsEmpty() || PathIndex == -1 || MovementPath.Num()-1 == PathIndex;
+	}
+
+	FIntVector2 GetMovementLocation()
+	{
+		if (!IsPathComplete())
+		{
+			return MovementPath[PathIndex];
+		}
+		return FIntVector2::NoneValue;
 	}
 };

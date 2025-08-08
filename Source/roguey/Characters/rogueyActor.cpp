@@ -3,22 +3,22 @@
 
 #include "rogueyActor.h"
 
+#include "rogueyGameMode.h"
+#include "AI/Pathfinding/rogueyMovementManager.h"
+#include "Grid/Util/GridUtils.h"
 
-// Sets default values
+
 ArogueyActor::ArogueyActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void ArogueyActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->MovementManager->GridManager->AddActorToGrid(this, GridUtils::WorldToGrid(GetTransform().GetLocation()));
 }
 
-// Called every frame
 void ArogueyActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

@@ -1,9 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+#include "rogueyGameMode.h"
+
 #include "Core/Engine/rogueyEngine.h"
 #include "AI/Pathfinding/rogueyMovementManager.h"
 #include "Input/rogueyInputManager.h"
-#include "rogueyGameMode.h"
 
 ArogueyGameMode::ArogueyGameMode()
 {
