@@ -13,10 +13,6 @@ class UInputAction;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-/**
- *  Player controller for a top-down perspective game.
- *  Implements point and click based controls
- */
 UCLASS(abstract)
 class ArogueyPlayerController : public APlayerController
 {
@@ -24,57 +20,36 @@ class ArogueyPlayerController : public APlayerController
 
 protected:
 
-	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
 
-	/** FX Class that we will spawn when clicking */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UNiagaraSystem* FXCursor;
 
-	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 	
-	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationTouchAction;
-
-	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
-	/** Set to true if we're using touch input */
-	uint32 bIsTouch : 1;
-
-	/** Saved location of the character movement destination */
-	FVector CachedDestination;
-
-	/** Time that the click input has been pressed */
-	float FollowTime = 0.0f;
+	UPROPERTY()
+	class ArogueyGameMode* RogueyGameMode;
 
 public:
 
-	/** Constructor */
 	ArogueyPlayerController();
 
 protected:
 
-	/** Initialize input bindings */
 	virtual void SetupInputComponent() override;
 	
-	/** Gameplay initialization */
 	virtual void BeginPlay();
 
-	/** Input handlers */
 	void OnInputStarted();
-	void OnSetDestinationTriggered();
-	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
+	void OnInputTriggered();
+	void OnInputReleased();
 
 };
 

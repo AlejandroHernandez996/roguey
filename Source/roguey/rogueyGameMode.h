@@ -4,22 +4,37 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "Core/Engine/rogueyEngine.h"
 #include "rogueyGameMode.generated.h"
 
-/**
- *  Simple Game Mode for a top-down perspective game
- *  Sets the default gameplay framework classes
- *  Check the Blueprint derived class for the set values
- */
 UCLASS(abstract)
 class ArogueyGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-
-	/** Constructor */
 	ArogueyGameMode();
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY()
+	class UrogueyEngine* Engine;
+	UPROPERTY()
+	class UrogueyMovementManager* MovementManager;
+	UPROPERTY()
+	class UrogueyGridManager* GridManager;
+	UPROPERTY()
+	class UrogueyInputManager* InputManager;
+
+	UFUNCTION()
+	uint32 GetCurrentTick() const
+	{
+		if (Engine)
+		{
+			return Engine->GetCurrentTick();
+		}
+		return -1;
+	}
 };
 
 
