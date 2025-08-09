@@ -58,6 +58,7 @@ void ArogueyPlayerController::OnInputStarted()
 	{
 		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, GetCharacter());
 		RogueyGameMode->InputManager->EnqueueInput(Input);
+		OnClickEvent.Broadcast();
 	}
 }
 

@@ -63,10 +63,9 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
     if (!PathFound)
     {
         Path.PathIndex = -1;
-        return Path; // No path
+        return Path;
     }
 
-    // Backtrack from destination to start to build path
     TArray<FIntVector2> ReversePath;
     FIntVector2 Step = Destination;
     while (Step != Start)
@@ -78,7 +77,7 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
     Algo::Reverse(ReversePath);
 
     Path.MovementPath = ReversePath;
-    Path.PathIndex = 1;
+    Path.PathIndex = 0;
 
     // Log the entire path
     FString PathString = "Path: ";

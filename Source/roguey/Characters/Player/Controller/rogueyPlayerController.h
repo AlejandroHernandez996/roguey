@@ -11,6 +11,8 @@ class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FClickEvent);
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(abstract)
@@ -36,6 +38,9 @@ protected:
 
 	UPROPERTY()
 	class ArogueyGameMode* RogueyGameMode;
+
+	UPROPERTY(BlueprintAssignable, Category = "PlayerInput")
+	FClickEvent OnClickEvent;
 
 public:
 

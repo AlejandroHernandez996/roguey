@@ -9,6 +9,7 @@ void UrogueyEngine::Process(float DeltaTime)
 	{
 		TickAccumulator = 0.0f;
 		GameTickCounter += 1;
+		OnTickCount.Broadcast(GameTickCounter);
 		RogueyTick(GameTickCounter);
 	}
 }

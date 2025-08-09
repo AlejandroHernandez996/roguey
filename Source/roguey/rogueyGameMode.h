@@ -17,7 +17,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	class UrogueyEngine* Engine;
 	UPROPERTY()
 	class UrogueyMovementManager* MovementManager;

@@ -15,15 +15,23 @@ struct FPath
 
 	bool IsPathComplete() const
 	{
-		return MovementPath.IsEmpty() || PathIndex == -1 || PathIndex == MovementPath.Num();
+		return MovementPath.IsEmpty() || PathIndex == -1 || PathIndex >= MovementPath.Num()-1;
 	}
 
-	FIntVector2 GetMovementLocation()
+	FIntVector2 GetAndIncrementPath(bool bIsRunning)
 	{
-		if (!IsPathComplete())
+		if (IsPathComplete())
 		{
+			return FIntVector2::NoneValue;
+		}
+
+		if (!bIsRunning || PathIndex == MovementPath.Num() - 2)
+		{
+			PathIndex++;
 			return MovementPath[PathIndex];
 		}
-		return FIntVector2::NoneValue;
+
+		PathIndex += 2;
+		return MovementPath[PathIndex];
 	}
 };

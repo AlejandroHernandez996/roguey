@@ -9,9 +9,8 @@
 #include "UObject/Object.h"
 #include "rogueyEngine.generated.h"
 
-/**
- * 
- */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTickCount, const int32&, TickerCounter);
+
 UCLASS()
 class ROGUEY_API UrogueyEngine : public UObject, public IProcessable, public ITickable
 {
@@ -41,6 +40,8 @@ class ROGUEY_API UrogueyEngine : public UObject, public IProcessable, public ITi
 	TArray<TScriptInterface<ITickable>> Managers;
 	UPROPERTY()
 	UrogueyGridManager* GridManager;
-	
+
+	UPROPERTY(BlueprintAssignable, Category = "Tick")
+	FTickCount OnTickCount;
 
 };

@@ -11,5 +11,14 @@ struct FActorPath
 	UPROPERTY()
 	TArray<FIntVector2> MovementPath;
 	UPROPERTY()
-	uint32 PathIndex = 0;
+	int32 PathIndex = 0;
+
+	FIntVector2 GetCurrentPath()
+	{
+		if (PathIndex < MovementPath.Num())
+		{
+			return MovementPath[PathIndex];
+		}
+		return FIntVector2::ZeroValue;
+	}
 };

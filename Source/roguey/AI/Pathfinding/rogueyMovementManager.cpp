@@ -50,8 +50,15 @@ void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 	{
 		AActor* PathActor = ActorAndPath.Key;
 		FPath& Path = ActivePaths[ActorAndPath.Key];
-		FGridEvent GridEvent = FGridEvent(TickIndex, Path.GetMovementLocation(), PathActor, EGridEventType::MOVE);
+		FIntVector2 NextPoint = Path.GetAndIncrementPath(true);
+		FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor, EGridEventType::MOVE);
 		GridManager->EnqueueGridEvent(GridEvent);
+		if (!ActorPaths.Contains(PathActor))
+		{
+			ActorPaths.Add(PathActor, FActorPath());
+		}
+		FActorPath& ActorPath = ActorPaths[PathActor];
+		ActorPath.MovementPath.Add(NextPoint);
 		UE_LOG(LogTemp, Log, TEXT("GridEvent Enqueued -- Tick: %u, EventType: %s, Actor: %s, Location: (%d, %d)"),
 			GridEvent.Tick,
 			*UEnum::GetValueAsString(GridEvent.EventType),
@@ -59,7 +66,6 @@ void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 			GridEvent.Location.X,
 			GridEvent.Location.Y
 		);
-		Path.PathIndex += 1;
 		if (Path.IsPathComplete())
 		{
 			FinishedAPathActors.Add(PathActor);
@@ -73,7 +79,15 @@ void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
 
 void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 {
-
+	if (Movement.Actor == nullptr || GridManager->Grid.ActorMapLocation[Movement.Actor] == Movement.Destination)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Movement Binned (Same Location) - Tick: %u,Destination: %s, Actor: %s"),
+			  Movement.Tick,
+			  *Movement.Destination.ToString(),
+			  Movement.Actor ? *Movement.Actor->GetName() : TEXT("None")
+		  );
+		return;
+	}
 	UE_LOG(LogTemp, Log, TEXT("Movement Enqueued - Tick: %u,Destination: %s, Actor: %s"),
 			  Movement.Tick,
 			  *Movement.Destination.ToString(),
@@ -84,5 +98,43 @@ void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 
 void UrogueyMovementManager::Tick(float DeltaTime)
 {
-	
+	/*TArray<AActor*> FinishedActors;
+
+	for (auto& ActorAndPath : ActorPaths)
+	{
+		AActor* PathActor = ActorAndPath.Key;
+		FActorPath& ActorPath = ActorAndPath.Value;
+		UE_LOG(LogTemp, Log, TEXT("Current Path Index: %d"), ActorPath.PathIndex);
+		if (ActorPath.PathIndex >= ActorPath.MovementPath.Num()-1)
+		{
+			FinishedActors.Add(PathActor);
+			continue;
+		}
+		FVector TargetWorldLocation = GridUtils::GridToWorld(ActorPath.GetCurrentPath());
+		FVector CurrentLocation = PathActor->GetActorLocation();
+		TargetWorldLocation.Z = CurrentLocation.Z;
+
+		if (FVector::Dist(TargetWorldLocation, CurrentLocation) < KINDA_SMALL_NUMBER)
+		{
+			ActorPath.PathIndex++;
+			continue;
+		}
+		FVector Direction = (TargetWorldLocation - CurrentLocation).GetSafeNormal();
+		FVector MovementStep = Direction * 200.0f/.6f * DeltaTime;
+
+		if (FVector::Dist(CurrentLocation, TargetWorldLocation) <= MovementStep.Size())
+		{
+			PathActor->SetActorLocation(TargetWorldLocation);
+		}
+		else
+		{
+			PathActor->SetActorLocation(CurrentLocation + MovementStep);
+		}
+	}
+
+	for (auto& FinishedActor : FinishedActors)
+	{
+			ActorPaths.Remove(FinishedActor);
+	}
+	*/
 }

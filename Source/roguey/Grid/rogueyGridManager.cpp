@@ -2,6 +2,8 @@
 
 #include "rogueyGridManager.h"
 
+#include "Characters/Player/rogueyCharacter.h"
+#include "DrawDebugHelpers.h"
 #include "Util/GridUtils.h"
 
 void UrogueyGridManager::RogueyTick(uint32 TickIndex)
@@ -64,11 +66,21 @@ void UrogueyGridManager::RemoveActorFromGrid(AActor* Actor)
 
 void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
 {
+	UE_LOG(LogTemp, Log, TEXT("Moving Actor in Grid"));
+	FIntVector2 Start = Grid.ActorMapLocation[Actor];
+	float Distance = FMath::Abs(FVector2d::Distance(FVector2d(Destination.X, Destination.Y), FVector2d(Start.X, Start.Y)));
+	float SpeedMultiplier = Distance >=1.8f ? 2.0f : 1.0f;
+	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,Distance);
+	if (ArogueyCharacter* RougeyChar = Cast<ArogueyCharacter>(Actor))
+	{
+		RougeyChar->DrawTrueTile(Destination, 0.6f);
+		UE_LOG(LogTemp, Log, TEXT("Enqueeung destination"));
+		RougeyChar->TrueTileQueue.Enqueue({Destination, SpeedMultiplier});
+		RougeyChar->QueueSize++;
+	}
 	RemoveActorFromGrid(Actor);
 	AddActorToGrid(Actor, Destination);
-	FVector WorldLocation = GridUtils::GridToWorld(Destination);
-	WorldLocation.Z = Actor->GetActorLocation().Z;
-	Actor->SetActorLocation(WorldLocation);
+	
 }
 
 void UrogueyGridManager::EnqueueGridEvent(const FGridEvent& GridEvent)
