@@ -27,12 +27,11 @@ void ArogueyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
-	RogueyGameMode->GridManager->AddActorToGrid(GetCharacter(),GridUtils::WorldToGrid(GetCharacter()->GetActorLocation()));
-	RogueyGameMode->GridManager->MoveActorInGrid(GetCharacter(),GridUtils::WorldToGrid(GetCharacter()->GetActorLocation()));
-	if (GetCharacter())
+	RogueyGameMode->GridManager->AddActorToGrid(GetPawn(),GridUtils::WorldToGrid(GetPawn()->GetActorLocation()));
+	if (GetPawn())
 	{
-		CameraBoom = GetCharacter()->FindComponentByClass<USpringArmComponent>();
-		FollowCamera = GetCharacter()->FindComponentByClass<UCameraComponent>();
+		CameraBoom = GetPawn()->FindComponentByClass<USpringArmComponent>();
+		FollowCamera = GetPawn()->FindComponentByClass<UCameraComponent>();
 	}
 }
 
@@ -65,7 +64,7 @@ void ArogueyPlayerController::OnInputStarted()
 	FHitResult Hit;
 	if (GetHitResultUnderCursor(ECC_Visibility, true, Hit) && RogueyGameMode)
 	{
-		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, GetCharacter());
+		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, GetPawn());
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 		OnClickEvent.Broadcast();
 	}
@@ -83,10 +82,10 @@ void ArogueyPlayerController::OnInputReleased()
 
 void ArogueyPlayerController::OnZoomTriggered(const FInputActionInstance& Instance)
 {
-	float ZoomValue = -1.0f * Instance.GetValue().Get<float>();
+	float ZoomValue = Instance.GetValue().Get<float>();
 
 	CameraBoom->TargetArmLength = FMath::Clamp(
-		CameraBoom->TargetArmLength + ZoomValue * 50.0f,
+		CameraBoom->TargetArmLength + -ZoomValue * 50.0f,
 		100.0f,
 		1300.0f
 	);
@@ -104,17 +103,16 @@ void ArogueyPlayerController::OnMouseScrollReleased()
 
 void ArogueyPlayerController::OnMouseMove(const FInputActionInstance& Instance)
 {
-	float RotationSpeed = -3.0f;
+	float RotationSpeed = 3.0f;
 	float MinPitch = -80.0f;
 	float MaxPitch = -15.0f;
 	
 	if (bIsRotating && CameraBoom)
 	{
 		FVector2D MoveValue = Instance.GetValue().Get<FVector2D>();
-		UE_LOG(LogTemp, Log, TEXT("Mouse X: %f, Mouse Y: %f"), MoveValue.X, MoveValue.Y);
 		FRotator NewRotation = CameraBoom->GetComponentRotation();
 		NewRotation.Yaw += MoveValue.X * RotationSpeed;
-		NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch - MoveValue.Y * RotationSpeed, MinPitch, MaxPitch);
+		NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch - MoveValue.Y * -RotationSpeed, MinPitch, MaxPitch);
 
 		CameraBoom->SetWorldRotation(NewRotation);
 	}

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/PawnState.h"
+#include "Characters/rogueyPawn.h"
 #include "GameFramework/Character.h"
 #include "rogueyCharacter.generated.h"
 
@@ -11,7 +12,7 @@
  *  A controllable top-down perspective character
  */
 UCLASS(abstract)
-class ArogueyCharacter : public ACharacter
+class ArogueyCharacter : public ArogueyPawn
 {
 	GENERATED_BODY()
 
@@ -51,7 +52,5 @@ public:
 
 	UFUNCTION()
 	void SetPawnState(EPawnState State);
-	UFUNCTION()
-	void PlayRogueyAnimMontage(UAnimMontage* AnimMontage);
 };
 

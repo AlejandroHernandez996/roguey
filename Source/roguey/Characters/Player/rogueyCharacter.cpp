@@ -3,8 +3,6 @@
 #include "rogueyCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
@@ -12,30 +10,20 @@
 #include "Grid/Util/GridUtils.h"
 #include "DrawDebugHelpers.h"
 #include "rogueyGameMode.h"
-#include "GameFramework/Character.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
 
 ArogueyCharacter::ArogueyCharacter()
 {
-	// Set size for player capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	GetCharacterMovement()->bConstrainToPlane = true;
-	GetCharacterMovement()->bSnapToPlaneAtStart = true;
-
 	// Create the camera boom component
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 
-	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetupAttachment(Mesh);
 	CameraBoom->SetUsingAbsoluteRotation(true);
 	CameraBoom->TargetArmLength = 800.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
@@ -100,16 +88,16 @@ void ArogueyCharacter::Tick(float DeltaSeconds)
 	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
 
 	float BaseSpeed = 100.0f;
-	float ScaleFactor = 0.1f;
-	float SpeedMultiplier = 1.0f + (QueueSize - 1) * ScaleFactor;
-	float MovementSpeed = BaseSpeed * TargetTrueTile.Value / 0.6f * SpeedMultiplier;
+	float MovementSpeed = BaseSpeed * TargetTrueTile.Value / 0.6f;
+	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,TargetTrueTile.Value);
+
 
 	FVector MovementStep = Direction * MovementSpeed * DeltaSeconds;
 
 	if (FVector::Dist(CurrentLocation, TargetLocation) > 5.0f)
 	{
 		SetActorLocation(CurrentLocation + MovementStep);
-		if (TargetTrueTile.Value == 2.0f)
+		if (TargetTrueTile.Value >= 2.0f)
 		{
 			SetPawnState(EPawnState::RUNNING);
 		}else
@@ -187,14 +175,5 @@ void ArogueyCharacter::SetPawnState(EPawnState State)
 	case EPawnState::WALKING:
 		PlayAnimMontage(WalkMontage);
 		break;
-	}
-}
-
-void ArogueyCharacter::PlayRogueyAnimMontage(UAnimMontage* AnimMontage)
-{
-	if (AnimMontage)
-	{
-			UE_LOG(LogTemp, Log, TEXT("Playing Montage: %s"), *AnimMontage->GetName());
-			GetMesh()->GetAnimInstance()->Montage_Play(AnimMontage);
 	}
 }

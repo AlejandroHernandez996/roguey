@@ -73,8 +73,7 @@ void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
 	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,Distance);
 	if (ArogueyCharacter* RougeyChar = Cast<ArogueyCharacter>(Actor))
 	{
-		UE_LOG(LogTemp, Log, TEXT("Enqueeung destination"));
-		RougeyChar->TrueTileQueue.Enqueue({Destination, SpeedMultiplier});
+		RougeyChar->TrueTileQueue.Enqueue({Destination, Distance});
 		RougeyChar->QueueSize++;
 	}
 	RemoveActorFromGrid(Actor);
