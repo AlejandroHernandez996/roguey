@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputAction.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
 #include "rogueyPlayerController.generated.h"
@@ -34,7 +35,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
-	uint32 bMoveToMouseCursor : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* ZoomAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* MouseScrollClickAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* MouseMoveAction;
 
 	UPROPERTY()
 	class ArogueyGameMode* RogueyGameMode;
@@ -42,12 +50,20 @@ protected:
 	UPROPERTY(BlueprintAssignable, Category = "PlayerInput")
 	FClickEvent OnClickEvent;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Camera")
+	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Camera")
+	class UCameraComponent* FollowCamera;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Camera")
+	bool bIsRotating;
+
 public:
 
 	ArogueyPlayerController();
 
 protected:
-
 	virtual void SetupInputComponent() override;
 	
 	virtual void BeginPlay();
@@ -55,7 +71,10 @@ protected:
 	void OnInputStarted();
 	void OnInputTriggered();
 	void OnInputReleased();
-
+	void OnZoomTriggered(const FInputActionInstance& Instance);
+	void OnMouseScrollStarted();
+	void OnMouseScrollReleased();
+	void OnMouseMove(const FInputActionInstance& Instance);
 };
 
 

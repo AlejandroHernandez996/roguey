@@ -12,6 +12,9 @@
 #include "Grid/Util/GridUtils.h"
 #include "DrawDebugHelpers.h"
 #include "rogueyGameMode.h"
+#include "GameFramework/Character.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimMontage.h"
 
 ArogueyCharacter::ArogueyCharacter()
 {
@@ -52,7 +55,7 @@ ArogueyCharacter::ArogueyCharacter()
 void ArogueyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SetPawnState(EPawnState::IDLE);
 	// stub
 }
 
@@ -60,9 +63,32 @@ void ArogueyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	FVector Start = GetActorLocation();
+	FVector End = Start - FVector(0, 0, 1000.0f); // Cast downwards
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Start,
+		End,
+		ECC_Visibility, // or another appropriate collision channel
+		Params
+	);
+	if (bHit)
+	{
+		FVector NewLocation = GetActorLocation();
+		NewLocation.Z = HitResult.Location.Z + 100.0f; // Adjust for your specific height
+		SetActorLocation(NewLocation);
+	}
+	
+	DrawTrueTile(Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->Grid.ActorMapLocation[this],DeltaSeconds*2.0f);
+
 	if (TrueTileQueue.IsEmpty())
 	{
-		DrawTrueTile(Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->Grid.ActorMapLocation[this],DeltaSeconds);
+		SetPawnState(EPawnState::IDLE);
 		return;
 	}
 	TPair<FIntVector2, float> TargetTrueTile = *TrueTileQueue.Peek();
@@ -73,18 +99,23 @@ void ArogueyCharacter::Tick(float DeltaSeconds)
 
 	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
 
-	UE_LOG(LogTemp, Log, TEXT("Current Location: %s, Target Location: %s"), *CurrentLocation.ToString(), *TargetLocation.ToString());
 	float BaseSpeed = 100.0f;
 	float ScaleFactor = 0.1f;
 	float SpeedMultiplier = 1.0f + (QueueSize - 1) * ScaleFactor;
 	float MovementSpeed = BaseSpeed * TargetTrueTile.Value / 0.6f * SpeedMultiplier;
-	
 
 	FVector MovementStep = Direction * MovementSpeed * DeltaSeconds;
 
-	if (FVector::Dist(CurrentLocation, TargetLocation) > 3.0f)
+	if (FVector::Dist(CurrentLocation, TargetLocation) > 5.0f)
 	{
 		SetActorLocation(CurrentLocation + MovementStep);
+		if (TargetTrueTile.Value == 2.0f)
+		{
+			SetPawnState(EPawnState::RUNNING);
+		}else
+		{
+			SetPawnState(EPawnState::WALKING);
+		}
 		FRotator NewRotation = Direction.Rotation();
 		SetActorRotation(NewRotation);
 	}
@@ -139,4 +170,31 @@ void ArogueyCharacter::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTim
 	DrawDebugLine(GetWorld(), CornerHeights[1], CornerHeights[3], FColor::Yellow, false, DecayTime, 0, 2.0f);
 	DrawDebugLine(GetWorld(), CornerHeights[3], CornerHeights[2], FColor::Yellow, false, DecayTime, 0, 2.0f);
 	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::Yellow, false, DecayTime, 0, 2.0f);
+}
+
+void ArogueyCharacter::SetPawnState(EPawnState State)
+{
+	if (State == PawnState) return;
+	PawnState = State;
+	switch (State)
+	{
+	case EPawnState::IDLE:
+		PlayAnimMontage(IdleMontage);
+		break;
+	case EPawnState::RUNNING:
+		PlayAnimMontage(RunMontage);
+		break;
+	case EPawnState::WALKING:
+		PlayAnimMontage(WalkMontage);
+		break;
+	}
+}
+
+void ArogueyCharacter::PlayRogueyAnimMontage(UAnimMontage* AnimMontage)
+{
+	if (AnimMontage)
+	{
+			UE_LOG(LogTemp, Log, TEXT("Playing Montage: %s"), *AnimMontage->GetName());
+			GetMesh()->GetAnimInstance()->Montage_Play(AnimMontage);
+	}
 }
