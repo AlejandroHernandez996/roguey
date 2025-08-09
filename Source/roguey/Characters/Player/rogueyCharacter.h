@@ -33,24 +33,5 @@ public:
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
-	TQueue<TPair<FIntVector2,float>> TrueTileQueue;
-	int32 QueueSize = 0;
-
-	UFUNCTION()
-	void DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimMontage* WalkMontage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimMontage* RunMontage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-	UAnimMontage* IdleMontage;
-
-	UPROPERTY()
-	EPawnState PawnState = EPawnState::IDLE;
-
-	UFUNCTION()
-	void SetPawnState(EPawnState State);
 };
 

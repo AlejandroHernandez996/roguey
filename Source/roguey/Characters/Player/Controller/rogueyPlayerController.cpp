@@ -27,7 +27,6 @@ void ArogueyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
-	RogueyGameMode->GridManager->AddActorToGrid(GetPawn(),GridUtils::WorldToGrid(GetPawn()->GetActorLocation()));
 	if (GetPawn())
 	{
 		CameraBoom = GetPawn()->FindComponentByClass<USpringArmComponent>();
@@ -62,11 +61,22 @@ void ArogueyPlayerController::SetupInputComponent()
 void ArogueyPlayerController::OnInputStarted()
 {
 	FHitResult Hit;
-	if (GetHitResultUnderCursor(ECC_Visibility, true, Hit) && RogueyGameMode)
+	FHitResult PawnHit;
+	bool bHitPawn = GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
+	ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor());
+	if (HitPawn)
 	{
-		FInput Input(RogueyGameMode->GetCurrentTick(),EInputType::MOVEMENT_INPUT, Hit.Location, GetPawn());
+		if (HitPawn != Cast<ArogueyCharacter>(GetPawn()))
+		{
+			OnClickEvent.Broadcast(false);
+			return;
+		}
+	}
+	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
+	{
+		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVEMENT_INPUT, Hit.Location, GetPawn());
 		RogueyGameMode->InputManager->EnqueueInput(Input);
-		OnClickEvent.Broadcast();
+		OnClickEvent.Broadcast(true);
 	}
 }
 

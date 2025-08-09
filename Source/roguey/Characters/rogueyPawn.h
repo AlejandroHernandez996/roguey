@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PawnState.h"
 #include "GameFramework/Pawn.h"
 #include "rogueyPawn.generated.h"
 
@@ -13,6 +14,7 @@ class ROGUEY_API ArogueyPawn : public APawn
 
 public:
 	static FName MeshComponentName;
+	static FName CollisionComponentName;
 	// Sets default values for this pawn's properties
 	ArogueyPawn();
 
@@ -34,4 +36,26 @@ public:
 	/** The main skeletal mesh associated with this Character (optional sub-object). */
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
+
+	UFUNCTION()
+	void DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime);
+
+	UPROPERTY()
+	EPawnState PawnState = EPawnState::IDLE;
+
+	UFUNCTION()
+	void SetPawnState(EPawnState State);
+
+	TQueue<TPair<FIntVector2,float>> TrueTileQueue;
+	int32 QueueSize = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* WalkMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* RunMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* IdleMontage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
+	class UCapsuleComponent* CollisionComponent;
 };

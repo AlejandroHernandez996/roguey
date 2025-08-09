@@ -12,7 +12,7 @@ class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FClickEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FClickEvent, bool, bIsYellow);
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 

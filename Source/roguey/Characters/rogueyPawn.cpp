@@ -3,20 +3,32 @@
 
 #include "rogueyPawn.h"
 
+#include "PawnState.h"
+#include "rogueyGameMode.h"
+#include "Components/CapsuleComponent.h"
+#include "Grid/Util/GridUtils.h"
+
 FName ArogueyPawn::MeshComponentName(TEXT("CharacterMesh0"));
+FName ArogueyPawn::CollisionComponentName(TEXT("PawnCollision"));
 
 // Sets default values
 ArogueyPawn::ArogueyPawn()
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	USceneComponent* NewRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = NewRootComponent;
 
-	Mesh = CreateOptionalDefaultSubobject<USkeletalMeshComponent>(ArogueyPawn::MeshComponentName);
+	// Initialize the Collision Component
+	CollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(CollisionComponentName);
+	CollisionComponent->InitCapsuleSize(42.f, 96.0f);
+	CollisionComponent->SetCollisionProfileName(TEXT("Pawn"));
+	CollisionComponent->SetupAttachment(RootComponent);
+
+	// Initialize the Mesh Component
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(MeshComponentName);
+	Mesh->SetupAttachment(CollisionComponent);
 	if (Mesh)
 	{
-		Mesh->SetupAttachment(NewRootComponent); // Attach mesh to new root component
+		Mesh->SetupAttachment(CollisionComponent); // Attach mesh to new root component
 		Mesh->AlwaysLoadOnClient = true;
 		Mesh->AlwaysLoadOnServer = true;
 		Mesh->bOwnerNoSee = false;
@@ -35,13 +47,79 @@ ArogueyPawn::ArogueyPawn()
 void ArogueyPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->AddActorToGrid(this,GridUtils::WorldToGrid(this->GetActorLocation()));
+	SetPawnState(EPawnState::IDLE);
 }
 
 // Called every frame
 void ArogueyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	FVector Start = GetActorLocation();
+	FVector End = Start - FVector(0, 0, 1000.0f); // Cast downwards
+
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Start,
+		End,
+		ECC_Visibility, // or another appropriate collision channel
+		Params
+	);
+	if (bHit)
+	{
+		FVector NewLocation = GetActorLocation();
+		NewLocation.Z = HitResult.Location.Z + 100.0f; // Adjust for your specific height
+		SetActorLocation(NewLocation);
+	}
+	
+	DrawTrueTile(Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->Grid.ActorMapLocation[this],DeltaTime*2.0f);
+
+	if (TrueTileQueue.IsEmpty())
+	{
+		SetPawnState(EPawnState::IDLE);
+		return;
+	}
+	TPair<FIntVector2, float> TargetTrueTile = *TrueTileQueue.Peek();
+	FVector TargetLocation = GridUtils::GridToWorld(TargetTrueTile.Key);
+	FVector CurrentLocation = GetActorLocation();
+
+	TargetLocation.Z = CurrentLocation.Z;
+
+	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+
+	float BaseSpeed = 100.0f;
+	float MovementSpeed = BaseSpeed * TargetTrueTile.Value / 0.6f;
+	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,TargetTrueTile.Value);
+
+
+	FVector MovementStep = Direction * MovementSpeed * DeltaTime;
+
+	if (FVector::Dist(CurrentLocation, TargetLocation) > 5.0f)
+	{
+		SetActorLocation(CurrentLocation + MovementStep);
+		if (TargetTrueTile.Value >= 2.0f)
+		{
+			SetPawnState(EPawnState::RUNNING);
+		}else
+		{
+			SetPawnState(EPawnState::WALKING);
+		}
+		FRotator NewRotation = Direction.Rotation();
+		SetActorRotation(NewRotation);
+	}
+	else
+	{
+		SetActorLocation(TargetLocation);
+		if (!TrueTileQueue.IsEmpty())
+		{
+			TrueTileQueue.Pop();
+			QueueSize--;
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -70,4 +148,65 @@ float ArogueyPawn::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlay
 	}	
 
 	return 0.f;
+}
+
+void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
+{
+	FVector WorldTileCenter = GridUtils::GridToWorld(TrueTileLocation);
+
+	// Calculate corner offsets assuming each tile is 100x100
+	float HalfTileSize = 50.0f; // Half of 100
+	float ZOffset = 1.0f;       // Small offset to draw above the mesh
+
+	FVector CornerOffsets[] = {
+		FVector(HalfTileSize, HalfTileSize, 0),    // Top Right
+		FVector(-HalfTileSize, HalfTileSize, 0),   // Top Left
+		FVector(HalfTileSize, -HalfTileSize, 0),   // Bottom Right
+		FVector(-HalfTileSize, -HalfTileSize, 0)   // Bottom Left
+	};
+
+	FVector CornerHeights[4];
+
+	for (int32 i = 0; i < 4; i++)
+	{
+		FVector CornerLocation = WorldTileCenter + CornerOffsets[i];
+		FVector StartLocation = CornerLocation + FVector(0, 0, 1000);
+		FVector EndLocation = CornerLocation - FVector(0, 0, 2000); 
+
+		FHitResult HitResult;
+		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
+
+		if (bHit)
+		{
+			CornerHeights[i] = HitResult.Location + FVector(0, 0, ZOffset);
+		}
+		else
+		{
+			CornerHeights[i] = CornerLocation + FVector(0, 0, ZOffset);
+		}
+	}
+
+	DrawDebugLine(GetWorld(), CornerHeights[0], CornerHeights[1], FColor::Yellow, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[1], CornerHeights[3], FColor::Yellow, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[3], CornerHeights[2], FColor::Yellow, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::Yellow, false, DecayTime, 0, 2.0f);
+}
+
+
+void ArogueyPawn::SetPawnState(EPawnState State)
+{
+	if (State == PawnState) return;
+	PawnState = State;
+	switch (State)
+	{
+	case EPawnState::IDLE:
+		PlayAnimMontage(IdleMontage);
+		break;
+	case EPawnState::RUNNING:
+		PlayAnimMontage(RunMontage);
+		break;
+	case EPawnState::WALKING:
+		PlayAnimMontage(WalkMontage);
+		break;
+	}
 }
