@@ -34,6 +34,35 @@ void ArogueyPlayerController::BeginPlay()
 	}
 }
 
+void ArogueyPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	FHitResult Hit;
+	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
+	{
+		DrawHoveredTile(Hit.Location);
+	}
+
+	FHitResult PawnHit;
+	GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
+	ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor());
+	if (HitPawn)
+	{
+		if (HitPawn != Cast<ArogueyCharacter>(GetPawn()))
+		{
+			OnHoverEvent.Broadcast("Attack", "<Yellow>"+HitPawn->RogueyName+"</>");
+			return;
+		}
+	}
+	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
+	{
+		OnHoverEvent.Broadcast("Walk Here", "");
+	}else
+	{
+		OnHoverEvent.Broadcast("", "");
+	}
+}
+
 void ArogueyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -45,7 +74,6 @@ void ArogueyPlayerController::SetupInputComponent()
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		// Setup mouse input events
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ArogueyPlayerController::OnInputStarted);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ArogueyPlayerController::OnInputTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ArogueyPlayerController::OnInputReleased);
@@ -62,7 +90,7 @@ void ArogueyPlayerController::OnInputStarted()
 {
 	FHitResult Hit;
 	FHitResult PawnHit;
-	bool bHitPawn = GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
+	GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
 	ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor());
 	if (HitPawn)
 	{
@@ -74,7 +102,7 @@ void ArogueyPlayerController::OnInputStarted()
 	}
 	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
 	{
-		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVEMENT_INPUT, Hit.Location, GetPawn());
+		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, Hit.Location, GetPawn());
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 		OnClickEvent.Broadcast(true);
 	}
@@ -82,8 +110,6 @@ void ArogueyPlayerController::OnInputStarted()
 
 void ArogueyPlayerController::OnInputTriggered()
 {
-	
-	
 }
 
 void ArogueyPlayerController::OnInputReleased()
@@ -126,4 +152,47 @@ void ArogueyPlayerController::OnMouseMove(const FInputActionInstance& Instance)
 
 		CameraBoom->SetWorldRotation(NewRotation);
 	}
+}
+
+void ArogueyPlayerController::DrawHoveredTile(const FVector& HoveredPosition)
+{
+	FIntVector2 TileLocation = GridUtils::WorldToGrid(HoveredPosition);
+	FVector WorldTileCenter = GridUtils::GridToWorld(TileLocation);
+
+	// Calculate corner offsets assuming each tile is 100x100
+	float HalfTileSize = 50.0f; // Half of 100
+	float ZOffset = 1.0f;       // Small offset to draw above the mesh
+
+	FVector CornerOffsets[] = {
+		FVector(HalfTileSize, HalfTileSize, 0),    // Top Right
+		FVector(-HalfTileSize, HalfTileSize, 0),   // Top Left
+		FVector(HalfTileSize, -HalfTileSize, 0),   // Bottom Right
+		FVector(-HalfTileSize, -HalfTileSize, 0)   // Bottom Left
+	};
+
+	FVector CornerHeights[4];
+
+	for (int32 i = 0; i < 4; i++)
+	{
+		FVector CornerLocation = WorldTileCenter + CornerOffsets[i];
+		FVector StartLocation = CornerLocation + FVector(0, 0, 1000);
+		FVector EndLocation = CornerLocation - FVector(0, 0, 2000); 
+
+		FHitResult HitResult;
+		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECC_Visibility);
+
+		if (bHit)
+		{
+			CornerHeights[i] = HitResult.Location + FVector(0, 0, ZOffset);
+		}
+		else
+		{
+			CornerHeights[i] = CornerLocation + FVector(0, 0, ZOffset);
+		}
+	}
+
+	DrawDebugLine(GetWorld(), CornerHeights[0], CornerHeights[1], FColor::White, false, .05f, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[1], CornerHeights[3], FColor::White, false, .05f, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[3], CornerHeights[2], FColor::White, false, .05f, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::White, false, .05f, 0, 2.0f);
 }

@@ -13,6 +13,7 @@ class UInputMappingContext;
 class UInputAction;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FClickEvent, bool, bIsYellow);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHoverEvent, const FString&, ActionName, const FString&, ObjectName);
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -50,6 +51,9 @@ protected:
 	UPROPERTY(BlueprintAssignable, Category = "PlayerInput")
 	FClickEvent OnClickEvent;
 
+	UPROPERTY(BlueprintAssignable, Category = "PlayerInput")
+	FHoverEvent OnHoverEvent;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Camera")
 	class USpringArmComponent* CameraBoom;
 
@@ -67,7 +71,8 @@ protected:
 	virtual void SetupInputComponent() override;
 	
 	virtual void BeginPlay();
-
+	virtual void Tick(float DeltaSeconds) override;
+	
 	void OnInputStarted();
 	void OnInputTriggered();
 	void OnInputReleased();
@@ -75,6 +80,7 @@ protected:
 	void OnMouseScrollStarted();
 	void OnMouseScrollReleased();
 	void OnMouseMove(const FInputActionInstance& Instance);
+	void DrawHoveredTile(const FVector& HoveredPosition);
 };
 
 

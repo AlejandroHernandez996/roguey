@@ -25,7 +25,9 @@ public:
 	class UrogueyGridManager* GridManager;
 	UPROPERTY()
 	class UrogueyInputManager* InputManager;
-
+	UPROPERTY()
+	class UrogueyCombatManager* CombatManager;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	UTexture2D* Texture;
 	

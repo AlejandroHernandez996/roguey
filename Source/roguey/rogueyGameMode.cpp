@@ -4,6 +4,7 @@
 
 #include "Core/Engine/rogueyEngine.h"
 #include "AI/Pathfinding/rogueyMovementManager.h"
+#include "Combat/rogueyCombatManager.h"
 #include "Input/rogueyInputManager.h"
 
 ArogueyGameMode::ArogueyGameMode()
@@ -19,11 +20,12 @@ void ArogueyGameMode::BeginPlay()
 	MovementManager = NewObject<UrogueyMovementManager>(this, UrogueyMovementManager::StaticClass(), "Movement Manager");
 	GridManager = NewObject<UrogueyGridManager>(this, UrogueyGridManager::StaticClass(), "Grid Manager");
 	InputManager = NewObject<UrogueyInputManager>(this, UrogueyInputManager::StaticClass(), "Input Manager");
+	CombatManager = NewObject<UrogueyCombatManager>(this, UrogueyCombatManager::StaticClass(), "Combat Manager");
 	
 	InputManager->MovementManager = MovementManager;
 	MovementManager->GridManager = GridManager;
 	GridManager->Init();
-	Engine->Init({InputManager, MovementManager, GridManager});
+	Engine->Init({InputManager, MovementManager, GridManager, CombatManager});
 
 }
 

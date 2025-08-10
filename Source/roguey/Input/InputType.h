@@ -5,10 +5,12 @@
 UENUM(BlueprintType)
 enum class EInputType : uint8
 {
-	MOVEMENT_INPUT = 0,
-	ATTACK_INPUT = 1,
-	ITEM_INPUT = 2,
-	ABILTY_INPUT = 3,
-	PRAYER_INPUT = 4,
-	NONE = 5,
+	MOVE = 0,
+	ATTACK = 1,
+	EQUIP = 2,
+	ABILITY = 3,
+	EXAMINE = 4,
+	PRIMARY_MOD = 5,
+	SECONDARY_MOD = 6,
+	NONE = 7,
 };

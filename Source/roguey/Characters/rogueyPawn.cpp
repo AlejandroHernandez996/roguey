@@ -11,24 +11,20 @@
 FName ArogueyPawn::MeshComponentName(TEXT("CharacterMesh0"));
 FName ArogueyPawn::CollisionComponentName(TEXT("PawnCollision"));
 
-// Sets default values
 ArogueyPawn::ArogueyPawn()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Initialize the Collision Component
 	CollisionComponent = CreateDefaultSubobject<UCapsuleComponent>(CollisionComponentName);
 	CollisionComponent->InitCapsuleSize(42.f, 96.0f);
 	CollisionComponent->SetCollisionProfileName(TEXT("Pawn"));
 	CollisionComponent->SetupAttachment(RootComponent);
 
-	// Initialize the Mesh Component
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(MeshComponentName);
 	Mesh->SetupAttachment(CollisionComponent);
 	if (Mesh)
 	{
-		Mesh->SetupAttachment(CollisionComponent); // Attach mesh to new root component
+		Mesh->SetupAttachment(CollisionComponent); 
 		Mesh->AlwaysLoadOnClient = true;
 		Mesh->AlwaysLoadOnServer = true;
 		Mesh->bOwnerNoSee = false;
@@ -43,7 +39,6 @@ ArogueyPawn::ArogueyPawn()
 	}
 }
 
-// Called when the game starts or when spawned
 void ArogueyPawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -51,12 +46,11 @@ void ArogueyPawn::BeginPlay()
 	SetPawnState(EPawnState::IDLE);
 }
 
-// Called every frame
 void ArogueyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	FVector Start = GetActorLocation();
-	FVector End = Start - FVector(0, 0, 1000.0f); // Cast downwards
+	FVector End = Start - FVector(0, 0, 1000.0f);
 
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
@@ -66,13 +60,13 @@ void ArogueyPawn::Tick(float DeltaTime)
 		HitResult,
 		Start,
 		End,
-		ECC_Visibility, // or another appropriate collision channel
+		ECC_Visibility,
 		Params
 	);
 	if (bHit)
 	{
 		FVector NewLocation = GetActorLocation();
-		NewLocation.Z = HitResult.Location.Z + 100.0f; // Adjust for your specific height
+		NewLocation.Z = HitResult.Location.Z + 100.0f;
 		SetActorLocation(NewLocation);
 	}
 	
@@ -91,23 +85,16 @@ void ArogueyPawn::Tick(float DeltaTime)
 
 	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
 
-	float BaseSpeed = 100.0f;
 	float MovementSpeed = BaseSpeed * TargetTrueTile.Value / 0.6f;
 	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,TargetTrueTile.Value);
-
 
 	FVector MovementStep = Direction * MovementSpeed * DeltaTime;
 
 	if (FVector::Dist(CurrentLocation, TargetLocation) > 5.0f)
 	{
 		SetActorLocation(CurrentLocation + MovementStep);
-		if (TargetTrueTile.Value >= 2.0f)
-		{
-			SetPawnState(EPawnState::RUNNING);
-		}else
-		{
-			SetPawnState(EPawnState::WALKING);
-		}
+		bIsWalking = TargetTrueTile.Value < 2.0f;
+		SetPawnState(EPawnState::MOVING);
 		FRotator NewRotation = Direction.Rotation();
 		SetActorRotation(NewRotation);
 	}
@@ -122,7 +109,6 @@ void ArogueyPawn::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
 void ArogueyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -137,7 +123,6 @@ float ArogueyPawn::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlay
 
 		if (Duration > 0.f)
 		{
-			// Start at a given Section.
 			if( StartSectionName != NAME_None )
 			{
 				AnimInstance->Montage_JumpToSection(StartSectionName, AnimMontage);
@@ -154,9 +139,8 @@ void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
 {
 	FVector WorldTileCenter = GridUtils::GridToWorld(TrueTileLocation);
 
-	// Calculate corner offsets assuming each tile is 100x100
-	float HalfTileSize = 50.0f; // Half of 100
-	float ZOffset = 1.0f;       // Small offset to draw above the mesh
+	float HalfTileSize = 50.0f; 
+	float ZOffset = 1.0f;      
 
 	FVector CornerOffsets[] = {
 		FVector(HalfTileSize, HalfTileSize, 0),    // Top Right
@@ -192,7 +176,6 @@ void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
 	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::Yellow, false, DecayTime, 0, 2.0f);
 }
 
-
 void ArogueyPawn::SetPawnState(EPawnState State)
 {
 	if (State == PawnState) return;
@@ -202,11 +185,19 @@ void ArogueyPawn::SetPawnState(EPawnState State)
 	case EPawnState::IDLE:
 		PlayAnimMontage(IdleMontage);
 		break;
-	case EPawnState::RUNNING:
-		PlayAnimMontage(RunMontage);
+	case EPawnState::MOVING:
+	case EPawnState::FOLLOWING:
+	case EPawnState::ATTACK_MOVING:
+		if (bIsWalking)
+		{
+			PlayAnimMontage(WalkMontage);
+		}else
+		{
+			PlayAnimMontage(RunMontage);
+		}
 		break;
-	case EPawnState::WALKING:
-		PlayAnimMontage(WalkMontage);
+	case EPawnState::ATTACKING:
+		PlayAnimMontage(DefaultAttack);
 		break;
 	}
 }

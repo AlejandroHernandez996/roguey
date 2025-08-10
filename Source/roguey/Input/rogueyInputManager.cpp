@@ -22,16 +22,14 @@ void UrogueyInputManager::RogueyTick(uint32 TickIndex)
 		  );
 		switch (ProcessInput.InputType)
 		{
-		case EInputType::MOVEMENT_INPUT:
+		case EInputType::MOVE:
 			MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor,GridUtils::WorldToGrid(ProcessInput.InputWorldLocation),ProcessInput.InputTick));
 			break;
-		case EInputType::ATTACK_INPUT:
+		case EInputType::ATTACK:
 			break;
-		case EInputType::ITEM_INPUT:
+		case EInputType::EQUIP:
 			break;
-		case EInputType::ABILTY_INPUT:
-			break;
-		case EInputType::PRAYER_INPUT:
+		case EInputType::ABILITY:
 			break;
 		case EInputType::NONE:
 			break;

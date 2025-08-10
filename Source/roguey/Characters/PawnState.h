@@ -6,6 +6,8 @@ UENUM(BlueprintType)
 enum class EPawnState : uint8
 {
 	IDLE = 0,
-	RUNNING = 1,
-	WALKING = 2,
+	MOVING = 1,
+	FOLLOWING = 2,
+	ATTACK_MOVING = 3,
+	ATTACKING = 4,
 };

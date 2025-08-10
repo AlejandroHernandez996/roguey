@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PawnState.h"
 #include "GameFramework/Pawn.h"
+#include "Stats/rogueyStatPage.h"
 #include "rogueyPawn.generated.h"
 
 UCLASS()
@@ -19,30 +20,36 @@ public:
 	ArogueyPawn();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
-	/** Play Animation Montage on the character mesh. Returns the length of the animation montage in seconds, or 0.f if failed to play. **/
 	UFUNCTION(BlueprintCallable, Category=Animation)
 	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 
-	/** The main skeletal mesh associated with this Character (optional sub-object). */
 	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float BaseSpeed = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	FrogueyStatPage StatPage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	int32 CurrentAttackCooldownInTicks = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+	int32 DefaultAttackCooldown = 3;
 
 	UFUNCTION()
 	void DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime);
 
 	UPROPERTY()
 	EPawnState PawnState = EPawnState::IDLE;
-
+	UPROPERTY()
+	bool bIsWalking;
+	
 	UFUNCTION()
 	void SetPawnState(EPawnState State);
 
@@ -55,7 +62,12 @@ public:
 	UAnimMontage* RunMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimMontage* IdleMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* DefaultAttack;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
 	class UCapsuleComponent* CollisionComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information")
+	FString RogueyName = "NA";
 };

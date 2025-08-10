@@ -98,43 +98,5 @@ void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 
 void UrogueyMovementManager::Tick(float DeltaTime)
 {
-	/*TArray<AActor*> FinishedActors;
-
-	for (auto& ActorAndPath : ActorPaths)
-	{
-		AActor* PathActor = ActorAndPath.Key;
-		FActorPath& ActorPath = ActorAndPath.Value;
-		UE_LOG(LogTemp, Log, TEXT("Current Path Index: %d"), ActorPath.PathIndex);
-		if (ActorPath.PathIndex >= ActorPath.MovementPath.Num()-1)
-		{
-			FinishedActors.Add(PathActor);
-			continue;
-		}
-		FVector TargetWorldLocation = GridUtils::GridToWorld(ActorPath.GetCurrentPath());
-		FVector CurrentLocation = PathActor->GetActorLocation();
-		TargetWorldLocation.Z = CurrentLocation.Z;
-
-		if (FVector::Dist(TargetWorldLocation, CurrentLocation) < KINDA_SMALL_NUMBER)
-		{
-			ActorPath.PathIndex++;
-			continue;
-		}
-		FVector Direction = (TargetWorldLocation - CurrentLocation).GetSafeNormal();
-		FVector MovementStep = Direction * 200.0f/.6f * DeltaTime;
-
-		if (FVector::Dist(CurrentLocation, TargetWorldLocation) <= MovementStep.Size())
-		{
-			PathActor->SetActorLocation(TargetWorldLocation);
-		}
-		else
-		{
-			PathActor->SetActorLocation(CurrentLocation + MovementStep);
-		}
-	}
-
-	for (auto& FinishedActor : FinishedActors)
-	{
-			ActorPaths.Remove(FinishedActor);
-	}
-	*/
+	
 }
