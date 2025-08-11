@@ -8,7 +8,7 @@
 struct UItemStatPage;
 
 UCLASS(Blueprintable)
-class UrogueyItem : public UObject
+class ArogueyItem : public AActor
 {
 	GENERATED_BODY()
 public:

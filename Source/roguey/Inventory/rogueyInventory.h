@@ -3,12 +3,12 @@
 #include "CoreMinimal.h"
 #include "rogueyInventory.generated.h"
 
-class UrogueyItem;
+class ArogueyItem;
 
 USTRUCT(BlueprintType)
 struct FrogueyInventory
 {
 	GENERATED_BODY()
 	UPROPERTY()
-	TMap<int32, UrogueyItem*> Inventory;
+	TMap<int32, ArogueyItem*> Inventory;
 };
