@@ -12,6 +12,8 @@ struct FPath
 	TArray<FIntVector2> MovementPath;
 	UPROPERTY()
 	int32 PathIndex = -1;
+	UPROPERTY()
+	ArogueyPawn* TargetPawn = nullptr;
 
 	bool IsPathComplete() const
 	{

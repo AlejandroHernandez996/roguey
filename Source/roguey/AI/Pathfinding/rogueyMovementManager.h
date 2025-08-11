@@ -26,13 +26,16 @@ public:
 	UPROPERTY()
 	class UrogueyGridManager* GridManager;
 
+	UPROPERTY()
+	class UrogueyCombatManager* CombatManager;
+
 	void Tick(float DeltaTime);
 private:
 	TQueue<FMovement> MovementQueue;
 
 	UPROPERTY()
-	TMap<AActor*, FPath> ActivePaths;
+	TMap<ArogueyPawn*, FPath> ActivePaths;
 
 	UPROPERTY()
-	TMap<AActor*, FActorPath> ActorPaths;
+	TMap<ArogueyPawn*, FActorPath> ActorPaths;
 };

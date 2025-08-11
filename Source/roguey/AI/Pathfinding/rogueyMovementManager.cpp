@@ -6,6 +6,7 @@
 #include "rogueyPathfinder.h"
 
 #include "Path.h"
+#include "Combat/rogueyCombatManager.h"
 #include "Grid/rogueyGridManager.h"
 #include "Grid/Util/GridUtils.h"
 
@@ -22,7 +23,19 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 		  );
 		if (ProcessMovement.Actor != nullptr)
 		{
-			FPath NewPath = UrogueyPathfinder::FindAndGeneratePath(ProcessMovement, GridManager->Grid);
+			FPath NewPath;
+			if (ProcessMovement.TargetPawn)
+			{
+				NewPath = UrogueyPathfinder::FindAndGeneratePathToPawn(ProcessMovement, GridManager->Grid);
+				if (NewPath.IsPathComplete())
+				{
+					CombatManager->EnqueueCombatEvent(FCombatEvent(ProcessMovement.Actor,ProcessMovement.TargetPawn,TickIndex));
+					continue;
+				}
+			}else
+			{
+				NewPath = UrogueyPathfinder::FindAndGeneratePath(ProcessMovement, GridManager->Grid);
+			}
 			if (ActivePaths.Contains(ProcessMovement.Actor))
 			{
 				ActivePaths.Remove(ProcessMovement.Actor);
@@ -45,10 +58,10 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 		}
 	}
 
-	TSet<AActor*> FinishedAPathActors;
+	TSet<ArogueyPawn*> FinishedAPathActors;
 	for (auto& ActorAndPath : ActivePaths)
 	{
-		AActor* PathActor = ActorAndPath.Key;
+		ArogueyPawn* PathActor = ActorAndPath.Key;
 		FPath& Path = ActivePaths[ActorAndPath.Key];
 		FIntVector2 NextPoint = Path.GetAndIncrementPath(true);
 		FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor, EGridEventType::MOVE);
@@ -69,6 +82,10 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 		if (Path.IsPathComplete())
 		{
 			FinishedAPathActors.Add(PathActor);
+			if (Path.TargetPawn)
+			{
+				CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor,Path.TargetPawn,TickIndex));
+			}
 		}
 	}
 	for (auto& FinishedActor : FinishedAPathActors)

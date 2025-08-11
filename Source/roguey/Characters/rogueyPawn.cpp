@@ -43,6 +43,7 @@ void ArogueyPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->AddActorToGrid(this,GridUtils::WorldToGrid(this->GetActorLocation()));
+	TrueTileQueue.Enqueue({GridUtils::WorldToGrid(this->GetActorLocation()), 1.0f});
 	SetPawnState(EPawnState::IDLE, false);
 }
 
@@ -66,7 +67,7 @@ void ArogueyPawn::Tick(float DeltaTime)
 	if (bHit)
 	{
 		FVector NewLocation = GetActorLocation();
-		NewLocation.Z = HitResult.Location.Z + 100.0f;
+		NewLocation.Z = HitResult.Location.Z + CollisionComponent->GetScaledCapsuleHalfHeight();
 		SetActorLocation(NewLocation);
 	}
 	
@@ -74,7 +75,10 @@ void ArogueyPawn::Tick(float DeltaTime)
 
 	if (TrueTileQueue.IsEmpty())
 	{
-		SetPawnState(EPawnState::IDLE, false);
+		if (PawnState != EPawnState::ATTACKING)
+		{
+			SetPawnState(EPawnState::IDLE, false);
+		}
 		return;
 	}
 	TPair<FIntVector2, float> TargetTrueTile = *TrueTileQueue.Peek();
