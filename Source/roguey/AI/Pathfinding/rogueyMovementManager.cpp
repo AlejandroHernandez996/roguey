@@ -27,7 +27,7 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 			if (ProcessMovement.TargetPawn)
 			{
 				NewPath = UrogueyPathfinder::FindAndGeneratePathToPawn(ProcessMovement, GridManager->Grid);
-				if (NewPath.IsPathComplete())
+				if (NewPath.IsPathComplete() || GridManager->IsPawnInRange(ProcessMovement.Actor, ProcessMovement.TargetPawn))
 				{
 					CombatManager->EnqueueCombatEvent(FCombatEvent(ProcessMovement.Actor,ProcessMovement.TargetPawn,TickIndex));
 					continue;
@@ -79,12 +79,13 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 			GridEvent.Location.X,
 			GridEvent.Location.Y
 		);
-		if (Path.IsPathComplete())
+		if (Path.IsPathComplete() || (Path.TargetPawn && GridManager->IsPawnInRangeOfPoint(PathActor,NextPoint, Path.TargetPawn)))
 		{
 			FinishedAPathActors.Add(PathActor);
+
 			if (Path.TargetPawn)
 			{
-				CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor,Path.TargetPawn,TickIndex));
+				CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor, Path.TargetPawn, TickIndex));
 			}
 		}
 	}
@@ -116,4 +117,9 @@ void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 void UrogueyMovementManager::Tick(float DeltaTime)
 {
 	
+}
+
+void UrogueyMovementManager::RemoveActorFromActiveQueue(ArogueyPawn* Pawn)
+{
+	ActivePaths.Remove(Pawn);
 }

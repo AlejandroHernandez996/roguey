@@ -66,11 +66,8 @@ void UrogueyGridManager::RemoveActorFromGrid(AActor* Actor)
 
 void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
 {
-	UE_LOG(LogTemp, Log, TEXT("Moving Actor in Grid"));
 	FIntVector2 Start = Grid.ActorMapLocation[Actor];
 	float Distance = FMath::Abs(FVector2d::Distance(FVector2d(Destination.X, Destination.Y), FVector2d(Start.X, Start.Y)));
-	float SpeedMultiplier = Distance >=1.8f ? 2.0f : 1.0f;
-	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,Distance);
 	if (ArogueyCharacter* RougeyChar = Cast<ArogueyCharacter>(Actor))
 	{
 		RougeyChar->TrueTileQueue.Enqueue({Destination, Distance});
@@ -78,7 +75,6 @@ void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
 	}
 	RemoveActorFromGrid(Actor);
 	AddActorToGrid(Actor, Destination);
-	
 }
 
 void UrogueyGridManager::EnqueueGridEvent(const FGridEvent& GridEvent)

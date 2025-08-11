@@ -88,7 +88,7 @@ void ArogueyPawn::Tick(float DeltaTime)
 	TargetLocation.Z = CurrentLocation.Z;
 
 	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-
+	
 	float MovementSpeed = BaseSpeed * TargetTrueTile.Value / 0.6f;
 	UE_LOG(LogTemp, Log, TEXT("Distance: %f") ,TargetTrueTile.Value);
 
@@ -138,6 +138,18 @@ float ArogueyPawn::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlay
 	}	
 
 	return 0.f;
+}
+
+void ArogueyPawn::RotateAtPawn(ArogueyPawn* ToActor)
+{
+	FVector TargetLocation = ToActor->GetActorLocation();
+	FVector CurrentLocation = GetActorLocation();
+
+	TargetLocation.Z = CurrentLocation.Z;
+
+	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+	FRotator NewRotation = Direction.Rotation();
+	SetActorRotation(NewRotation);
 }
 
 void ArogueyPawn::UpdateCurrentStat(ErogueyStatType StatType, int32 DeltaValue)

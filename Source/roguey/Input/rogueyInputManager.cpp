@@ -15,6 +15,8 @@ void UrogueyInputManager::RogueyTick(int32 TickIndex)
 	{
 		FInput ProcessInput;
 		InputQueue.Dequeue(ProcessInput);
+		MovementManager->RemoveActorFromActiveQueue(ProcessInput.InputActor);
+		CombatManager->RemoveActorFromActiveQueue(ProcessInput.InputActor);
 		switch (ProcessInput.InputType)
 		{
 		case EInputType::MOVE:

@@ -30,13 +30,14 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		ArogueyPawn* FromActor = ActiveCombat.Key;
 		FCombatEvent& CombatEvent = ActiveCombat.Value;
 
-		if (!FromActor || !CombatEvent.FromActor || !GridUtils::IsAdjacent(GridManager->GetActorTrueTile(FromActor), GridManager->GetActorTrueTile(CombatEvent.ToActor)))
+		if (!FromActor || !CombatEvent.FromActor || !GridManager->IsPawnInRange(FromActor, CombatEvent.ToActor))
 		{
 			FinishedCombatActors.Add(FromActor);
 		}
 		else
 		{
 			UrogueyDamageCalculator::CalculateCombat(TickIndex, CombatEvent);
+			FromActor->RotateAtPawn(CombatEvent.ToActor);
 		}
 	}
 	for (auto& FinishedActor : FinishedCombatActors)
@@ -51,4 +52,9 @@ void UrogueyCombatManager::EnqueueCombatEvent(const FCombatEvent& CombatEvent)
 	{
 		CombatEventQueue.Enqueue(CombatEvent);
 	}
+}
+
+void UrogueyCombatManager::RemoveActorFromActiveQueue(ArogueyPawn* Pawn)
+{
+	ActiveCombats.Remove(Pawn);
 }

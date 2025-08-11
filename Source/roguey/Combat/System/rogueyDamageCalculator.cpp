@@ -10,7 +10,7 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
 	ArogueyPawn* FromPawn = CombatEvent.FromActor;
 	ArogueyPawn* ToPawn = CombatEvent.ToActor;
 
-	if (TickIndex - FromPawn->LastAttackTickIndex > FromPawn->DefaultAttackCooldown)
+	if (TickIndex - FromPawn->LastAttackTickIndex > FromPawn->StatPage.StatPage[ErogueyStatType::ATTACK_SPEED].CurrentStat)
 	{
 		ToPawn->UpdateCurrentStat(ErogueyStatType::HEALTH, -1);
 		FromPawn->SetPawnState(EPawnState::ATTACKING, true);

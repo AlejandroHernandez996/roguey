@@ -6,6 +6,8 @@
 #include "AI/Pathfinding/rogueyMovementManager.h"
 #include "Combat/rogueyCombatManager.h"
 #include "Input/rogueyInputManager.h"
+#include "Inventory/rogueyInventoryManager.h"
+#include "Items/rogueyItemCache.h"
 
 ArogueyGameMode::ArogueyGameMode()
 {
@@ -21,6 +23,9 @@ void ArogueyGameMode::BeginPlay()
 	GridManager = NewObject<UrogueyGridManager>(this, UrogueyGridManager::StaticClass(), "Grid Manager");
 	InputManager = NewObject<UrogueyInputManager>(this, UrogueyInputManager::StaticClass(), "Input Manager");
 	CombatManager = NewObject<UrogueyCombatManager>(this, UrogueyCombatManager::StaticClass(), "Combat Manager");
+	InventoryManager = NewObject<UrogueyInventoryManager>(this, UrogueyInventoryManager::StaticClass(), "Inventory Manager");
+
+	ItemCache = NewObject<UrogueyItemCache>(this, UrogueyItemCache::StaticClass(), "Item Cache");
 	
 	InputManager->MovementManager = MovementManager;
 	InputManager->CombatManager = CombatManager;
@@ -28,8 +33,9 @@ void ArogueyGameMode::BeginPlay()
 	MovementManager->CombatManager = CombatManager;
 	CombatManager->GridManager = GridManager;
 	GridManager->Init();
-	Engine->Init({InputManager, MovementManager, GridManager, CombatManager});
+	Engine->Init({InputManager, InventoryManager, MovementManager, GridManager, CombatManager});
 
+	ItemCache->LoadItems();
 }
 
 void ArogueyGameMode::Tick(float DeltaTime)

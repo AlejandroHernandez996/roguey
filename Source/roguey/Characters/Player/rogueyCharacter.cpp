@@ -13,6 +13,8 @@
 
 ArogueyCharacter::ArogueyCharacter()
 {
+	PawnId = -1;
+	
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 
 	CameraBoom->SetupAttachment(Mesh);

@@ -27,6 +27,11 @@ public:
 	class UrogueyInputManager* InputManager;
 	UPROPERTY()
 	class UrogueyCombatManager* CombatManager;
+	UPROPERTY()
+	class UrogueyInventoryManager* InventoryManager;
+
+	UPROPERTY()
+	class UrogueyItemCache* ItemCache;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")
 	UTexture2D* Texture;

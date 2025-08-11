@@ -30,6 +30,9 @@ public:
 	class UrogueyCombatManager* CombatManager;
 
 	void Tick(float DeltaTime);
+
+	UFUNCTION()
+	void RemoveActorFromActiveQueue(ArogueyPawn* Pawn);
 private:
 	TQueue<FMovement> MovementQueue;
 

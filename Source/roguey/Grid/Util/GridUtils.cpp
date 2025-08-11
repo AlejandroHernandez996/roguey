@@ -16,6 +16,11 @@ FVector GridUtils::GridToWorld(const FIntVector2& GridPosition)
 	return FVector(X, Y, .0f);
 }
 
+int32 GridUtils::GridDistance(const FIntVector2& A, const FIntVector2& B)
+{
+	return FVector2d::Distance(FVector2d(A.X, A.Y), FVector2d(B.X, B.Y));
+}
+
 bool GridUtils::IsAdjacent(const FIntVector2 FromPoint, const FIntVector2 ToPoint)
 {
 	int32 DeltaX = FMath::Abs(FromPoint.X - ToPoint.X);
