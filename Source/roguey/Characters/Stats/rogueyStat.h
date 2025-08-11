@@ -7,9 +7,9 @@ USTRUCT(BlueprintType)
 struct FrogueyStat
 {
 	GENERATED_BODY()
-private:
-	UPROPERTY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int32 CurrentStat = 0;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	int32 BaseStat = 0;
 };

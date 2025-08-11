@@ -18,7 +18,7 @@ class ROGUEY_API UrogueyGridManager : public UObject, public ITickable
 	GENERATED_BODY()
 
 public:
-	virtual void RogueyTick(uint32 TickIndex) override;
+	virtual void RogueyTick(int32 TickIndex) override;
 	UPROPERTY()
 	FGrid Grid;
 
@@ -35,6 +35,12 @@ public:
 
 	UFUNCTION()
 	void EnqueueGridEvent(const FGridEvent& GridEvent);
+
+	UFUNCTION()
+	FIntVector2 GetActorTrueTile(AActor* Actor);
+
+	UFUNCTION()
+	bool GridContainsActor(AActor* Actor);
 
 	UFUNCTION()
 	void Init();

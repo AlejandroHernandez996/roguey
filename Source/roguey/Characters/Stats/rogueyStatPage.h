@@ -10,6 +10,6 @@ struct FrogueyStatPage
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	TMap<ErogueyStatType, FrogueyStat> StatPage;
 };

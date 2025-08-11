@@ -8,6 +8,8 @@
 #include "Stats/rogueyStatPage.h"
 #include "rogueyPawn.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCombatDamageEvent, const int32&, DamageAmount, ArogueyPawn*, OwningPawn);
+
 UCLASS()
 class ROGUEY_API ArogueyPawn : public APawn
 {
@@ -16,7 +18,6 @@ class ROGUEY_API ArogueyPawn : public APawn
 public:
 	static FName MeshComponentName;
 	static FName CollisionComponentName;
-	// Sets default values for this pawn's properties
 	ArogueyPawn();
 
 protected:
@@ -36,11 +37,14 @@ public:
 	float BaseSpeed = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	FrogueyStatPage StatPage;
-	
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FCombatDamageEvent OnDamageEvent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	int32 CurrentAttackCooldownInTicks = 0;
+	int32 LastAttackTickIndex = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	int32 DefaultAttackCooldown = 3;
+	UFUNCTION()
+	void UpdateCurrentStat(ErogueyStatType StatType, int32 DeltaValue);
 
 	UFUNCTION()
 	void DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime);
@@ -51,7 +55,7 @@ public:
 	bool bIsWalking;
 	
 	UFUNCTION()
-	void SetPawnState(EPawnState State);
+	void SetPawnState(EPawnState State, bool bOverride);
 
 	TQueue<TPair<FIntVector2,float>> TrueTileQueue;
 	int32 QueueSize = 0;

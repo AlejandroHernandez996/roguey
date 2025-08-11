@@ -4,27 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "CombatEvent.h"
+#include "Characters/rogueyPawn.h"
 #include "Core/Engine/Tickable.h"
 #include "UObject/Object.h"
 #include "rogueyCombatManager.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ROGUEY_API UrogueyCombatManager : public UObject, public ITickable
 {
 	GENERATED_BODY()
 
 	public:
-	virtual void RogueyTick(uint32 TickIndex) override;
+	virtual void RogueyTick(int32 TickIndex) override;
 
 	TQueue<FCombatEvent> CombatEventQueue;
 
+	UPROPERTY()
+	TMap<ArogueyPawn*, FCombatEvent> ActiveCombats;
+
 	UFUNCTION()
-	void EnqueueCombatEvent(FCombatEvent CombatEvent);
+	void EnqueueCombatEvent(const FCombatEvent& CombatEvent);
 
 	UPROPERTY()
 	class UrogueyDamageCalculator* DamageCalculator;
-	
+
+	UPROPERTY()
+	class UrogueyGridManager* GridManager;
+
 };

@@ -43,7 +43,7 @@ void ArogueyPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->AddActorToGrid(this,GridUtils::WorldToGrid(this->GetActorLocation()));
-	SetPawnState(EPawnState::IDLE);
+	SetPawnState(EPawnState::IDLE, false);
 }
 
 void ArogueyPawn::Tick(float DeltaTime)
@@ -74,7 +74,7 @@ void ArogueyPawn::Tick(float DeltaTime)
 
 	if (TrueTileQueue.IsEmpty())
 	{
-		SetPawnState(EPawnState::IDLE);
+		SetPawnState(EPawnState::IDLE, false);
 		return;
 	}
 	TPair<FIntVector2, float> TargetTrueTile = *TrueTileQueue.Peek();
@@ -93,8 +93,9 @@ void ArogueyPawn::Tick(float DeltaTime)
 	if (FVector::Dist(CurrentLocation, TargetLocation) > 5.0f)
 	{
 		SetActorLocation(CurrentLocation + MovementStep);
+		bool bPrevIsWalking = bIsWalking;
 		bIsWalking = TargetTrueTile.Value < 2.0f;
-		SetPawnState(EPawnState::MOVING);
+		SetPawnState(EPawnState::MOVING, bPrevIsWalking != bIsWalking);
 		FRotator NewRotation = Direction.Rotation();
 		SetActorRotation(NewRotation);
 	}
@@ -133,6 +134,16 @@ float ArogueyPawn::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlay
 	}	
 
 	return 0.f;
+}
+
+void ArogueyPawn::UpdateCurrentStat(ErogueyStatType StatType, int32 DeltaValue)
+{
+	StatPage.StatPage[StatType].CurrentStat += DeltaValue;
+
+	if (StatType == ErogueyStatType::HEALTH  && DeltaValue < 0)
+	{
+		OnDamageEvent.Broadcast(FMath::Abs(DeltaValue), this);
+	}
 }
 
 void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
@@ -176,9 +187,9 @@ void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
 	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::Yellow, false, DecayTime, 0, 2.0f);
 }
 
-void ArogueyPawn::SetPawnState(EPawnState State)
+void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 {
-	if (State == PawnState) return;
+	if (State == PawnState && !bOverride) return;
 	PawnState = State;
 	switch (State)
 	{

@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/PawnState.h"
 #include "Characters/rogueyPawn.h"
-#include "GameFramework/Character.h"
 #include "rogueyCharacter.generated.h"
 
 /**

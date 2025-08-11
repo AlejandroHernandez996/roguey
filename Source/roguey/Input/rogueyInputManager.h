@@ -16,7 +16,7 @@ class ROGUEY_API UrogueyInputManager : public UObject, public ITickable
 {
 public:
 	GENERATED_BODY()
-	virtual void RogueyTick(uint32 TickIndex) override;
+	virtual void RogueyTick(int32 TickIndex) override;
 	
 	TQueue<FInput> InputQueue;
 
@@ -25,4 +25,7 @@ public:
 
 	UPROPERTY()
 	class UrogueyMovementManager* MovementManager;
+	UPROPERTY()
+	class UrogueyCombatManager* CombatManager;
+
 };

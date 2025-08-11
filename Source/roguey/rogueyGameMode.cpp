@@ -23,7 +23,9 @@ void ArogueyGameMode::BeginPlay()
 	CombatManager = NewObject<UrogueyCombatManager>(this, UrogueyCombatManager::StaticClass(), "Combat Manager");
 	
 	InputManager->MovementManager = MovementManager;
+	InputManager->CombatManager = CombatManager;
 	MovementManager->GridManager = GridManager;
+	CombatManager->GridManager = GridManager;
 	GridManager->Init();
 	Engine->Init({InputManager, MovementManager, GridManager, CombatManager});
 

@@ -14,5 +14,5 @@ class ROGUEY_API ITickable
 
 public:
 	UFUNCTION()
-	virtual void RogueyTick(uint32 TickIndex) = 0;
+	virtual void RogueyTick(int32 TickIndex) = 0;
 };

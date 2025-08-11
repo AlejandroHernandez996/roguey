@@ -32,7 +32,7 @@ public:
 	UTexture2D* Texture;
 	
 	UFUNCTION()
-	uint32 GetCurrentTick() const
+	int32 GetCurrentTick() const
 	{
 		if (Engine)
 		{

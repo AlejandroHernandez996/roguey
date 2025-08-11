@@ -14,7 +14,7 @@ void UrogueyEngine::Process(float DeltaTime)
 	}
 }
 
-void UrogueyEngine::RogueyTick(uint32 TickIndex)
+void UrogueyEngine::RogueyTick(int32 TickIndex)
 {
 	for (const TScriptInterface Manager : Managers)
 	{

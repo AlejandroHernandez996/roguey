@@ -18,7 +18,7 @@ class ROGUEY_API UrogueyMovementManager : public UObject, public ITickable
 {
 	GENERATED_BODY()
 public:
-	virtual void RogueyTick(uint32 TickIndex) override;
+	virtual void RogueyTick(int32 TickIndex) override;
 
 	UFUNCTION()
 	void EnqueueMovement(const FMovement& Movement);

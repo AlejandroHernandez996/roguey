@@ -9,7 +9,7 @@
 #include "Grid/rogueyGridManager.h"
 #include "Grid/Util/GridUtils.h"
 
-void UrogueyMovementManager::RogueyTick(uint32 TickIndex)
+void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 {
 	while (!MovementQueue.IsEmpty())
 	{

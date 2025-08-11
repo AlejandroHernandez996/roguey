@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "GridEventType.h"
-#include "Tile.h"
 #include "GridEvent.generated.h"
 
 USTRUCT(BlueprintType)
@@ -14,7 +13,7 @@ struct FGridEvent
 	UPROPERTY()
 	FIntVector2 Location;
 	UPROPERTY()
-	uint32 Tick;
+	int32 Tick;
 	UPROPERTY()
 	EGridEventType EventType = EGridEventType::NONE;
 
@@ -22,7 +21,7 @@ struct FGridEvent
 	{
 	}
 
-	FGridEvent(uint32 InTick,const FIntVector2& InLocation, AActor* InInputActor, EGridEventType InEventType)
+	FGridEvent(int32 InTick,const FIntVector2& InLocation, AActor* InInputActor, EGridEventType InEventType)
 		: Tick(InTick)
 		, Location(InLocation)
 		, Actor(InInputActor)

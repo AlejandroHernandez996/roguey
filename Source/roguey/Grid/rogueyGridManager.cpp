@@ -6,7 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Util/GridUtils.h"
 
-void UrogueyGridManager::RogueyTick(uint32 TickIndex)
+void UrogueyGridManager::RogueyTick(int32 TickIndex)
 {
 	while (!GridQueue.IsEmpty())
 	{
@@ -84,6 +84,18 @@ void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
 void UrogueyGridManager::EnqueueGridEvent(const FGridEvent& GridEvent)
 {
 	GridQueue.Enqueue(GridEvent);
+}
+
+FIntVector2 UrogueyGridManager::GetActorTrueTile(AActor* Actor)
+{
+	if (!Actor || !Grid.ActorMapLocation.Contains(Actor)) return FIntVector2::ZeroValue;
+
+	return Grid.ActorMapLocation[Actor];
+}
+
+bool UrogueyGridManager::GridContainsActor(AActor* Actor)
+{
+	return Grid.ActorMapLocation.Contains(Actor);
 }
 
 void UrogueyGridManager::Init()

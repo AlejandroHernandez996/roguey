@@ -13,4 +13,8 @@ UCLASS()
 class ROGUEY_API UrogueyDamageCalculator : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UFUNCTION()
+	static void CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent);
 };

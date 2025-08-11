@@ -91,18 +91,19 @@ void ArogueyPlayerController::OnInputStarted()
 	FHitResult Hit;
 	FHitResult PawnHit;
 	GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
-	ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor());
-	if (HitPawn)
+	if (ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor()))
 	{
 		if (HitPawn != Cast<ArogueyCharacter>(GetPawn()))
 		{
 			OnClickEvent.Broadcast(false);
+			const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, Hit.Location, Cast<ArogueyPawn>(GetPawn()), HitPawn);
+			RogueyGameMode->InputManager->EnqueueInput(Input);
 			return;
 		}
 	}
 	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
 	{
-		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, Hit.Location, GetPawn());
+		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, Hit.Location, Cast<ArogueyPawn>(GetPawn()), nullptr);
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 		OnClickEvent.Broadcast(true);
 	}
