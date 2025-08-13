@@ -29,8 +29,14 @@ public:
 	class UrogueyCombatManager* CombatManager;
 	UPROPERTY()
 	class UrogueyInventoryManager* InventoryManager;
-
 	UPROPERTY()
+	class UrogueyBehaviorManager* BehaviorManager;
+	UPROPERTY()
+	class UDeathManager* DeathManager;
+	UPROPERTY()
+	class USpawnManager* SpawnManager;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Items")
 	class UrogueyItemCache* ItemCache;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grid")

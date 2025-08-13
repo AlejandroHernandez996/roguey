@@ -3,7 +3,11 @@
 
 #include "rogueyItemCache.h"
 
-void UrogueyItemCache::LoadItems()
+void UrogueyItemCache::InitLootTable(ArogueyPawn* Pawn)
 {
-	
+	FrogueyLootTable& LootTable = Pawn->LootTable;
+	for (auto& Loot : LootTable.ItemTable)
+	{
+		Loot.Item = Items[Loot.Itemid];
+	}
 }

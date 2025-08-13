@@ -1,14 +1,15 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Items/rogueyItem.h"  
 #include "rogueyInventory.generated.h"
 
-class ArogueyItem;
-
 USTRUCT(BlueprintType)
-struct FrogueyInventory
+struct ROGUEY_API FrogueyInventory
 {
 	GENERATED_BODY()
-	UPROPERTY()
-	TMap<int32, ArogueyItem*> Inventory;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Inventory")
+	TMap<int32, FrogueyItem> Inventory;
 };

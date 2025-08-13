@@ -14,26 +14,32 @@ struct FPath
 	int32 PathIndex = -1;
 	UPROPERTY()
 	ArogueyPawn* TargetPawn = nullptr;
+	UPROPERTY()
+	FIntVector2 TargetPosition = FIntVector2(-1, -1);
 
 	bool IsPathComplete() const
 	{
 		return MovementPath.IsEmpty() || PathIndex == -1 || PathIndex >= MovementPath.Num()-1;
 	}
 
-	FIntVector2 GetAndIncrementPath(bool bIsRunning)
+	FIntVector2 GetAndIncrementPath(int32 TileSpeed)
 	{
 		if (IsPathComplete())
 		{
 			return FIntVector2::NoneValue;
 		}
 
-		if (!bIsRunning || PathIndex == MovementPath.Num() - 2)
+		int32 StepsToMove = TileSpeed;
+
+		if (PathIndex + StepsToMove >= MovementPath.Num())
 		{
-			PathIndex++;
-			return MovementPath[PathIndex];
+			StepsToMove = 1;
 		}
 
-		PathIndex += 2;
+		PathIndex += StepsToMove;
+
+		PathIndex = FMath::Clamp(PathIndex, 0, MovementPath.Num() - 1);
+
 		return MovementPath[PathIndex];
 	}
 };

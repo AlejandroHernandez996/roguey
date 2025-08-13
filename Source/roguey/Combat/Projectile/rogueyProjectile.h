@@ -10,7 +10,7 @@
  * 
  */
 UCLASS()
-class ROGUEY_API UrogueyProjectile : public UObject
+class ROGUEY_API ArogueyProjectile : public AActor
 {
 	GENERATED_BODY()
 };

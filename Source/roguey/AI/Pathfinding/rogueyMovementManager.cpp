@@ -12,6 +12,25 @@
 
 void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 {
+
+	TSet<ArogueyPawn*> FinishedAPathActors;
+	for (auto& ActorAndPath : ActivePaths)
+	{
+		ArogueyPawn* PathActor = ActorAndPath.Key;
+		FPath& Path = ActivePaths[ActorAndPath.Key];
+
+		if (Path.TargetPawn && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
+		{
+			EnqueueMovement(FMovement(PathActor, Path.TargetPawn, FIntVector2::ZeroValue, TickIndex));
+			FinishedAPathActors.Add(PathActor);
+		}
+	}
+	for (auto& FinishedActor : FinishedAPathActors)
+	{
+		ActivePaths.Remove(FinishedActor);
+	}
+	FinishedAPathActors.Empty();
+	
 	while (!MovementQueue.IsEmpty())
 	{
 		FMovement ProcessMovement;
@@ -58,12 +77,19 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 		}
 	}
 
-	TSet<ArogueyPawn*> FinishedAPathActors;
 	for (auto& ActorAndPath : ActivePaths)
 	{
 		ArogueyPawn* PathActor = ActorAndPath.Key;
 		FPath& Path = ActivePaths[ActorAndPath.Key];
-		FIntVector2 NextPoint = Path.GetAndIncrementPath(true);
+
+		if (Path.TargetPawn && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
+		{
+			EnqueueMovement(FMovement(PathActor, Path.TargetPawn, FIntVector2::ZeroValue, TickIndex));
+			FinishedAPathActors.Add(PathActor);
+			continue;
+		}
+		
+		FIntVector2 NextPoint = Path.GetAndIncrementPath(PathActor->TileMoveSpeed);
 		FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor, EGridEventType::MOVE);
 		GridManager->EnqueueGridEvent(GridEvent);
 		if (!ActorPaths.Contains(PathActor))
@@ -97,7 +123,7 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 
 void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 {
-	if (Movement.Actor == nullptr || GridManager->Grid.ActorMapLocation[Movement.Actor] == Movement.Destination)
+	if (Movement.Actor == nullptr || !GridManager->Grid.ActorMapLocation.Contains(Movement.Actor) || GridManager->Grid.ActorMapLocation[Movement.Actor] == Movement.Destination)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Movement Binned (Same Location) - Tick: %u,Destination: %s, Actor: %s"),
 			  Movement.Tick,

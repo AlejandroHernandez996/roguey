@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Tile.h"
+#include "Characters/rogueyPawn.h"
 #include "Grid.generated.h"
 
 USTRUCT(BlueprintType)
@@ -11,7 +12,7 @@ struct FGrid
 	UPROPERTY()
 	TMap<FIntVector2, FTile> GridMap;
 	UPROPERTY()
-	TMap<AActor*, FIntVector2> ActorMapLocation;
+	TMap<ArogueyPawn*, FIntVector2> ActorMapLocation;
 
 	bool HasWall(const FIntVector2& TileCoordinate, const FIntVector2& Direction) const
 	{

@@ -4,6 +4,7 @@
 #include "Path.h"
 #include "Grid/Grid.h"
 #include "Engine/Engine.h" // Include for logging
+#include "GeometryCollection/Facades/CollectionConstraintOverrideFacade.h"
 #include "Grid/Util/GridUtils.h"
 
 FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
@@ -115,6 +116,7 @@ FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Gri
     {
         Path.PathIndex = 0;
         Path.TargetPawn = TargetPawn;
+        Path.TargetPosition = TargetLocation;
         return Path;
     }
 
@@ -132,6 +134,7 @@ FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Gri
                 Path.MovementPath = { Start, Candidate };
                 Path.PathIndex = 0;
                 Path.TargetPawn = TargetPawn;
+                Path.TargetPosition = TargetLocation;
                 return Path;
             }
         }
@@ -200,6 +203,7 @@ FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Gri
     Path.MovementPath = ReversePath;
     Path.PathIndex = 0;
     Path.TargetPawn = TargetPawn;
+    Path.TargetPosition = TargetLocation;
 
     return Path;
 }

@@ -3,8 +3,9 @@
 
 #include "rogueyCombatManager.h"
 
+#include "DeathManager.h"
 #include "Grid/rogueyGridManager.h"
-#include "Grid/Util/GridUtils.h"
+#include "Input/rogueyInputManager.h"
 #include "System/rogueyDamageCalculator.h"
 
 void UrogueyCombatManager::RogueyTick(int32 TickIndex)
@@ -29,15 +30,28 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 	{
 		ArogueyPawn* FromActor = ActiveCombat.Key;
 		FCombatEvent& CombatEvent = ActiveCombat.Value;
-
-		if (!FromActor || !CombatEvent.FromActor || !GridManager->IsPawnInRange(FromActor, CombatEvent.ToActor))
+		if (!CombatEvent.ToActor || !CombatEvent.FromActor)
 		{
+			continue;
+		}
+		bool bIsInRange = GridManager->IsPawnInRange(FromActor, CombatEvent.ToActor);
+		if (!FromActor || !CombatEvent.FromActor || !bIsInRange)
+		{
+			if (!bIsInRange)
+			{
+				InputManager->EnqueueInput(FInput(TickIndex, EInputType::ATTACK,FVector::Zero(),FromActor, CombatEvent.ToActor));
+			}
 			FinishedCombatActors.Add(FromActor);
 		}
-		else
+		else if (FromActor)
 		{
 			UrogueyDamageCalculator::CalculateCombat(TickIndex, CombatEvent);
 			FromActor->RotateAtPawn(CombatEvent.ToActor);
+			if (CombatEvent.ToActor->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentStat <= 0)
+			{
+				FinishedCombatActors.Add(FromActor);
+				DeathManager->EnqueueDeath(CombatEvent.ToActor);
+			}
 		}
 	}
 	for (auto& FinishedActor : FinishedCombatActors)

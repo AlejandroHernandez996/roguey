@@ -7,6 +7,7 @@
 #include "rogueyGameMode.h"
 #include "Components/CapsuleComponent.h"
 #include "Grid/Util/GridUtils.h"
+#include "Items/rogueyItemCache.h"
 
 FName ArogueyPawn::MeshComponentName(TEXT("CharacterMesh0"));
 FName ArogueyPawn::CollisionComponentName(TEXT("PawnCollision"));
@@ -42,9 +43,13 @@ ArogueyPawn::ArogueyPawn()
 void ArogueyPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->AddActorToGrid(this,GridUtils::WorldToGrid(this->GetActorLocation()));
+	ArogueyGameMode* RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
+	RogueyGameMode->GridManager->AddActorToGrid(this,GridUtils::WorldToGrid(this->GetActorLocation()));
+	RogueyGameMode->ItemCache->InitLootTable(this);
 	TrueTileQueue.Enqueue({GridUtils::WorldToGrid(this->GetActorLocation()), 1.0f});
 	SetPawnState(EPawnState::IDLE, false);
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
 void ArogueyPawn::Tick(float DeltaTime)
@@ -119,6 +124,27 @@ void ArogueyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void ArogueyPawn::ClearTarget()
+{
+	if (TargetPawn)
+	{
+		TargetPawn->ThreatList.Remove(this);
+		TargetPawn = nullptr;
+		OnTargetPawn.Broadcast(nullptr);
+	}
+}
+
+void ArogueyPawn::SetTarget(ArogueyPawn* Target)
+{
+	ClearTarget();
+	if (Target)
+	{
+		TargetPawn = Target;
+		TargetPawn->ThreatList.Add(this);
+		OnTargetPawn.Broadcast(Target);
+	}
+}
+
 float ArogueyPawn::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate, FName StartSectionName)
 {
 	UAnimInstance * AnimInstance = (Mesh)? Mesh->GetAnimInstance() : nullptr; 
@@ -142,14 +168,17 @@ float ArogueyPawn::PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlay
 
 void ArogueyPawn::RotateAtPawn(ArogueyPawn* ToActor)
 {
-	FVector TargetLocation = ToActor->GetActorLocation();
-	FVector CurrentLocation = GetActorLocation();
+	if (ToActor)
+	{
+		FVector TargetLocation = ToActor->GetActorLocation();
+		FVector CurrentLocation = GetActorLocation();
 
-	TargetLocation.Z = CurrentLocation.Z;
+		TargetLocation.Z = CurrentLocation.Z;
 
-	FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-	FRotator NewRotation = Direction.Rotation();
-	SetActorRotation(NewRotation);
+		FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+		FRotator NewRotation = Direction.Rotation();
+		SetActorRotation(NewRotation);
+	}
 }
 
 void ArogueyPawn::UpdateCurrentStat(ErogueyStatType StatType, int32 DeltaValue)
@@ -197,10 +226,10 @@ void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
 		}
 	}
 
-	DrawDebugLine(GetWorld(), CornerHeights[0], CornerHeights[1], FColor::Yellow, false, DecayTime, 0, 2.0f);
-	DrawDebugLine(GetWorld(), CornerHeights[1], CornerHeights[3], FColor::Yellow, false, DecayTime, 0, 2.0f);
-	DrawDebugLine(GetWorld(), CornerHeights[3], CornerHeights[2], FColor::Yellow, false, DecayTime, 0, 2.0f);
-	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::Yellow, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[0], CornerHeights[1], TrueTileColor, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[1], CornerHeights[3], TrueTileColor, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[3], CornerHeights[2], TrueTileColor, false, DecayTime, 0, 2.0f);
+	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], TrueTileColor, false, DecayTime, 0, 2.0f);
 }
 
 void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)

@@ -25,13 +25,13 @@ public:
 	FGrid Grid;
 
 	UFUNCTION()
-	void AddActorToGrid(AActor* Actor, FIntVector2 Location);
+	void AddActorToGrid(ArogueyPawn* Actor, FIntVector2 Location);
 
 	UFUNCTION()
-	void RemoveActorFromGrid(AActor* Actor);
+	void RemoveActorFromGrid(ArogueyPawn* Actor);
 
 	UFUNCTION()
-	void MoveActorInGrid(AActor* Actor, FIntVector2 Destination);
+	void MoveActorInGrid(ArogueyPawn* Actor, FIntVector2 Destination);
 
 	TQueue<FGridEvent> GridQueue;
 
@@ -39,14 +39,15 @@ public:
 	void EnqueueGridEvent(const FGridEvent& GridEvent);
 
 	UFUNCTION()
-	FIntVector2 GetActorTrueTile(AActor* Actor);
+	FIntVector2 GetActorTrueTile(ArogueyPawn* Actor);
 
 	UFUNCTION()
-	bool GridContainsActor(AActor* Actor);
+	bool GridContainsActor(ArogueyPawn* Actor);
 
 	UFUNCTION()
-	bool IsPawnInRange(ArogueyPawn* From, AActor* To);
-	bool IsPawnInRangeOfPoint(ArogueyPawn* FromActor, FIntVector2 FromPoint, AActor* To);
+	bool IsPawnInRange(ArogueyPawn* From, ArogueyPawn* To);
+	bool IsPawnInAggroRange(ArogueyPawn* From, ArogueyPawn* To);
+	bool IsPawnInRangeOfPoint(ArogueyPawn* FromActor, FIntVector2 FromPoint, ArogueyPawn* To);
 
 	UFUNCTION()
 	void Init();
@@ -56,8 +57,12 @@ private:
 	
 };
 
-inline bool UrogueyGridManager::IsPawnInRange(ArogueyPawn* From, AActor* To)
+inline bool UrogueyGridManager::IsPawnInRange(ArogueyPawn* From, ArogueyPawn* To)
 {
+	if (!Grid.ActorMapLocation.Contains(From) || !Grid.ActorMapLocation.Contains(To))
+	{
+		return false;
+	}
 	FIntVector2 FromPoint = Grid.ActorMapLocation[From];
 	FIntVector2 ToPoint = Grid.ActorMapLocation[To];
 	int32 CurrentRange = From->StatPage.StatPage[ErogueyStatType::ATTACK_RANGE].CurrentStat;
@@ -69,7 +74,16 @@ inline bool UrogueyGridManager::IsPawnInRange(ArogueyPawn* From, AActor* To)
 	return FromPoint != ToPoint && CurrentRange >= Distance;
 }
 
-inline bool UrogueyGridManager::IsPawnInRangeOfPoint(ArogueyPawn* FromActor, FIntVector2 FromPoint, AActor* To)
+inline bool UrogueyGridManager::IsPawnInAggroRange(ArogueyPawn* From, ArogueyPawn* To)
+{
+	FIntVector2 FromPoint = Grid.ActorMapLocation[From];
+	FIntVector2 ToPoint = Grid.ActorMapLocation[To];
+	int32 AggroRange = From->Behavior.AgressionRange;
+	int32 Distance = GridUtils::GridDistance(FromPoint, ToPoint);
+	return FromPoint != ToPoint && AggroRange >= Distance;
+}
+
+inline bool UrogueyGridManager::IsPawnInRangeOfPoint(ArogueyPawn* FromActor, FIntVector2 FromPoint, ArogueyPawn* To)
 {
 	FIntVector2 ToPoint = Grid.ActorMapLocation[To];
 	int32 CurrentRange = FromActor->StatPage.StatPage[ErogueyStatType::ATTACK_RANGE].CurrentStat;

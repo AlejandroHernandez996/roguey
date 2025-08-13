@@ -38,7 +38,7 @@ void UrogueyGridManager::RogueyTick(int32 TickIndex)
 	}
 }
 
-void UrogueyGridManager::AddActorToGrid(AActor* Actor, FIntVector2 Location)
+void UrogueyGridManager::AddActorToGrid(ArogueyPawn* Actor, FIntVector2 Location)
 {
 	if (Actor)
 	{
@@ -51,7 +51,7 @@ void UrogueyGridManager::AddActorToGrid(AActor* Actor, FIntVector2 Location)
 	}
 }
 
-void UrogueyGridManager::RemoveActorFromGrid(AActor* Actor)
+void UrogueyGridManager::RemoveActorFromGrid(ArogueyPawn* Actor)
 {
 	if (Actor && Grid.ActorMapLocation.Contains(Actor))
 	{
@@ -64,15 +64,12 @@ void UrogueyGridManager::RemoveActorFromGrid(AActor* Actor)
 	}
 }
 
-void UrogueyGridManager::MoveActorInGrid(AActor* Actor, FIntVector2 Destination)
+void UrogueyGridManager::MoveActorInGrid(ArogueyPawn* Actor, FIntVector2 Destination)
 {
 	FIntVector2 Start = Grid.ActorMapLocation[Actor];
 	float Distance = FMath::Abs(FVector2d::Distance(FVector2d(Destination.X, Destination.Y), FVector2d(Start.X, Start.Y)));
-	if (ArogueyCharacter* RougeyChar = Cast<ArogueyCharacter>(Actor))
-	{
-		RougeyChar->TrueTileQueue.Enqueue({Destination, Distance});
-		RougeyChar->QueueSize++;
-	}
+	Actor->TrueTileQueue.Enqueue({Destination, Distance});
+	Actor->QueueSize++;
 	RemoveActorFromGrid(Actor);
 	AddActorToGrid(Actor, Destination);
 }
@@ -82,14 +79,14 @@ void UrogueyGridManager::EnqueueGridEvent(const FGridEvent& GridEvent)
 	GridQueue.Enqueue(GridEvent);
 }
 
-FIntVector2 UrogueyGridManager::GetActorTrueTile(AActor* Actor)
+FIntVector2 UrogueyGridManager::GetActorTrueTile(ArogueyPawn* Actor)
 {
 	if (!Actor || !Grid.ActorMapLocation.Contains(Actor)) return FIntVector2::ZeroValue;
 
 	return Grid.ActorMapLocation[Actor];
 }
 
-bool UrogueyGridManager::GridContainsActor(AActor* Actor)
+bool UrogueyGridManager::GridContainsActor(ArogueyPawn* Actor)
 {
 	return Grid.ActorMapLocation.Contains(Actor);
 }

@@ -1,18 +1,20 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
+#include "Engine/DataAsset.h"
+#include "rogueyItem.h"
+#include "Characters/rogueyPawn.h"
 #include "rogueyItemCache.generated.h"
 
-/**
- * 
- */
-UCLASS()
-class ROGUEY_API UrogueyItemCache : public UObject
+UCLASS(BlueprintType)
+class ROGUEY_API UrogueyItemCache : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
-	public:
-	void LoadItems();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Items")
+	TMap<int32, FrogueyItem> Items;
+
+	UFUNCTION()
+	void InitLootTable(ArogueyPawn* Pawn);
 };

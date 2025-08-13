@@ -21,11 +21,13 @@ void UrogueyInputManager::RogueyTick(int32 TickIndex)
 		{
 		case EInputType::MOVE:
 			MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor,nullptr, GridUtils::WorldToGrid(ProcessInput.InputWorldLocation),ProcessInput.InputTick));
+			ProcessInput.InputActor->ClearTarget();
 			break;
 		case EInputType::FOLLOW:
 			break;
 		case EInputType::ATTACK:
 			MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor, ProcessInput.TargetPawn, FIntVector2::ZeroValue, ProcessInput.InputTick));
+			ProcessInput.InputActor->SetTarget(ProcessInput.TargetPawn);
 			break;
 		case EInputType::EQUIP:
 			break;

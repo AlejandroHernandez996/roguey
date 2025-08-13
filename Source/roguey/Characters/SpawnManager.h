@@ -3,14 +3,30 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/Engine/Tickable.h"
+#include "Enemies/rogueyLoot.h"
+#include "Items/rogueyItem.h"
 #include "UObject/Object.h"
 #include "SpawnManager.generated.h"
 
+class UrogueyItemCache;
+class ArogueyPawn;
 /**
  * 
  */
 UCLASS()
-class ROGUEY_API USpawnManager : public UObject
+class ROGUEY_API USpawnManager : public UObject, public ITickable
 {
 	GENERATED_BODY()
+public:
+	void RogueyTick(int32 TickIndex) override;
+	void EnqueueItem(const FrogueyItem Item);
+	void EnqueueLootItem(const FrogueyLoot Item);
+	void EnqueuePawn(TSubclassOf<ArogueyPawn> Pawn);
+	void InitLootTable(ArogueyPawn* Pawn);
+	
+	TQueue<FrogueyItem> ItemSpawnQueue;
+	TQueue<TSubclassOf<ArogueyPawn>> PawnSpawnQueue;
+	UPROPERTY()
+	UrogueyItemCache* ItemCache;
 };

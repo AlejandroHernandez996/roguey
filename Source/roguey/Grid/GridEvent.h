@@ -9,7 +9,7 @@ struct FGridEvent
 {
 	GENERATED_BODY()
 	UPROPERTY()
-	AActor* Actor;
+	ArogueyPawn* Actor;
 	UPROPERTY()
 	FIntVector2 Location;
 	UPROPERTY()
@@ -21,7 +21,7 @@ struct FGridEvent
 	{
 	}
 
-	FGridEvent(int32 InTick,const FIntVector2& InLocation, AActor* InInputActor, EGridEventType InEventType)
+	FGridEvent(int32 InTick,const FIntVector2& InLocation, ArogueyPawn* InInputActor, EGridEventType InEventType)
 		: Tick(InTick)
 		, Location(InLocation)
 		, Actor(InInputActor)

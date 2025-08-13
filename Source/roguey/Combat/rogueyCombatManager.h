@@ -30,6 +30,10 @@ class ROGUEY_API UrogueyCombatManager : public UObject, public ITickable
 
 	UPROPERTY()
 	class UrogueyGridManager* GridManager;
+	UPROPERTY()
+	class UrogueyInputManager* InputManager;
+	UPROPERTY()
+	class UDeathManager* DeathManager;
 
 	UFUNCTION()
 	void RemoveActorFromActiveQueue(ArogueyPawn* Pawn);

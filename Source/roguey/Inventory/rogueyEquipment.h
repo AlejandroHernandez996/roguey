@@ -1,15 +1,17 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Items/rogueyItem.h"
 #include "rogueyEquipment.generated.h"
 
-class ArogueyItem;
 enum class EEquipmentType : uint8;
 
 USTRUCT(BlueprintType)
-struct FrogueyEquipment
+struct ROGUEY_API FrogueyEquipment
 {
 	GENERATED_BODY()
-	UPROPERTY()
-	TMap<EEquipmentType, ArogueyItem*> Equipment;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Equipment")
+	TMap<EEquipmentType, FrogueyItem> Equipment;
 };

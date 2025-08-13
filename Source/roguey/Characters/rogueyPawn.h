@@ -4,14 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "PawnState.h"
+#include "AI/DecisionMaking/Behavior.h"
+#include "Core/Engine/Interactable.h"
+#include "Core/Engine/InteractType.h"
+#include "Enemies/rogueyLootTable.h"
 #include "GameFramework/Pawn.h"
 #include "Stats/rogueyStatPage.h"
 #include "rogueyPawn.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCombatDamageEvent, const int32&, DamageAmount, ArogueyPawn*, OwningPawn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetPawnEvent, ArogueyPawn*, CurrentTarget);
 
 UCLASS()
-class ROGUEY_API ArogueyPawn : public APawn
+class ROGUEY_API ArogueyPawn : public APawn, public IInteractable
 {
 	GENERATED_BODY()
 
@@ -27,6 +32,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void ClearTarget();
+	void SetTarget(ArogueyPawn* Target);
+	UPROPERTY(BlueprintAssignable, Category = "Target")
+	FTargetPawnEvent OnTargetPawn;
 
 	UPROPERTY(EditAnywhere)
 	int32 PawnId = 0;
@@ -47,6 +56,8 @@ public:
 	int32 LastAttackTickIndex = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	int32 DefaultAttackCooldown = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	int32 TileMoveSpeed = 1;
 	UFUNCTION()
 	void UpdateCurrentStat(ErogueyStatType StatType, int32 DeltaValue);
 
@@ -78,4 +89,25 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Information")
 	FString RogueyName = "NA";
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
+	FBehavior Behavior;
+	UPROPERTY()
+	ArogueyPawn* TargetPawn;
+	UPROPERTY()
+	TSet<ArogueyPawn*> ThreatList;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	FColor TrueTileColor = FColor::Yellow;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	int32 GridSize = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Team")
+	int32 TeamId = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Loot")
+	FrogueyLootTable LootTable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interactable", meta = (AllowPrivateAccess = "true"))
+	TArray<EInteractType> InteractList {EInteractType::ATTACK};
+
+	virtual const TArray<EInteractType>& GetInteractList() const override
+	{
+		return InteractList;
+	}
 };
