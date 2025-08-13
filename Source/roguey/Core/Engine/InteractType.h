@@ -11,10 +11,13 @@ enum class EInteractType : uint8
 	EQUIP UMETA(DisplayName = "Equip"),
 	DROP UMETA(DisplayName = "Drop"),
 	EAT UMETA(DisplayName = "Eat"),
-	DRINK UMETA(DisplayName = "Drink")
+	DRINK UMETA(DisplayName = "Drink"),
+	CHOP UMETA(DisplayName = "Chop"),
+	MINE UMETA(DisplayName = "Mine"),
+	EXAMINE UMETA(DisplayName = "Examine"),
 };
 
-FORCEINLINE FString EPawnStateToString(EInteractType State)
+FORCEINLINE FString EInteractTypeToString(EInteractType State)
 {
 	switch (State)
 	{
@@ -25,6 +28,9 @@ FORCEINLINE FString EPawnStateToString(EInteractType State)
 	case EInteractType::DROP: return TEXT("Drop");
 	case EInteractType::EAT: return TEXT("Eat");
 	case EInteractType::DRINK: return TEXT("Drink");
+	case EInteractType::CHOP: return TEXT("Chop");
+	case EInteractType::MINE: return TEXT("Mine");
+	case EInteractType::EXAMINE: return TEXT("Examine");
 	default: return TEXT("Unknown");
 	}
 }

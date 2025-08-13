@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "InteractTypeArray.h"
 #include "rogueyGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
@@ -43,14 +44,15 @@ void ArogueyPlayerController::Tick(float DeltaSeconds)
 		DrawHoveredTile(Hit.Location);
 	}
 
-	FHitResult PawnHit;
-	GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
-	ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor());
-	if (HitPawn)
+	FHitResult InteractHit;
+	GetHitResultUnderCursor(ECC_GameTraceChannel1, true, InteractHit);
+	AActor* HitActor = InteractHit.GetActor();
+	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 	{
-		if (HitPawn != Cast<ArogueyCharacter>(GetPawn()))
+		IInteractable* Interactable = Cast<IInteractable>(HitActor);
+		if (Interactable && !Interactable->GetInteractList().IsEmpty())
 		{
-			OnHoverEvent.Broadcast("Attack", "<Yellow>"+HitPawn->RogueyName+"</>");
+			OnHoverEvent.Broadcast(EInteractTypeToString(Interactable->GetInteractList()[0]), "<Yellow>"+Interactable->GetRogueyName()+"</>");
 			return;
 		}
 	}
@@ -78,6 +80,7 @@ void ArogueyPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ArogueyPlayerController::OnInputTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ArogueyPlayerController::OnInputReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ArogueyPlayerController::OnInputReleased);
+		EnhancedInputComponent->BindAction(InteractMenuAction, ETriggerEvent::Started, this, &ArogueyPlayerController::OnInteractMenuStarted);
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ArogueyPlayerController::OnZoomTriggered);
 		EnhancedInputComponent->BindAction(MouseScrollClickAction, ETriggerEvent::Started, this, &ArogueyPlayerController::OnMouseScrollStarted);
 		EnhancedInputComponent->BindAction(MouseScrollClickAction, ETriggerEvent::Completed, this, &ArogueyPlayerController::OnMouseScrollReleased);
@@ -88,22 +91,25 @@ void ArogueyPlayerController::SetupInputComponent()
 
 void ArogueyPlayerController::OnInputStarted()
 {
-	FHitResult Hit;
-	FHitResult PawnHit;
-	GetHitResultUnderCursor(ECC_Pawn, true, PawnHit);
-	if (ArogueyPawn* HitPawn = Cast<ArogueyPawn>(PawnHit.GetActor()))
+	bIsInteractMenuOpen = false;
+	FHitResult WorldHit;
+	FHitResult InteractHit;
+	GetHitResultUnderCursor(ECC_GameTraceChannel1, true, InteractHit);
+	AActor* HitActor = InteractHit.GetActor();
+	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 	{
-		if (HitPawn != Cast<ArogueyCharacter>(GetPawn()))
+		IInteractable* Interactable = Cast<IInteractable>(HitActor);
+		if (Interactable && HitActor != Cast<ArogueyCharacter>(GetPawn()))
 		{
 			OnClickEvent.Broadcast(false);
-			const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, Hit.Location, Cast<ArogueyPawn>(GetPawn()), HitPawn);
+			const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyPawn>(HitActor));
 			RogueyGameMode->InputManager->EnqueueInput(Input);
 			return;
 		}
 	}
-	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
+	if (GetHitResultUnderCursor(ECC_WorldStatic, true, WorldHit))
 	{
-		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, Hit.Location, Cast<ArogueyPawn>(GetPawn()), nullptr);
+		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, WorldHit.Location, Cast<ArogueyPawn>(GetPawn()), nullptr);
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 		OnClickEvent.Broadcast(true);
 	}
@@ -115,6 +121,33 @@ void ArogueyPlayerController::OnInputTriggered()
 
 void ArogueyPlayerController::OnInputReleased()
 {
+}
+
+void ArogueyPlayerController::OnInteractMenuStarted()
+{
+	bIsInteractMenuOpen = true;
+	InteractMenuEntries.Empty();
+	
+	FHitResult WorldHit;
+	GetHitResultUnderCursor(ECC_WorldStatic, true, WorldHit);
+	InteractMenuLocation = WorldHit.Location;
+	FHitResult InteractHit;
+	GetHitResultUnderCursor(ECC_GameTraceChannel1, true, InteractHit);
+	AActor* HitActor = InteractHit.GetActor();
+	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+	{
+		IInteractable* Interactable = Cast<IInteractable>(HitActor);
+		if (Interactable && HitActor != Cast<ArogueyCharacter>(GetPawn()))
+		{
+			FInteractTypeArray InteractActorArray;
+			InteractActorArray.InteractableActor = HitActor;
+			InteractActorArray.Array = Interactable->GetInteractList();
+			InteractActorArray.Name = Interactable->GetRogueyName();
+			InteractMenuEntries.Add(InteractActorArray);
+		}
+	}
+	
+	OnInteractMenuEvent.Broadcast();
 }
 
 void ArogueyPlayerController::OnZoomTriggered(const FInputActionInstance& Instance)
@@ -196,4 +229,17 @@ void ArogueyPlayerController::DrawHoveredTile(const FVector& HoveredPosition)
 	DrawDebugLine(GetWorld(), CornerHeights[1], CornerHeights[3], FColor::White, false, .05f, 0, 2.0f);
 	DrawDebugLine(GetWorld(), CornerHeights[3], CornerHeights[2], FColor::White, false, .05f, 0, 2.0f);
 	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::White, false, .05f, 0, 2.0f);
+}
+
+void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractType InteractType,
+	FVector InteractLocation)
+{
+	if (InteractType == EInteractType::EXAMINE)
+	{
+		IInteractable* Interactable = Cast<IInteractable>(InputActor);
+		if (Interactable)
+		{
+			OnChatMessage.Broadcast(Interactable->GetExamineText());
+		}
+	}
 }

@@ -37,4 +37,13 @@ public:
 	{
 		return InteractList;
 	}
+
+	virtual const FString GetRogueyName() const override
+	{
+		return Item.ItemName;
+	}
+	virtual const FString GetExamineText() const override
+	{
+		return Item.ItemDescription;
+	}
 };

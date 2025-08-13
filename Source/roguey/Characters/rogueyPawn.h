@@ -105,9 +105,19 @@ public:
 	FrogueyLootTable LootTable;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interactable", meta = (AllowPrivateAccess = "true"))
 	TArray<EInteractType> InteractList {EInteractType::ATTACK};
-
+	UPROPERTY(EditAnywhere,	BlueprintReadWrite,	Category="Flavor")
+	FString ExamineText = "Did you forget?";
 	virtual const TArray<EInteractType>& GetInteractList() const override
 	{
 		return InteractList;
 	}
+	virtual const FString GetRogueyName() const override
+	{
+		return RogueyName;
+	}
+	virtual const FString GetExamineText() const override
+	{
+		return ExamineText;
+	}
+
 };
