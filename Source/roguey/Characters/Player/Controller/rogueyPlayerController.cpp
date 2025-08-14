@@ -15,6 +15,8 @@
 #include "Grid/Util/GridUtils.h"
 #include "Input/Input.h"
 #include "Input/rogueyInputManager.h"
+#include "Inventory/rogueyInventoryManager.h"
+#include "Items/rogueyItemActor.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -33,6 +35,7 @@ void ArogueyPlayerController::BeginPlay()
 		CameraBoom = GetPawn()->FindComponentByClass<USpringArmComponent>();
 		FollowCamera = GetPawn()->FindComponentByClass<UCameraComponent>();
 	}
+	RogueyGameMode->InventoryManager->RogueyPlayerController = this;
 }
 
 void ArogueyPlayerController::Tick(float DeltaSeconds)
@@ -102,7 +105,17 @@ void ArogueyPlayerController::OnInputStarted()
 		if (Interactable && HitActor != Cast<ArogueyCharacter>(GetPawn()))
 		{
 			OnClickEvent.Broadcast(false);
-			const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyPawn>(HitActor));
+			FInput Input;
+			ArogueyPawn* TargetPawn = Cast<ArogueyPawn>(HitActor);
+			ArogueyItemActor* TargetItem = Cast<ArogueyItemActor>(HitActor);
+			if (TargetPawn)
+			{
+				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()), TargetPawn);
+			}
+			if (TargetItem)
+			{
+				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, Cast<ArogueyPawn>(GetPawn()), TargetItem);
+			}
 			RogueyGameMode->InputManager->EnqueueInput(Input);
 			return;
 		}
@@ -248,6 +261,11 @@ void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractTyp
 	if (InteractType == EInteractType::ATTACK)
 	{
 		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyPawn>(InputActor));
+		RogueyGameMode->InputManager->EnqueueInput(Input);
+	}
+	if (InteractType == EInteractType::TAKE)
+	{
+		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyItemActor>(InputActor));
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
 }

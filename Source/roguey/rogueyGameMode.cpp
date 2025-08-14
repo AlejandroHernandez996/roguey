@@ -37,6 +37,7 @@ void ArogueyGameMode::BeginPlay()
 	
 	MovementManager->GridManager = GridManager;
 	MovementManager->CombatManager = CombatManager;
+	MovementManager->InventoryManager = InventoryManager;
 	
 	CombatManager->GridManager = GridManager;
 	CombatManager->InputManager = InputManager;
@@ -56,13 +57,13 @@ void ArogueyGameMode::BeginPlay()
 		SpawnManager,
 		BehaviorManager,
 		InputManager,
-		InventoryManager,
 		MovementManager,
+		InventoryManager,
 		GridManager,
 		CombatManager,
 		DeathManager,
-		SpawnManager}
-		);
+		SpawnManager,
+	});
 }
 
 void ArogueyGameMode::Tick(float DeltaTime)

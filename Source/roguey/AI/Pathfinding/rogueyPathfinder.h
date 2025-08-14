@@ -19,4 +19,5 @@ class ROGUEY_API UrogueyPathfinder : public UObject
 	public:
 	static FPath FindAndGeneratePath(FMovement Movement, FGrid Grid);
 	static FPath FindAndGeneratePathToPawn(FMovement Movement, FGrid Grid);
+	static FPath FindAndGeneratePathToItem(FMovement Movement, FGrid Grid);
 };

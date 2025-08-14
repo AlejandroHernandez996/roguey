@@ -33,6 +33,8 @@ void UrogueyInputManager::RogueyTick(int32 TickIndex)
 			break;
 		case EInputType::ABILITY:
 			break;
+		case EInputType::PICK_UP_ITEM:
+			MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor, ProcessInput.TargetItem, ProcessInput.InputTick));
 		case EInputType::NONE:
 			break;
 		default: ;

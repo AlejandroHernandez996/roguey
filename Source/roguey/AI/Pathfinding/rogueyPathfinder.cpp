@@ -3,9 +3,8 @@
 #include "Movement.h"
 #include "Path.h"
 #include "Grid/Grid.h"
-#include "Engine/Engine.h" // Include for logging
-#include "GeometryCollection/Facades/CollectionConstraintOverrideFacade.h"
-#include "Grid/Util/GridUtils.h"
+#include "Engine/Engine.h" 
+#include "Items/rogueyItemActor.h"
 
 FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
 {
@@ -97,12 +96,16 @@ FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Gri
 {
     FPath Path;
     ArogueyPawn* TargetPawn = Movement.TargetPawn;
-    if (TargetPawn == nullptr)
+    if (!TargetPawn || !Movement.Actor)
     {
         Path.PathIndex = -1;
         return Path;
     }
-
+    if (!Grid.ActorMapLocation.Contains(Movement.Actor))
+    {
+        Path.PathIndex = -1;
+        return Path;
+    }
     FIntVector2 Start = Grid.ActorMapLocation[Movement.Actor];
     FIntVector2 TargetLocation = Grid.ActorMapLocation[TargetPawn];
 
@@ -204,6 +207,91 @@ FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Gri
     Path.PathIndex = 0;
     Path.TargetPawn = TargetPawn;
     Path.TargetPosition = TargetLocation;
+
+    return Path;
+}
+
+FPath UrogueyPathfinder::FindAndGeneratePathToItem(FMovement Movement, FGrid Grid)
+{
+    FPath Path;
+    ArogueyItemActor* TargetItem = Movement.TargetItem;
+    if (TargetItem == nullptr)
+    {
+        Path.PathIndex = -1;
+        return Path;
+    }
+
+    FIntVector2 Start = Grid.ActorMapLocation[Movement.Actor];
+    FIntVector2 Destination = TargetItem->Item.SpawnGridPosition;
+
+    if (Start == Destination)
+    {
+        return Path;
+    }
+
+    static const TArray<FIntVector2> NeighborOrder = {
+        { -1,  0 }, // West
+        {  1,  0 }, // East
+        {  0,  1 }, // South
+        {  0, -1 }, // North
+        { -1,  1 }, // SW
+        {  1,  1 }, // SE
+        { -1, -1 }, // NW
+        {  1, -1 }  // NE
+    };
+
+    TQueue<FIntVector2> Open;
+    TMap<FIntVector2, FIntVector2> CameFrom;
+    TSet<FIntVector2> Visited;
+
+    Open.Enqueue(Start);
+    Visited.Add(Start);
+
+    bool PathFound = false;
+    while (!Open.IsEmpty())
+    {
+        FIntVector2 Current;
+        Open.Dequeue(Current);
+
+        if (Current == Destination)
+        {
+            PathFound = true;
+            break;
+        }
+
+        for (const FIntVector2& Dir : NeighborOrder)
+        {
+            FIntVector2 Neighbor = Current + Dir;
+            if (Visited.Contains(Neighbor))
+                continue;
+            if (!Grid.CanMove(Current, Neighbor))
+                continue;
+
+            Open.Enqueue(Neighbor);
+            Visited.Add(Neighbor);
+            CameFrom.Add(Neighbor, Current);
+        }
+    }
+
+    if (!PathFound)
+    {
+        Path.PathIndex = -1;
+        return Path;
+    }
+
+    TArray<FIntVector2> ReversePath;
+    FIntVector2 Step = Destination;
+    while (Step != Start)
+    {
+        ReversePath.Add(Step);
+        Step = CameFrom[Step];
+    }
+    ReversePath.Add(Start);
+    Algo::Reverse(ReversePath);
+
+    Path.MovementPath = ReversePath;
+    Path.TargetItem = TargetItem;
+    Path.PathIndex = 0;
 
     return Path;
 }

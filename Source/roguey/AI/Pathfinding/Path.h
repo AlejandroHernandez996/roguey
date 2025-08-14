@@ -15,6 +15,8 @@ struct FPath
 	UPROPERTY()
 	ArogueyPawn* TargetPawn = nullptr;
 	UPROPERTY()
+	ArogueyItemActor* TargetItem = nullptr;
+	UPROPERTY()
 	FIntVector2 TargetPosition = FIntVector2(-1, -1);
 
 	bool IsPathComplete() const

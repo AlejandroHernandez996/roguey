@@ -7,8 +7,10 @@
 #include "Core/Engine/InteractType.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
+#include "Inventory/rogueyInventory.h"
 #include "rogueyPlayerController.generated.h"
 
+struct FrogueyInventory;
 struct FInteractTypeArray;
 enum class EInteractType : uint8;
 class IInteractable;
@@ -19,6 +21,7 @@ class UInputAction;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FClickEvent, bool, bIsYellow);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChatEvent, const FString&, ChatMessage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHoverEvent, const FString&, ActionName, const FString&, ObjectName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryEvent, const FrogueyInventory, UpdatedInventory);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractMenuEvent);
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -60,6 +63,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Examine")
 	FOnChatEvent OnChatMessage;
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnInventoryEvent OnInventoryUpdate;
 	
 	UPROPERTY(BlueprintReadWrite, Category = "Camera")
 	class USpringArmComponent* CameraBoom;

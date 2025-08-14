@@ -9,6 +9,8 @@
 #include "UObject/Object.h"
 #include "rogueyInventoryManager.generated.h"
 
+class ArogueyPlayerController;
+struct FInventoryEvent;
 class ArogueyCharacter;
 /**
  * 
@@ -24,14 +26,18 @@ public:
 	FrogueyInventory Inventory;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
 	FrogueyEquipment Equipment;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Inventory)
-	ArogueyCharacter* PlayerCharacter;
+	UPROPERTY()
+	ArogueyPlayerController* RogueyPlayerController;
+	TQueue<FInventoryEvent> InventoryEventQueue;
 	UFUNCTION()
-	void PickUpItem(int32 ItemId, int32 ItemQuantity);
+	void EnqueueIventoryEvent(FInventoryEvent InventoryEvent);
+	UFUNCTION()
+	void PickUpItem(ArogueyItemActor* PickupItem);
 	UFUNCTION()
 	void DropItem(int32 InventoryIndex);
 	UFUNCTION()
 	void EquipItem(int32 InventoryIndex);
 	UFUNCTION()
 	void UnenquipItem(EEquipmentType EquipmentType);
+	
 };

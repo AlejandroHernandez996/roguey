@@ -5,6 +5,7 @@
 #include "Input.generated.h"
 
 class ArogueyPawn;
+class ArogueyItemActor;
 
 USTRUCT(BlueprintType)
 struct FInput
@@ -25,6 +26,9 @@ struct FInput
 	UPROPERTY()
 	ArogueyPawn* TargetPawn = nullptr;
 
+	UPROPERTY()
+	ArogueyItemActor* TargetItem = nullptr;
+
 	FInput() {}
 
 	FInput(int32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, ArogueyPawn* InInputActor, ArogueyPawn* InTargetPawn)
@@ -33,5 +37,12 @@ struct FInput
 		, InputWorldLocation(InInputWorldLocation)
 		, InputActor(InInputActor)
 		, TargetPawn(InTargetPawn)
+	{}
+	
+	FInput(int32 InInputTick, EInputType InInputType, ArogueyPawn* InInputActor, ArogueyItemActor* InTargetItem)
+		: InputTick(InInputTick)
+		, InputType(InInputType)
+		, InputActor(InInputActor)
+		, TargetItem(InTargetItem)
 	{}
 };

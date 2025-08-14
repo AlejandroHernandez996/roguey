@@ -19,7 +19,12 @@ class ROGUEY_API UrogueyMovementManager : public UObject, public ITickable
 	GENERATED_BODY()
 public:
 	virtual void RogueyTick(int32 TickIndex) override;
-
+	void HandleActivePaths(int32 TickIndex);
+	void ProcessMovementQueue(int32 TickIndex);
+	FPath GenerateNewPath(const FMovement& Movement);
+	void UpdateActivePath(ArogueyPawn* Actor, const FPath& NewPath);
+	void ProcessActivePaths(int32 TickIndex);
+	
 	UFUNCTION()
 	void EnqueueMovement(const FMovement& Movement);
 
@@ -29,7 +34,8 @@ public:
 	UPROPERTY()
 	class UrogueyCombatManager* CombatManager;
 
-	void Tick(float DeltaTime);
+	UPROPERTY()
+	class UrogueyInventoryManager* InventoryManager;
 
 	UFUNCTION()
 	void RemoveActorFromActiveQueue(ArogueyPawn* Pawn);

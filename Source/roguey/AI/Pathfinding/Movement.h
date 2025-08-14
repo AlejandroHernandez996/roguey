@@ -19,6 +19,12 @@ struct FMovement
 		, TargetPawn(InTargetPawn)
 	{}
 
+	FMovement(ArogueyPawn* InActor, ArogueyItemActor* InTargetItem, uint32 InTick)
+		: Actor(InActor)
+		, Tick(InTick)
+		, TargetItem(InTargetItem)
+	{}
+
 	UPROPERTY()
 	ArogueyPawn* Actor = nullptr;
 
@@ -30,4 +36,7 @@ struct FMovement
 
 	UPROPERTY()
 	ArogueyPawn* TargetPawn = nullptr;
+
+	UPROPERTY()
+	ArogueyItemActor* TargetItem = nullptr;
 };
