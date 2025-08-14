@@ -193,9 +193,8 @@ void ArogueyPlayerController::DrawHoveredTile(const FVector& HoveredPosition)
 	FIntVector2 TileLocation = GridUtils::WorldToGrid(HoveredPosition);
 	FVector WorldTileCenter = GridUtils::GridToWorld(TileLocation);
 
-	// Calculate corner offsets assuming each tile is 100x100
 	float HalfTileSize = 50.0f; // Half of 100
-	float ZOffset = 1.0f;       // Small offset to draw above the mesh
+	float ZOffset = 1.0f; 
 
 	FVector CornerOffsets[] = {
 		FVector(HalfTileSize, HalfTileSize, 0),    // Top Right
@@ -231,8 +230,7 @@ void ArogueyPlayerController::DrawHoveredTile(const FVector& HoveredPosition)
 	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::White, false, .05f, 0, 2.0f);
 }
 
-void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractType InteractType,
-	FVector InteractLocation)
+void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractType InteractType)
 {
 	if (InteractType == EInteractType::EXAMINE)
 	{
@@ -241,5 +239,15 @@ void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractTyp
 		{
 			OnChatMessage.Broadcast(Interactable->GetExamineText());
 		}
+	}
+	if (InteractType == EInteractType::WALK)
+	{
+		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, InteractMenuLocation, Cast<ArogueyPawn>(GetPawn()), nullptr);
+		RogueyGameMode->InputManager->EnqueueInput(Input);
+	}
+	if (InteractType == EInteractType::ATTACK)
+	{
+		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyPawn>(InputActor));
+		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
 }

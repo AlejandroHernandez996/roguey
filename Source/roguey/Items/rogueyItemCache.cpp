@@ -8,6 +8,6 @@ void UrogueyItemCache::InitLootTable(ArogueyPawn* Pawn)
 	FrogueyLootTable& LootTable = Pawn->LootTable;
 	for (auto& Loot : LootTable.ItemTable)
 	{
-		Loot.Item = Items[Loot.Itemid];
+		Loot.Item = Items[Loot.ItemId];
 	}
 }

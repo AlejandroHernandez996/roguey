@@ -3,6 +3,7 @@
 
 #include "SpawnManager.h"
 
+#include "Grid/rogueyGridManager.h"
 #include "Grid/Util/GridUtils.h"
 #include "Items/rogueyItemActor.h"
 #include "Items/rogueyItemCache.h"
@@ -17,7 +18,15 @@ void USpawnManager::RogueyTick(int32 TickIndex)
 
 		if (TSubclassOf<ArogueyItemActor> ItemActor = ItemToSpawn.ItemActor)
 		{
-			if (UWorld* World = GetWorld())
+			bool bIsValidSpawnTile = GridManager->Grid.GridMap.Contains(ItemToSpawn.SpawnGridPosition);
+			bool bTileContainsItem = GridManager->Grid.GridMap[ItemToSpawn.SpawnGridPosition].ItemMapInTile.Contains(ItemToSpawn.ItemId);
+			bool bItemIsStackable = ItemToSpawn.bIsStackable;
+			if ( bIsValidSpawnTile && bTileContainsItem && bItemIsStackable)
+			{
+				ArogueyItemActor* GroundItem = GridManager->Grid.GridMap[ItemToSpawn.SpawnGridPosition].ItemMapInTile.FindArbitraryElement()->Value;
+				GroundItem->Item.Quantity += ItemToSpawn.Quantity;
+			} 
+			else if (UWorld* World = GetWorld())
 			{
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; 
@@ -31,6 +40,7 @@ void USpawnManager::RogueyTick(int32 TickIndex)
 					SpawnedActor->MeshComponent->SetStaticMesh(ItemToSpawn.ItemMesh);
 					SpawnedActor->Item = ItemToSpawn;
 					UGameplayStatics::FinishSpawningActor(SpawnedActor, FTransform(SpawnRotation, SpawnLocation));
+					GridManager->Grid.GridMap[ItemToSpawn.SpawnGridPosition].ItemMapInTile.Add({ItemToSpawn.ItemId, SpawnedActor});
 				}
 			}
 		}
@@ -44,7 +54,7 @@ void USpawnManager::EnqueueItem(FrogueyItem Item)
 
 void USpawnManager::EnqueueLootItem(FrogueyLoot Loot)
 {
-	FrogueyItem Item = ItemCache->Items[Loot.Itemid];
+	FrogueyItem Item = ItemCache->Items[Loot.ItemId];
 	Item.Quantity = Loot.Item.Quantity;
 	EnqueueItem(Item);
 }

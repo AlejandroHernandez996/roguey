@@ -27,7 +27,7 @@ class ArogueyPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 	
@@ -104,5 +104,5 @@ protected:
 		return EInteractTypeToString(InteractType);
 	}
 	UFUNCTION(BlueprintCallable)
-	void InteractMenuInput(AActor* InputActor, EInteractType InteractType, FVector InteractLocation);
+	void InteractMenuInput(AActor* InputActor, EInteractType InteractType);
 };

@@ -15,6 +15,7 @@ enum class EInteractType : uint8
 	CHOP UMETA(DisplayName = "Chop"),
 	MINE UMETA(DisplayName = "Mine"),
 	EXAMINE UMETA(DisplayName = "Examine"),
+	WALK UMETA(DisplayName = "Walk"),
 };
 
 FORCEINLINE FString EInteractTypeToString(EInteractType State)
@@ -31,6 +32,7 @@ FORCEINLINE FString EInteractTypeToString(EInteractType State)
 	case EInteractType::CHOP: return TEXT("Chop");
 	case EInteractType::MINE: return TEXT("Mine");
 	case EInteractType::EXAMINE: return TEXT("Examine");
+	case EInteractType::WALK: return TEXT("Walk");
 	default: return TEXT("Unknown");
 	}
 }

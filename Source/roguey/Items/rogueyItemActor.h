@@ -46,4 +46,14 @@ public:
 	{
 		return Item.ItemDescription;
 	}
+	UFUNCTION(BlueprintCallable)
+	FString GetGroundText()
+	{
+		FString GroundText = Item.ItemName;
+		if (Item.Quantity > 1)
+		{
+			GroundText += " (" + FString::FromInt(Item.Quantity)+ ")";
+		}
+		return GroundText;
+	}
 };

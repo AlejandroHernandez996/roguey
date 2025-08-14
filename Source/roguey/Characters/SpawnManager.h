@@ -11,6 +11,7 @@
 
 class UrogueyItemCache;
 class ArogueyPawn;
+class UrogueyGridManager;
 /**
  * 
  */
@@ -29,4 +30,6 @@ public:
 	TQueue<TSubclassOf<ArogueyPawn>> PawnSpawnQueue;
 	UPROPERTY()
 	UrogueyItemCache* ItemCache;
+	UPROPERTY()
+	UrogueyGridManager* GridManager;
 };

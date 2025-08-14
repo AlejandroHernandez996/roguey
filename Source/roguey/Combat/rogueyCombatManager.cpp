@@ -4,6 +4,7 @@
 #include "rogueyCombatManager.h"
 
 #include "DeathManager.h"
+#include "Characters/Player/rogueyCharacter.h"
 #include "Grid/rogueyGridManager.h"
 #include "Input/rogueyInputManager.h"
 #include "System/rogueyDamageCalculator.h"
@@ -47,7 +48,7 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		{
 			UrogueyDamageCalculator::CalculateCombat(TickIndex, CombatEvent);
 			FromActor->RotateAtPawn(CombatEvent.ToActor);
-			if (CombatEvent.ToActor->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentStat <= 0)
+			if (CombatEvent.ToActor->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentLevel <= 0 && !Cast<ArogueyCharacter>(CombatEvent.ToActor))
 			{
 				FinishedCombatActors.Add(FromActor);
 				DeathManager->EnqueueDeath(CombatEvent.ToActor);

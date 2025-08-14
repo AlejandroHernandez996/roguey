@@ -49,6 +49,7 @@ void ArogueyGameMode::BeginPlay()
 	DeathManager->SpawnManager = SpawnManager;
 
 	SpawnManager->ItemCache = ItemCache;
+	SpawnManager->GridManager = GridManager;
 	
 	GridManager->Init();
 	Engine->Init({

@@ -21,13 +21,13 @@ public:
 			return FrogueyItem();
 		}
 
-		for (const auto& Loot : ItemTable)
+		for (const FrogueyLoot& Loot : ItemTable)
 		{
 			if (Loot.DropChance > 0 && FMath::RandRange(1, Loot.DropChance) == 1)
 			{
 				FrogueyItem LootItem = Loot.Item;
-				LootItem.Quantity = FMath::RandRange(Loot.MinQuantity, Loot.MaxQuantity);
-				return LootItem;
+				LootItem.Quantity = Loot.GetRandomQuantity();
+				return LootItem; 
 			}
 		}
 

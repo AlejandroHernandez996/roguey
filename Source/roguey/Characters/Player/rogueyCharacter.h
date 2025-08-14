@@ -6,9 +6,8 @@
 #include "Characters/rogueyPawn.h"
 #include "rogueyCharacter.generated.h"
 
-/**
- *  A controllable top-down perspective character
- */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FExperienceDropEvent, const int32&, ExperienceAmount, ErogueyStatType, StatType);
+
 UCLASS(abstract)
 class ArogueyCharacter : public ArogueyPawn
 {
@@ -31,5 +30,8 @@ public:
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FExperienceDropEvent OnExperienceDrop;
 };
 

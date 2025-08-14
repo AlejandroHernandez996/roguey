@@ -183,11 +183,18 @@ void ArogueyPawn::RotateAtPawn(ArogueyPawn* ToActor)
 
 void ArogueyPawn::UpdateCurrentStat(ErogueyStatType StatType, int32 DeltaValue)
 {
-	StatPage.StatPage[StatType].CurrentStat += DeltaValue;
+	StatPage.StatPage[StatType].CurrentLevel += DeltaValue;
 
-	if (StatType == ErogueyStatType::HEALTH  && DeltaValue < 0)
+	if (StatType == ErogueyStatType::HEALTH)
 	{
-		OnDamageEvent.Broadcast(FMath::Abs(DeltaValue), this);
+		if (DeltaValue == 0)
+		{
+			OnBlockEvent.Broadcast(this);
+		}
+		if (DeltaValue < 0)
+		{
+			OnDamageEvent.Broadcast(FMath::Abs(DeltaValue), this);
+		}
 	}
 }
 

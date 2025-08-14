@@ -11,20 +11,18 @@ ArogueyItemActor::ArogueyItemActor()
 	CollisionComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Item Hitbox"));
 	CollisionComponent->InitBoxExtent(FVector(20.0f, 20.0f, 20.0f));
 	CollisionComponent->SetCollisionProfileName(TEXT("Item"));
-	RootComponent = CollisionComponent; // Root is now the collider
+	RootComponent = CollisionComponent;
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	MeshComponent->SetupAttachment(CollisionComponent);
 }
 
-// Called when the game starts or when spawned
 void ArogueyItemActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void ArogueyItemActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

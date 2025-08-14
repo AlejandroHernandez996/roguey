@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/Map.h"
 #include "TileType.h"
+
 #include "Tile.generated.h"
 
 USTRUCT(BlueprintType)
@@ -10,6 +12,9 @@ struct FTile
 	GENERATED_BODY()
 	UPROPERTY()
 	TSet<AActor*> ActorsInTile;
+	TMultiMap<int32, class ArogueyItemActor*> ItemMapInTile;
+	UPROPERTY()
+	TSet<class AArogueyObject*> ObjectsInTile;
 	UPROPERTY()
 	ETileType TileType = ETileType::FREE;
 

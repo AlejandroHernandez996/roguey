@@ -13,6 +13,7 @@
 #include "rogueyPawn.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCombatDamageEvent, const int32&, DamageAmount, ArogueyPawn*, OwningPawn);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCombatBlockEvent, ArogueyPawn*, OwningPawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetPawnEvent, ArogueyPawn*, CurrentTarget);
 
 UCLASS()
@@ -52,6 +53,8 @@ public:
 	FrogueyStatPage StatPage;
 	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FCombatDamageEvent OnDamageEvent;
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FCombatBlockEvent OnBlockEvent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	int32 LastAttackTickIndex = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")

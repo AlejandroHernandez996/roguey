@@ -3,18 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Object.h"
 #include "rogueyDamageCalculator.generated.h"
 
-/**
- * 
- */
+class ArogueyPawn;
+struct FCombatEvent;
+
 UCLASS()
 class ROGUEY_API UrogueyDamageCalculator : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
 	static void CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent);
+
+protected:
+	static int32 CalculateDamage(ArogueyPawn* FromPawn);
+	static int32 GetDamageBonusFromStrength(int32 StrengthLevel);
+	static bool CanHit(ArogueyPawn* FromPawn, ArogueyPawn* ToPawn);
+	static int32 GetAttackRoll(ArogueyPawn* FromPawn);
+	static int32 GetDefenceRoll(ArogueyPawn* ToPawn);
 };
