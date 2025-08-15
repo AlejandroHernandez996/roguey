@@ -20,6 +20,8 @@ class ROGUEY_API UrogueyEngine : public UObject, public IProcessable, public ITi
 	virtual void Process(float DeltaTime) override;
 	virtual void RogueyTick(int32 TickIndex) override;
 
+	
+
 	UFUNCTION()
 	void Init(const TArray<TScriptInterface<ITickable>>& ManagerArray)
 	{

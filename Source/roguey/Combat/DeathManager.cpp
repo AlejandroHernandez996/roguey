@@ -9,6 +9,13 @@
 
 void UDeathManager::RogueyTick(int32 TickIndex)
 {
+	for (AActor* ActorToDestroy : PawnsToDestroy)
+	{
+		if (ActorToDestroy)
+		{
+			ActorToDestroy->Destroy();
+		}
+	}
 	while (!DeathQueue.IsEmpty())
 	{
 		ArogueyPawn* DeadPawn;
@@ -18,7 +25,16 @@ void UDeathManager::RogueyTick(int32 TickIndex)
 		LootItem.SpawnGridPosition = GridManager->Grid.ActorMapLocation[DeadPawn];
 		SpawnManager->EnqueueItem(LootItem);
 		GridManager->RemoveActorFromGrid(DeadPawn);
-		DeadPawn->Destroy();
+		PawnsToDestroy.Add(DeadPawn);
+		DeadPawn->SetPawnState(EPawnState::DEAD, true);
+		for (ArogueyPawn* Threats : DeadPawn->ThreatList)
+		{
+			if (Threats->TargetPawn == DeadPawn)
+			{
+				Threats->TargetPawn = nullptr;
+			}
+		}
+		DeadPawn->SetHidden(true);
 	}
 }
 

@@ -10,6 +10,8 @@ struct FInteractTypeArray
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadWrite, Category = "Interact")
+	FrogueyItem InventoryItem;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AActor* InteractableActor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

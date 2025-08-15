@@ -4,7 +4,6 @@
 
 #include "Characters/Player/rogueyCharacter.h"
 #include "DrawDebugHelpers.h"
-#include "Util/GridUtils.h"
 
 void UrogueyGridManager::RogueyTick(int32 TickIndex)
 {
@@ -101,4 +100,9 @@ void UrogueyGridManager::Init()
 			Grid.GridMap.Add(FIntVector2(i, j), Tile);
 		}
 	}
+}
+
+FIntVector2 UrogueyGridManager::GetPlayerTrueLocation()
+{
+	return Grid.ActorMapLocation[PlayerCharacter];
 }

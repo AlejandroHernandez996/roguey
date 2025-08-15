@@ -3,7 +3,11 @@
 #include "CoreMinimal.h"
 #include "ItemStatPage.h"
 #include "Combat/Projectile/rogueyProjectile.h"
+#include "Inventory/InventoryEventType.h"
 #include "rogueyItem.generated.h"
+
+enum class EInventoryEventType : uint8;
+enum class EInteractType : uint8;
 
 USTRUCT(BlueprintType)
 struct ROGUEY_API FrogueyItem
@@ -49,4 +53,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FIntVector2 SpawnGridPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<EInventoryEventType> Interacts  = {EInventoryEventType::DROP};
 };

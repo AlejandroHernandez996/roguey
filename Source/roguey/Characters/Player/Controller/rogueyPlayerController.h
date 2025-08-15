@@ -23,6 +23,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnChatEvent, const FString&, ChatMe
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FHoverEvent, const FString&, ActionName, const FString&, ObjectName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryEvent, const FrogueyInventory, UpdatedInventory);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractMenuEvent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FInteractInventoryMenuEvent);
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(abstract)
@@ -60,6 +61,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "PlayerInput")
 	FInteractMenuEvent OnInteractMenuEvent;
+	
+	UPROPERTY(BlueprintAssignable, Category = "PlayerInput")
+	FInteractInventoryMenuEvent OnInteractInventoryMenuEvent;
 
 	UPROPERTY(BlueprintAssignable, Category = "Examine")
 	FOnChatEvent OnChatMessage;
@@ -111,4 +115,14 @@ protected:
 	}
 	UFUNCTION(BlueprintCallable)
 	void InteractMenuInput(AActor* InputActor, EInteractType InteractType);
+	
+	UFUNCTION(BlueprintCallable)
+	void InventoryItemHoverAction(int32 InventoryIndex);
+	UFUNCTION(BlueprintCallable)
+	void InventoryItemInput(int32 InventoryIndex);
+	UFUNCTION(BlueprintCallable)
+	void InventoryItemMenuInput(int32 InventoryIndex);
+
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerInput")
+	bool bIsUIOnly = false;
 };

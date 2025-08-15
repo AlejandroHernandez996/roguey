@@ -8,10 +8,8 @@
 #include "Characters/SpawnManager.h"
 #include "Combat/DeathManager.h"
 #include "Combat/rogueyCombatManager.h"
-#include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "Input/rogueyInputManager.h"
 #include "Inventory/rogueyInventoryManager.h"
-#include "Items/rogueyItemCache.h"
 
 ArogueyGameMode::ArogueyGameMode()
 {
@@ -51,10 +49,12 @@ void ArogueyGameMode::BeginPlay()
 
 	SpawnManager->ItemCache = ItemCache;
 	SpawnManager->GridManager = GridManager;
+
+	InventoryManager->SpawnManager = SpawnManager;
+	InventoryManager->GridManager = GridManager;
 	
 	GridManager->Init();
 	Engine->Init({
-		SpawnManager,
 		BehaviorManager,
 		InputManager,
 		MovementManager,

@@ -9,7 +9,8 @@ struct ROGUEY_API FrogueyInventory
 {
 	GENERATED_BODY()
 
-	static constexpr int32 Inventory_Size = 28;
+	UPROPERTY()
+	int32 Inventory_Size = 28;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<int32, FrogueyItem> Items;
 

@@ -15,6 +15,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	ArogueyItemActor* ItemActor;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FrogueyItem InventoryItem;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	EInventoryEventType EventType;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int32 FromIndex = -1;

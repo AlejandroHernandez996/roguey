@@ -52,6 +52,11 @@ public:
 	UFUNCTION()
 	void Init();
 
+	UFUNCTION()
+	FIntVector2 GetPlayerTrueLocation();
+	UPROPERTY()
+	class ArogueyCharacter* PlayerCharacter;
+
 private:
 	 FIntVector2 GridSize = {64, 64};
 	

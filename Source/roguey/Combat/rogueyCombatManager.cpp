@@ -18,6 +18,10 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		
 		if (CombatEvent.ToActor && CombatEvent.FromActor)
 		{
+			if (CombatEvent.ToActor->PawnState == EPawnState::DEAD || CombatEvent.FromActor->PawnState == EPawnState::DEAD)
+			{
+				continue;
+			}
 			if (ActiveCombats.Contains(CombatEvent.FromActor))
 			{
 				ActiveCombats.Remove(CombatEvent.FromActor);
@@ -34,6 +38,14 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		if (!CombatEvent.ToActor || !CombatEvent.FromActor)
 		{
 			continue;
+		}
+		if (CombatEvent.ToActor && CombatEvent.FromActor)
+		{
+			if (CombatEvent.ToActor->PawnState == EPawnState::DEAD || CombatEvent.FromActor->PawnState == EPawnState::DEAD)
+			{
+				FinishedCombatActors.Add(CombatEvent.FromActor);
+				continue;
+			}
 		}
 		bool bIsInRange = GridManager->IsPawnInRange(FromActor, CombatEvent.ToActor);
 		if (!FromActor || !CombatEvent.FromActor || !bIsInRange)

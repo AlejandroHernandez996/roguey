@@ -6,7 +6,9 @@
 #include "InventoryEvent.h"
 #include "Items/rogueyItemActor.h"
 #include "InventoryEventType.h"
+#include "Characters/SpawnManager.h"
 #include "Characters/Player/Controller/rogueyPlayerController.h"
+#include "Grid/rogueyGridManager.h"
 
 void UrogueyInventoryManager::RogueyTick(int32 TickIndex)
 {
@@ -19,6 +21,10 @@ void UrogueyInventoryManager::RogueyTick(int32 TickIndex)
 		{
 			PickUpItem(InventoryEvent.ItemActor);
 		}
+		if (InventoryEvent.EventType == EInventoryEventType::DROP)
+		{
+			DropItem(InventoryEvent.FromIndex);
+		}
 	}
 }
 
@@ -29,15 +35,32 @@ void UrogueyInventoryManager::EnqueueIventoryEvent(FInventoryEvent InventoryEven
 
 void UrogueyInventoryManager::PickUpItem(ArogueyItemActor* ItemToPickup)
 {
-	if (Inventory.AddItem(ItemToPickup->Item))
+	if ( ItemToPickup && !ItemToPickup->bPickedUp)
 	{
-		ItemToPickup->Destroy();
-		RogueyPlayerController->OnInventoryUpdate.Broadcast(Inventory);
+		if (Inventory.AddItem(ItemToPickup->Item))
+		{
+			ItemToPickup->bPickedUp = true;
+			RogueyPlayerController->OnInventoryUpdate.Broadcast(Inventory);
+			TArray<ArogueyItemActor*> ItemToPickupActors;
+			GridManager->Grid.GridMap[ItemToPickup->Item.SpawnGridPosition].ItemMapInTile.MultiFind(ItemToPickup->Item.ItemId, ItemToPickupActors);
+			GridManager->Grid.GridMap[ItemToPickup->Item.SpawnGridPosition].ItemMapInTile.Remove(ItemToPickup->Item.ItemId);
+			for (auto& ItemToPickupActor : ItemToPickupActors)
+			{
+				if (ItemToPickupActor == ItemToPickup) continue;
+				GridManager->Grid.GridMap[ItemToPickup->Item.SpawnGridPosition].ItemMapInTile.Add(ItemToPickup->Item.ItemId, ItemToPickupActor);
+			}
+			ItemToPickup->Destroy();
+		}
 	}
 }
 
 void UrogueyInventoryManager::DropItem(int32 InventoryIndex)
 {
+	FrogueyItem DroppedItem = Inventory.RemoveItem(InventoryIndex);
+	if (DroppedItem.ItemId == -1) return;
+	DroppedItem.SpawnGridPosition = GridManager->GetPlayerTrueLocation();
+	SpawnManager->EnqueueItem(DroppedItem);
+	RogueyPlayerController->OnInventoryUpdate.Broadcast(Inventory);
 }
 
 void UrogueyInventoryManager::EquipItem(int32 InventoryIndex)
@@ -46,4 +69,9 @@ void UrogueyInventoryManager::EquipItem(int32 InventoryIndex)
 
 void UrogueyInventoryManager::UnenquipItem(EEquipmentType EquipmentType)
 {
+}
+
+FrogueyItem UrogueyInventoryManager::GetItemAt(int32 Index)
+{
+	return Inventory.Items.Contains(Index) ? Inventory.Items[Index] : FrogueyItem();
 }

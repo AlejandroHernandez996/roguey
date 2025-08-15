@@ -29,6 +29,8 @@ public:
 	UStaticMeshComponent* MeshComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UBoxComponent* CollisionComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bPickedUp = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interactable", meta = (AllowPrivateAccess = "true"))
 	TArray<EInteractType> InteractList {EInteractType::TAKE};

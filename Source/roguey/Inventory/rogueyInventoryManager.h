@@ -12,9 +12,7 @@
 class ArogueyPlayerController;
 struct FInventoryEvent;
 class ArogueyCharacter;
-/**
- * 
- */
+
 UCLASS()
 class ROGUEY_API UrogueyInventoryManager : public UObject, public ITickable
 {
@@ -39,5 +37,10 @@ public:
 	void EquipItem(int32 InventoryIndex);
 	UFUNCTION()
 	void UnenquipItem(EEquipmentType EquipmentType);
-	
+	UFUNCTION()
+	FrogueyItem GetItemAt(int32 Index);
+	UPROPERTY()
+	class USpawnManager* SpawnManager;
+	UPROPERTY()
+	class UrogueyGridManager* GridManager;
 };

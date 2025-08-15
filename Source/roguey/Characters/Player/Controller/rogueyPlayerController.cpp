@@ -15,6 +15,7 @@
 #include "Grid/Util/GridUtils.h"
 #include "Input/Input.h"
 #include "Input/rogueyInputManager.h"
+#include "Inventory/InventoryEvent.h"
 #include "Inventory/rogueyInventoryManager.h"
 #include "Items/rogueyItemActor.h"
 
@@ -41,6 +42,8 @@ void ArogueyPlayerController::BeginPlay()
 void ArogueyPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (bIsUIOnly) return;
+	
 	FHitResult Hit;
 	if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
 	{
@@ -104,20 +107,23 @@ void ArogueyPlayerController::OnInputStarted()
 		IInteractable* Interactable = Cast<IInteractable>(HitActor);
 		if (Interactable && HitActor != Cast<ArogueyCharacter>(GetPawn()))
 		{
-			OnClickEvent.Broadcast(false);
 			FInput Input;
 			ArogueyPawn* TargetPawn = Cast<ArogueyPawn>(HitActor);
 			ArogueyItemActor* TargetItem = Cast<ArogueyItemActor>(HitActor);
-			if (TargetPawn)
+			if (TargetPawn && TargetPawn->PawnState != EPawnState::DEAD)
 			{
 				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()), TargetPawn);
+				RogueyGameMode->InputManager->EnqueueInput(Input);
+				OnClickEvent.Broadcast(false);
+				return;
 			}
 			if (TargetItem)
 			{
 				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, Cast<ArogueyPawn>(GetPawn()), TargetItem);
+				RogueyGameMode->InputManager->EnqueueInput(Input);
+				OnClickEvent.Broadcast(false);
+				return;
 			}
-			RogueyGameMode->InputManager->EnqueueInput(Input);
-			return;
 		}
 	}
 	if (GetHitResultUnderCursor(ECC_WorldStatic, true, WorldHit))
@@ -268,4 +274,30 @@ void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractTyp
 		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyItemActor>(InputActor));
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
+}
+
+void ArogueyPlayerController::InventoryItemHoverAction(int32 InventoryIndex)
+{
+	FrogueyItem Item = RogueyGameMode->InventoryManager->GetItemAt(InventoryIndex);
+	if (Item.ItemId == -1) return;
+	OnHoverEvent.Broadcast(EInventoryEventTypeToString(Item.Interacts[0]), "<Yellow>"+ Item.ItemName + "</>");
+}
+
+void ArogueyPlayerController::InventoryItemInput(int32 InventoryIndex)
+{
+	FrogueyItem Item = RogueyGameMode->InventoryManager->GetItemAt(InventoryIndex);
+	if (Item.ItemId == -1) return;
+
+	FInventoryEvent InventoryEvent;
+	InventoryEvent.EventType = Item.Interacts[0];
+	InventoryEvent.FromIndex = InventoryIndex;
+	
+	RogueyGameMode->InventoryManager->EnqueueIventoryEvent(InventoryEvent);
+}
+
+void ArogueyPlayerController::InventoryItemMenuInput(int32 InventoryIndex)
+{
+	FrogueyItem Item = RogueyGameMode->InventoryManager->GetItemAt(InventoryIndex);
+	InteractMenuEntries.Empty();
+	OnInteractInventoryMenuEvent.Broadcast();
 }

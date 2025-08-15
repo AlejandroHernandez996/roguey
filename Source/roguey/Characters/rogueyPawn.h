@@ -45,8 +45,8 @@ public:
 	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 	void RotateAtPawn(ArogueyPawn* ToActor);
 
-	UPROPERTY(Category=Character, VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
-	TObjectPtr<USkeletalMeshComponent> Mesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	class USkeletalMeshComponent* Mesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float BaseSpeed = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")

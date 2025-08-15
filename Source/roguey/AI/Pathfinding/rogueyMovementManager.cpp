@@ -28,6 +28,11 @@ void UrogueyMovementManager::HandleActivePaths(int32 TickIndex)
         ArogueyPawn* PathActor = ActorAndPath.Key;
         FPath& Path = ActorAndPath.Value;
 
+        if (PathActor->PawnState == EPawnState::DEAD)
+        {
+            FinishedPathActors.Add(PathActor);
+            continue;
+        }
         if (Path.TargetPawn && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
         {
             EnqueueMovement(FMovement(PathActor, Path.TargetPawn, FIntVector2::ZeroValue, TickIndex));
@@ -48,7 +53,7 @@ void UrogueyMovementManager::ProcessMovementQueue(int32 TickIndex)
         FMovement ProcessMovement;
         MovementQueue.Dequeue(ProcessMovement);
 
-        if (!ProcessMovement.Actor)
+        if (!ProcessMovement.Actor || ProcessMovement.Actor->PawnState == EPawnState::DEAD)
         {
             continue; 
         }
@@ -77,7 +82,7 @@ void UrogueyMovementManager::ProcessMovementQueue(int32 TickIndex)
 
 FPath UrogueyMovementManager::GenerateNewPath(const FMovement& Movement)
 {
-    if (Movement.Actor && Movement.TargetPawn)
+    if (Movement.Actor && Movement.TargetPawn && Movement.TargetPawn->PawnState != EPawnState::DEAD)
     {
         return UrogueyPathfinder::FindAndGeneratePathToPawn(Movement, GridManager->Grid);
     }
@@ -107,6 +112,12 @@ void UrogueyMovementManager::ProcessActivePaths(int32 TickIndex)
     {
         ArogueyPawn* PathActor = ActorAndPath.Key;
         FPath& Path = ActorAndPath.Value;
+
+        if (PathActor->PawnState == EPawnState::DEAD)
+        {
+            FinishedPathActors.Add(PathActor);
+            continue;
+        }
 
         if (Path.TargetPawn && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
         {

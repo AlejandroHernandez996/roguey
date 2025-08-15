@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Grid/Util/GridUtils.h"
 #include "Items/rogueyItemCache.h"
+#include "Player/rogueyCharacter.h"
 
 FName ArogueyPawn::MeshComponentName(TEXT("CharacterMesh0"));
 FName ArogueyPawn::CollisionComponentName(TEXT("PawnCollision"));
@@ -46,6 +47,10 @@ void ArogueyPawn::BeginPlay()
 	ArogueyGameMode* RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
 	RogueyGameMode->GridManager->AddActorToGrid(this,GridUtils::WorldToGrid(this->GetActorLocation()));
 	RogueyGameMode->ItemCache->InitLootTable(this);
+	if (ArogueyCharacter* PlayerCharacter = Cast<ArogueyCharacter>(this))
+	{
+		RogueyGameMode->GridManager->PlayerCharacter = Cast<ArogueyCharacter>(PlayerCharacter);
+	}
 	TrueTileQueue.Enqueue({GridUtils::WorldToGrid(this->GetActorLocation()), 1.0f});
 	SetPawnState(EPawnState::IDLE, false);
 	PrimaryActorTick.bCanEverTick = true;
@@ -55,6 +60,14 @@ void ArogueyPawn::BeginPlay()
 void ArogueyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (TargetPawn && TargetPawn->PawnState == EPawnState::DEAD)
+	{
+		TargetPawn = nullptr;
+	}
+	if (PawnState == EPawnState::DEAD)
+	{
+		return;
+	}
 	FVector Start = GetActorLocation();
 	FVector End = Start - FVector(0, 0, 1000.0f);
 

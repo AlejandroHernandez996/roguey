@@ -18,6 +18,8 @@ class ROGUEY_API UDeathManager : public UObject, public ITickable
 
 	public:
 	void RogueyTick(int32 TickIndex) override;
+	UPROPERTY(EditAnywhere)
+	TSet<ArogueyPawn*> PawnsToDestroy;
 
 	TQueue<ArogueyPawn*> DeathQueue;
 
