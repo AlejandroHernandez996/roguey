@@ -20,8 +20,8 @@ class ROGUEY_API UrogueyCombatManager : public UObject, public ITickable
 	TQueue<FCombatEvent> CombatEventQueue;
 
 	UPROPERTY()
-	TMap<ArogueyPawn*, FCombatEvent> ActiveCombats;
-
+	TMap<TWeakObjectPtr<ArogueyPawn>, FCombatEvent> ActiveCombats;
+	
 	UFUNCTION()
 	void EnqueueCombatEvent(const FCombatEvent& CombatEvent);
 
@@ -36,5 +36,5 @@ class ROGUEY_API UrogueyCombatManager : public UObject, public ITickable
 	class UDeathManager* DeathManager;
 
 	UFUNCTION()
-	void RemoveActorFromActiveQueue(ArogueyPawn* Pawn);
+	void RemoveActorFromActiveQueue(TWeakObjectPtr<ArogueyPawn> Pawn);
 };

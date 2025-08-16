@@ -95,8 +95,8 @@ FPath UrogueyPathfinder::FindAndGeneratePath(FMovement Movement, FGrid Grid)
 FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Grid)
 {
     FPath Path;
-    ArogueyPawn* TargetPawn = Movement.TargetPawn;
-    if (!TargetPawn || !Movement.Actor)
+    TWeakObjectPtr<ArogueyPawn> TargetPawn = Movement.TargetPawn;
+    if (!TargetPawn.Get() || !Movement.Actor.Get())
     {
         Path.PathIndex = -1;
         return Path;
@@ -214,7 +214,7 @@ FPath UrogueyPathfinder::FindAndGeneratePathToPawn(FMovement Movement, FGrid Gri
 FPath UrogueyPathfinder::FindAndGeneratePathToItem(FMovement Movement, FGrid Grid)
 {
     FPath Path;
-    ArogueyItemActor* TargetItem = Movement.TargetItem;
+    TWeakObjectPtr<ArogueyItemActor> TargetItem = Movement.TargetItem;
     if (TargetItem == nullptr)
     {
         Path.PathIndex = -1;

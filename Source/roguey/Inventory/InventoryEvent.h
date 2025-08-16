@@ -13,7 +13,7 @@ struct ROGUEY_API FInventoryEvent
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ArogueyItemActor* ItemActor;
+	TWeakObjectPtr<ArogueyItemActor> ItemActor;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FrogueyItem InventoryItem;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)

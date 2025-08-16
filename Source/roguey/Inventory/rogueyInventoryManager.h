@@ -30,7 +30,7 @@ public:
 	UFUNCTION()
 	void EnqueueIventoryEvent(FInventoryEvent InventoryEvent);
 	UFUNCTION()
-	void PickUpItem(ArogueyItemActor* PickupItem);
+	void PickUpItem(TWeakObjectPtr<ArogueyItemActor> PickupItem);
 	UFUNCTION()
 	void DropItem(int32 InventoryIndex);
 	UFUNCTION()

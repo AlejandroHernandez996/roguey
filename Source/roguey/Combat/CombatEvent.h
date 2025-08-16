@@ -11,15 +11,16 @@ struct FCombatEvent
 	
 	int32 Tick;
 	UPROPERTY()
-	ArogueyPawn* FromActor;
+	TWeakObjectPtr<ArogueyPawn> FromActor;
+
 	UPROPERTY()
-	ArogueyPawn* ToActor;
+	TWeakObjectPtr<ArogueyPawn> ToActor;
 
 	FCombatEvent(): ToActor(nullptr), FromActor(nullptr), Tick(0)
 	{
 	}
 
-	FCombatEvent(ArogueyPawn* InFromActor, ArogueyPawn* InToActor, int32 InTick)
+	FCombatEvent(TWeakObjectPtr<ArogueyPawn> InFromActor, TWeakObjectPtr<ArogueyPawn> InToActor, int32 InTick)
 		: FromActor(InFromActor)
 		, ToActor(InToActor)
 		, Tick(InTick)

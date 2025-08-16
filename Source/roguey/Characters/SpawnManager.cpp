@@ -23,7 +23,7 @@ void USpawnManager::RogueyTick(int32 TickIndex)
 			bool bItemIsStackable = ItemToSpawn.bIsStackable;
 			if ( bIsValidSpawnTile && bTileContainsItem && bItemIsStackable)
 			{
-				ArogueyItemActor* GroundItem = GridManager->Grid.GridMap[ItemToSpawn.SpawnGridPosition].ItemMapInTile.FindArbitraryElement()->Value;
+				TWeakObjectPtr<ArogueyItemActor> GroundItem = GridManager->Grid.GridMap[ItemToSpawn.SpawnGridPosition].ItemMapInTile.FindArbitraryElement()->Value;
 				GroundItem->Item.Quantity += ItemToSpawn.Quantity;
 			} 
 			else if (UWorld* World = GetWorld())
@@ -34,12 +34,15 @@ void USpawnManager::RogueyTick(int32 TickIndex)
 				FVector SpawnLocation = GridUtils::GridToWorld(ItemToSpawn.SpawnGridPosition);
 				FRotator SpawnRotation = FRotator::ZeroRotator;
 
-				ArogueyItemActor* SpawnedActor = World->SpawnActorDeferred<ArogueyItemActor>(ItemActor.Get(), FTransform(SpawnRotation, SpawnLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-				if (SpawnedActor && ItemToSpawn.ItemMesh)
+				TWeakObjectPtr<ArogueyItemActor> SpawnedActor = World->SpawnActorDeferred<ArogueyItemActor>(ItemActor.Get(), FTransform(SpawnRotation, SpawnLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+				if (SpawnedActor.Get() && ItemToSpawn.ItemMesh.Get())
 				{
-					SpawnedActor->MeshComponent->SetStaticMesh(ItemToSpawn.ItemMesh);
+					SpawnedActor->MeshComponent->SetStaticMesh(ItemToSpawn.ItemMesh.Get());
+					SpawnedActor->MeshComponent->SetRelativeScale3D(ItemToSpawn.MeshRelativeScale);
+					SpawnedActor->MeshComponent->SetRelativeLocation(ItemToSpawn.MeshRelativeLocation);
+					SpawnedActor->MeshComponent->SetRelativeRotation(ItemToSpawn.MeshRelativeRotation);
 					SpawnedActor->Item = ItemToSpawn;
-					UGameplayStatics::FinishSpawningActor(SpawnedActor, FTransform(SpawnRotation, SpawnLocation));
+					UGameplayStatics::FinishSpawningActor(SpawnedActor.Get(), FTransform(SpawnRotation, SpawnLocation));
 					GridManager->Grid.GridMap[ItemToSpawn.SpawnGridPosition].ItemMapInTile.Add({ItemToSpawn.ItemId, SpawnedActor});
 				}
 			}

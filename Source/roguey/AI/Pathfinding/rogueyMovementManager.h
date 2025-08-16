@@ -22,7 +22,7 @@ public:
 	void HandleActivePaths(int32 TickIndex);
 	void ProcessMovementQueue(int32 TickIndex);
 	FPath GenerateNewPath(const FMovement& Movement);
-	void UpdateActivePath(ArogueyPawn* Actor, const FPath& NewPath);
+	void UpdateActivePath(TWeakObjectPtr<ArogueyPawn>, const FPath& NewPath);
 	void ProcessActivePaths(int32 TickIndex);
 	
 	UFUNCTION()
@@ -38,13 +38,13 @@ public:
 	class UrogueyInventoryManager* InventoryManager;
 
 	UFUNCTION()
-	void RemoveActorFromActiveQueue(ArogueyPawn* Pawn);
+	void RemoveActorFromActiveQueue(TWeakObjectPtr<ArogueyPawn> Pawn);
 private:
 	TQueue<FMovement> MovementQueue;
 
 	UPROPERTY()
-	TMap<ArogueyPawn*, FPath> ActivePaths;
+	TMap<TWeakObjectPtr<ArogueyPawn>, FPath> ActivePaths;
 
 	UPROPERTY()
-	TMap<ArogueyPawn*, FActorPath> ActorPaths;
+	TMap<TWeakObjectPtr<ArogueyPawn>, FActorPath> ActorPaths;
 };

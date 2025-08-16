@@ -11,10 +11,10 @@
 
 void UrogueyBehaviorManager::RogueyTick(int32 TickIndex)
 {
-	TArray<ArogueyPawn*> rogueyPawns;
+	TArray<TWeakObjectPtr<ArogueyPawn>> rogueyPawns;
 	GridManager->Grid.ActorMapLocation.GetKeys(rogueyPawns);
 	ArogueyPawn* PlayerPawn = Cast<ArogueyPawn>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	for (ArogueyPawn* Pawn : rogueyPawns)
+	for (TWeakObjectPtr<ArogueyPawn> Pawn : rogueyPawns)
 	{
 		if (Pawn->PawnState != EPawnState::IDLE) continue;
 		FBehavior Behavior = Pawn->Behavior;
@@ -23,14 +23,14 @@ void UrogueyBehaviorManager::RogueyTick(int32 TickIndex)
 		case EBehaviorType::AGGRESSIVE:
 			if (GridManager->IsPawnInAggroRange(Pawn, PlayerPawn))
 			{
-				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn, PlayerPawn);
+				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get(), PlayerPawn);
 				InputManager->EnqueueInput(Input);
 			}
 			break;
 		case EBehaviorType::PASSIVE:
 			if (!Pawn->ThreatList.IsEmpty())
 			{
-				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn, Pawn->ThreatList.Array()[0]);
+				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get(), Pawn->ThreatList.Array()[0].Get());
 				InputManager->EnqueueInput(Input);
 			}
 			break;

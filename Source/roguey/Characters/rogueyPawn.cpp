@@ -49,7 +49,7 @@ void ArogueyPawn::BeginPlay()
 	RogueyGameMode->ItemCache->InitLootTable(this);
 	if (ArogueyCharacter* PlayerCharacter = Cast<ArogueyCharacter>(this))
 	{
-		RogueyGameMode->GridManager->PlayerCharacter = Cast<ArogueyCharacter>(PlayerCharacter);
+		RogueyGameMode->GridManager->PlayerCharacter = PlayerCharacter;
 	}
 	TrueTileQueue.Enqueue({GridUtils::WorldToGrid(this->GetActorLocation()), 1.0f});
 	SetPawnState(EPawnState::IDLE, false);
@@ -60,7 +60,7 @@ void ArogueyPawn::BeginPlay()
 void ArogueyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (TargetPawn && TargetPawn->PawnState == EPawnState::DEAD)
+	if (TargetPawn.Get() && TargetPawn->PawnState == EPawnState::DEAD)
 	{
 		TargetPawn = nullptr;
 	}
@@ -88,8 +88,12 @@ void ArogueyPawn::Tick(float DeltaTime)
 		NewLocation.Z = HitResult.Location.Z + CollisionComponent->GetScaledCapsuleHalfHeight();
 		SetActorLocation(NewLocation);
 	}
-	
-	DrawTrueTile(Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode())->GridManager->Grid.ActorMapLocation[this],DeltaTime*2.0f);
+
+	ArogueyGameMode* RogueyGameMode = Cast<ArogueyGameMode>(GetWorld()->GetAuthGameMode());
+	if (RogueyGameMode && RogueyGameMode->GridManager->Grid.ActorMapLocation.Contains(this))
+	{
+		DrawTrueTile(RogueyGameMode->GridManager->Grid.ActorMapLocation[this],DeltaTime*2.0f);
+	}
 
 	if (TrueTileQueue.IsEmpty())
 	{
@@ -139,7 +143,7 @@ void ArogueyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ArogueyPawn::ClearTarget()
 {
-	if (TargetPawn)
+	if (TargetPawn.Get())
 	{
 		TargetPawn->ThreatList.Remove(this);
 		TargetPawn = nullptr;
@@ -147,14 +151,14 @@ void ArogueyPawn::ClearTarget()
 	}
 }
 
-void ArogueyPawn::SetTarget(ArogueyPawn* Target)
+void ArogueyPawn::SetTarget(TWeakObjectPtr<ArogueyPawn> Target)
 {
 	ClearTarget();
-	if (Target)
+	if (Target.Get())
 	{
 		TargetPawn = Target;
 		TargetPawn->ThreatList.Add(this);
-		OnTargetPawn.Broadcast(Target);
+		OnTargetPawn.Broadcast(Target.Get());
 	}
 }
 
@@ -254,7 +258,8 @@ void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
 
 void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 {
-	if (State == PawnState && !bOverride) return;
+	if (State == EPawnState::DEAD) return;
+	if ((State == PawnState) && !bOverride) return;
 	PawnState = State;
 	switch (State)
 	{
@@ -273,7 +278,11 @@ void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 		}
 		break;
 	case EPawnState::ATTACKING:
-		PlayAnimMontage(DefaultAttack);
+		if (DefaultAttack)
+		{
+			PlayAnimMontage(DefaultAttack);
+			FTimerHandle TimerHandle;
+		}
 		break;
 	}
 }

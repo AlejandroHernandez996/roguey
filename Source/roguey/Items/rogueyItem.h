@@ -28,10 +28,10 @@ public:
 	FItemStatPage ItemStatPage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* ItemIcon;
+	TWeakObjectPtr<UTexture2D> ItemIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMesh* ItemMesh;
+	TWeakObjectPtr<UStaticMesh> ItemMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ArogueyProjectile> ItemProjectileClass;
@@ -53,6 +53,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FIntVector2 SpawnGridPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector MeshRelativeScale = FVector(1, 1, 1);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector MeshRelativeLocation = FVector(0, 0, 0);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRotator MeshRelativeRotation = FRotator(0, 0, 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<EInventoryEventType> Interacts  = {EInventoryEventType::DROP};

@@ -12,7 +12,7 @@ struct FGrid
 	UPROPERTY()
 	TMap<FIntVector2, FTile> GridMap;
 	UPROPERTY()
-	TMap<ArogueyPawn*, FIntVector2> ActorMapLocation;
+	TMap<TWeakObjectPtr<ArogueyPawn> , FIntVector2> ActorMapLocation;
 
 	bool HasWall(const FIntVector2& TileCoordinate, const FIntVector2& Direction) const
 	{

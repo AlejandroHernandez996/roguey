@@ -34,13 +34,14 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ClearTarget();
-	void SetTarget(ArogueyPawn* Target);
+	void SetTarget(TWeakObjectPtr<ArogueyPawn> Target);
 	UPROPERTY(BlueprintAssignable, Category = "Target")
 	FTargetPawnEvent OnTargetPawn;
 
 	UPROPERTY(EditAnywhere)
 	int32 PawnId = 0;
-	
+	bool bIsAnimLocked = false;
+
 	UFUNCTION(BlueprintCallable, Category=Animation)
 	virtual float PlayAnimMontage(class UAnimMontage* AnimMontage, float InPlayRate = 1.f, FName StartSectionName = NAME_None);
 	void RotateAtPawn(ArogueyPawn* ToActor);
@@ -95,9 +96,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Behavior")
 	FBehavior Behavior;
 	UPROPERTY()
-	ArogueyPawn* TargetPawn;
+	TWeakObjectPtr<ArogueyPawn> TargetPawn;
 	UPROPERTY()
-	TSet<ArogueyPawn*> ThreatList;
+	TSet<TWeakObjectPtr<ArogueyPawn>> ThreatList;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	FColor TrueTileColor = FColor::Yellow;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")

@@ -33,15 +33,15 @@ void UrogueyInventoryManager::EnqueueIventoryEvent(FInventoryEvent InventoryEven
 	InventoryEventQueue.Enqueue(InventoryEvent);
 }
 
-void UrogueyInventoryManager::PickUpItem(ArogueyItemActor* ItemToPickup)
+void UrogueyInventoryManager::PickUpItem(TWeakObjectPtr<ArogueyItemActor> ItemToPickup)
 {
-	if ( ItemToPickup && !ItemToPickup->bPickedUp)
+	if ( ItemToPickup.IsValid() && !ItemToPickup->bPickedUp)
 	{
 		if (Inventory.AddItem(ItemToPickup->Item))
 		{
 			ItemToPickup->bPickedUp = true;
 			RogueyPlayerController->OnInventoryUpdate.Broadcast(Inventory);
-			TArray<ArogueyItemActor*> ItemToPickupActors;
+			TArray<TWeakObjectPtr<ArogueyItemActor>> ItemToPickupActors;
 			GridManager->Grid.GridMap[ItemToPickup->Item.SpawnGridPosition].ItemMapInTile.MultiFind(ItemToPickup->Item.ItemId, ItemToPickupActors);
 			GridManager->Grid.GridMap[ItemToPickup->Item.SpawnGridPosition].ItemMapInTile.Remove(ItemToPickup->Item.ItemId);
 			for (auto& ItemToPickupActor : ItemToPickupActors)

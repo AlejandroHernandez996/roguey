@@ -13,9 +13,9 @@ struct FPath
 	UPROPERTY()
 	int32 PathIndex = -1;
 	UPROPERTY()
-	ArogueyPawn* TargetPawn = nullptr;
+	TWeakObjectPtr<ArogueyPawn> TargetPawn;
 	UPROPERTY()
-	ArogueyItemActor* TargetItem = nullptr;
+	TWeakObjectPtr<ArogueyItemActor> TargetItem;
 	UPROPERTY()
 	FIntVector2 TargetPosition = FIntVector2(-1, -1);
 

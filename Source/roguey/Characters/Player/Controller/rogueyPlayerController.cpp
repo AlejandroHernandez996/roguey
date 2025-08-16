@@ -18,6 +18,7 @@
 #include "Inventory/InventoryEvent.h"
 #include "Inventory/rogueyInventoryManager.h"
 #include "Items/rogueyItemActor.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -49,9 +50,25 @@ void ArogueyPlayerController::Tick(float DeltaSeconds)
 	{
 		DrawHoveredTile(Hit.Location);
 	}
+	
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params;
+	Params.bTraceComplex = true;
+	Params.AddIgnoredActor(GetPawn());
+	FVector WorldOrigin;
+	FVector WorldDirection;
+	FVector2D MousePosition;
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
+	UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldOrigin, WorldDirection);
+	GetWorld()->LineTraceMultiByChannel(HitResults, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, ECC_GameTraceChannel1, Params);
 
 	FHitResult InteractHit;
-	GetHitResultUnderCursor(ECC_GameTraceChannel1, true, InteractHit);
+	if (HitResults.Num() > 0)
+	{
+		InteractHit = HitResults[0];
+	}
+
 	AActor* HitActor = InteractHit.GetActor();
 	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 	{
@@ -99,8 +116,25 @@ void ArogueyPlayerController::OnInputStarted()
 {
 	bIsInteractMenuOpen = false;
 	FHitResult WorldHit;
+	bool bHitWorld = GetHitResultUnderCursor(ECC_WorldStatic, true, WorldHit);
 	FHitResult InteractHit;
-	GetHitResultUnderCursor(ECC_GameTraceChannel1, true, InteractHit);
+
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params;
+	Params.bTraceComplex = true;
+	Params.AddIgnoredActor(GetPawn());
+	FVector WorldOrigin;
+	FVector WorldDirection;
+	FVector2D MousePosition;
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
+	UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldOrigin, WorldDirection);
+	GetWorld()->LineTraceMultiByChannel(HitResults, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, ECC_GameTraceChannel1, Params);
+
+	if (HitResults.Num() > 0)
+	{
+		InteractHit = HitResults[0];
+	}
 	AActor* HitActor = InteractHit.GetActor();
 	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 	{
@@ -126,7 +160,7 @@ void ArogueyPlayerController::OnInputStarted()
 			}
 		}
 	}
-	if (GetHitResultUnderCursor(ECC_WorldStatic, true, WorldHit))
+	if (bHitWorld)
 	{
 		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, WorldHit.Location, Cast<ArogueyPawn>(GetPawn()), nullptr);
 		RogueyGameMode->InputManager->EnqueueInput(Input);
@@ -150,22 +184,35 @@ void ArogueyPlayerController::OnInteractMenuStarted()
 	FHitResult WorldHit;
 	GetHitResultUnderCursor(ECC_WorldStatic, true, WorldHit);
 	InteractMenuLocation = WorldHit.Location;
-	FHitResult InteractHit;
-	GetHitResultUnderCursor(ECC_GameTraceChannel1, true, InteractHit);
-	AActor* HitActor = InteractHit.GetActor();
-	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
+	
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams Params;
+	Params.bTraceComplex = true;
+	Params.AddIgnoredActor(GetPawn());
+	FVector WorldOrigin;
+	FVector WorldDirection;
+	FVector2D MousePosition;
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
+	UGameplayStatics::DeprojectScreenToWorld(this, MousePosition, WorldOrigin, WorldDirection);
+	GetWorld()->LineTraceMultiByChannel(HitResults, WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, ECC_GameTraceChannel1, Params);
+	
+	for (FHitResult HitResult : HitResults)
 	{
-		IInteractable* Interactable = Cast<IInteractable>(HitActor);
-		if (Interactable && HitActor != Cast<ArogueyCharacter>(GetPawn()))
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 		{
-			FInteractTypeArray InteractActorArray;
-			InteractActorArray.InteractableActor = HitActor;
-			InteractActorArray.Array = Interactable->GetInteractList();
-			InteractActorArray.Name = Interactable->GetRogueyName();
-			InteractMenuEntries.Add(InteractActorArray);
+			IInteractable* Interactable = Cast<IInteractable>(HitActor);
+			if (Interactable && HitActor != Cast<ArogueyCharacter>(GetPawn()))
+			{
+				FInteractTypeArray InteractActorArray;
+				InteractActorArray.InteractableActor = HitActor;
+				InteractActorArray.Array = Interactable->GetInteractList();
+				InteractActorArray.Name = Interactable->GetRogueyName();
+				InteractMenuEntries.Add(InteractActorArray);
+			}
 		}
 	}
-	
 	OnInteractMenuEvent.Broadcast();
 }
 

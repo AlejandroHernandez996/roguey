@@ -16,7 +16,7 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		FCombatEvent CombatEvent;
 		CombatEventQueue.Dequeue(CombatEvent);
 		
-		if (CombatEvent.ToActor && CombatEvent.FromActor)
+		if (CombatEvent.ToActor.Get() && CombatEvent.FromActor.Get())
 		{
 			if (CombatEvent.ToActor->PawnState == EPawnState::DEAD || CombatEvent.FromActor->PawnState == EPawnState::DEAD)
 			{
@@ -33,37 +33,37 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 	TSet<ArogueyPawn*> FinishedCombatActors;
 	for (auto& ActiveCombat : ActiveCombats)
 	{
-		ArogueyPawn* FromActor = ActiveCombat.Key;
+		TWeakObjectPtr<ArogueyPawn> FromActor = ActiveCombat.Key;
 		FCombatEvent& CombatEvent = ActiveCombat.Value;
-		if (!CombatEvent.ToActor || !CombatEvent.FromActor)
+		if (!CombatEvent.ToActor.Get() || !CombatEvent.FromActor.Get())
 		{
 			continue;
 		}
-		if (CombatEvent.ToActor && CombatEvent.FromActor)
+		if (CombatEvent.ToActor.Get() && CombatEvent.FromActor.Get())
 		{
 			if (CombatEvent.ToActor->PawnState == EPawnState::DEAD || CombatEvent.FromActor->PawnState == EPawnState::DEAD)
 			{
-				FinishedCombatActors.Add(CombatEvent.FromActor);
+				FinishedCombatActors.Add(CombatEvent.FromActor.Get());
 				continue;
 			}
 		}
-		bool bIsInRange = GridManager->IsPawnInRange(FromActor, CombatEvent.ToActor);
-		if (!FromActor || !CombatEvent.FromActor || !bIsInRange)
+		bool bIsInRange = GridManager->IsPawnInRange(FromActor.Get(), CombatEvent.ToActor.Get());
+		if (!FromActor.Get() || !CombatEvent.FromActor.Get() || !bIsInRange)
 		{
 			if (!bIsInRange)
 			{
-				InputManager->EnqueueInput(FInput(TickIndex, EInputType::ATTACK,FVector::Zero(),FromActor, CombatEvent.ToActor));
+				InputManager->EnqueueInput(FInput(TickIndex, EInputType::ATTACK,FVector::Zero(),FromActor.Get(), CombatEvent.ToActor.Get()));
 			}
-			FinishedCombatActors.Add(FromActor);
+			FinishedCombatActors.Add(FromActor.Get());
 		}
-		else if (FromActor)
+		else if (FromActor.Get())
 		{
 			UrogueyDamageCalculator::CalculateCombat(TickIndex, CombatEvent);
-			FromActor->RotateAtPawn(CombatEvent.ToActor);
+			FromActor->RotateAtPawn(CombatEvent.ToActor.Get());
 			if (CombatEvent.ToActor->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentLevel <= 0 && !Cast<ArogueyCharacter>(CombatEvent.ToActor))
 			{
-				FinishedCombatActors.Add(FromActor);
-				DeathManager->EnqueueDeath(CombatEvent.ToActor);
+				FinishedCombatActors.Add(FromActor.Get());
+				DeathManager->EnqueueDeath(CombatEvent.ToActor.Get());
 			}
 		}
 	}
@@ -75,13 +75,13 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 
 void UrogueyCombatManager::EnqueueCombatEvent(const FCombatEvent& CombatEvent)
 {
-	if (CombatEvent.FromActor && CombatEvent.ToActor)
+	if (CombatEvent.FromActor.Get() && CombatEvent.ToActor.Get())
 	{
 		CombatEventQueue.Enqueue(CombatEvent);
 	}
 }
 
-void UrogueyCombatManager::RemoveActorFromActiveQueue(ArogueyPawn* Pawn)
+void UrogueyCombatManager::RemoveActorFromActiveQueue(TWeakObjectPtr<ArogueyPawn> Pawn)
 {
 	ActiveCombats.Remove(Pawn);
 }

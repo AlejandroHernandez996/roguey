@@ -17,9 +17,9 @@ public:
 	static void CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent);
 
 protected:
-	static int32 CalculateDamage(ArogueyPawn* FromPawn);
+	static int32 CalculateDamage(TWeakObjectPtr<ArogueyPawn> FromPawn);
 	static int32 GetDamageBonusFromStrength(int32 StrengthLevel);
-	static bool CanHit(ArogueyPawn* FromPawn, ArogueyPawn* ToPawn);
-	static int32 GetAttackRoll(ArogueyPawn* FromPawn);
-	static int32 GetDefenceRoll(ArogueyPawn* ToPawn);
+	static bool CanHit(TWeakObjectPtr<ArogueyPawn> FromPawn, TWeakObjectPtr<ArogueyPawn> ToPawn);
+	static int32 GetAttackRoll(TWeakObjectPtr<ArogueyPawn> FromPawn);
+	static int32 GetDefenceRoll(TWeakObjectPtr<ArogueyPawn> ToPawn);
 };

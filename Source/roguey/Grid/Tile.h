@@ -3,18 +3,21 @@
 #include "CoreMinimal.h"
 #include "Containers/Map.h"
 #include "TileType.h"
+#include "Objects/ArogueyObject.h"
 
 #include "Tile.generated.h"
+
+class ArogueyItemActor;
 
 USTRUCT(BlueprintType)
 struct FTile
 {
 	GENERATED_BODY()
 	UPROPERTY()
-	TSet<AActor*> ActorsInTile;
-	TMultiMap<int32, class ArogueyItemActor*> ItemMapInTile;
+	TSet<TWeakObjectPtr<AActor>> ActorsInTile;
+	TMultiMap<int32, TWeakObjectPtr<ArogueyItemActor>> ItemMapInTile;
 	UPROPERTY()
-	TSet<class AArogueyObject*> ObjectsInTile;
+	TSet<TWeakObjectPtr<AArogueyObject>> ObjectsInTile;
 	UPROPERTY()
 	ETileType TileType = ETileType::FREE;
 

@@ -9,32 +9,33 @@
 
 void UDeathManager::RogueyTick(int32 TickIndex)
 {
-	for (AActor* ActorToDestroy : PawnsToDestroy)
+	for (TWeakObjectPtr<ArogueyPawn> ActorToDestroy : PawnsToDestroy)
 	{
-		if (ActorToDestroy)
+		if (ActorToDestroy.Get())
 		{
+			GridManager->RemoveActorFromGrid(ActorToDestroy.Get());
+			for (TWeakObjectPtr<ArogueyPawn> Threats : ActorToDestroy->ThreatList)
+			{
+				if (Threats->TargetPawn == ActorToDestroy)
+				{
+					Threats->TargetPawn = nullptr;
+				}
+			}
 			ActorToDestroy->Destroy();
 		}
 	}
 	while (!DeathQueue.IsEmpty())
 	{
-		ArogueyPawn* DeadPawn;
+		TWeakObjectPtr<ArogueyPawn> DeadPawn;
 		DeathQueue.Dequeue(DeadPawn);
-
 		FrogueyItem LootItem = DeadPawn->LootTable.RollLoot();
-		LootItem.SpawnGridPosition = GridManager->Grid.ActorMapLocation[DeadPawn];
-		SpawnManager->EnqueueItem(LootItem);
-		GridManager->RemoveActorFromGrid(DeadPawn);
-		PawnsToDestroy.Add(DeadPawn);
-		DeadPawn->SetPawnState(EPawnState::DEAD, true);
-		for (ArogueyPawn* Threats : DeadPawn->ThreatList)
+		if (GridManager->Grid.ActorMapLocation.Contains(DeadPawn) )
 		{
-			if (Threats->TargetPawn == DeadPawn)
-			{
-				Threats->TargetPawn = nullptr;
-			}
+			LootItem.SpawnGridPosition = GridManager->Grid.ActorMapLocation[DeadPawn];
+			SpawnManager->EnqueueItem(LootItem);
+			PawnsToDestroy.Add(DeadPawn);
+			DeadPawn->SetPawnState(EPawnState::DEAD, true);
 		}
-		DeadPawn->SetHidden(true);
 	}
 }
 

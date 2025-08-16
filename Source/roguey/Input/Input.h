@@ -21,17 +21,17 @@ struct FInput
 	FVector InputWorldLocation = FVector::ZeroVector;
 
 	UPROPERTY()
-	ArogueyPawn* InputActor = nullptr;
+	TWeakObjectPtr<ArogueyPawn> InputActor = nullptr;
 
 	UPROPERTY()
-	ArogueyPawn* TargetPawn = nullptr;
+	TWeakObjectPtr<ArogueyPawn> TargetPawn = nullptr;
 
 	UPROPERTY()
-	ArogueyItemActor* TargetItem = nullptr;
+	TWeakObjectPtr<ArogueyItemActor> TargetItem = nullptr;
 
 	FInput() {}
 
-	FInput(int32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, ArogueyPawn* InInputActor, ArogueyPawn* InTargetPawn)
+	FInput(int32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, TWeakObjectPtr<ArogueyPawn> InInputActor, TWeakObjectPtr<ArogueyPawn> InTargetPawn)
 		: InputTick(InInputTick)
 		, InputType(InInputType)
 		, InputWorldLocation(InInputWorldLocation)
@@ -39,7 +39,7 @@ struct FInput
 		, TargetPawn(InTargetPawn)
 	{}
 	
-	FInput(int32 InInputTick, EInputType InInputType, ArogueyPawn* InInputActor, ArogueyItemActor* InTargetItem)
+	FInput(int32 InInputTick, EInputType InInputType, TWeakObjectPtr<ArogueyPawn> InInputActor, TWeakObjectPtr<ArogueyItemActor> InTargetItem)
 		: InputTick(InInputTick)
 		, InputType(InInputType)
 		, InputActor(InInputActor)

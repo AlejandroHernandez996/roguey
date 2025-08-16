@@ -12,22 +12,18 @@ struct FMovement
 	GENERATED_BODY()
 	FMovement() {}
 	
-	FMovement(ArogueyPawn* InActor, ArogueyPawn* InTargetPawn, FIntVector2 InDestination, uint32 InTick)
+	FMovement(TWeakObjectPtr<ArogueyPawn> InActor, TWeakObjectPtr<ArogueyPawn>InTargetPawn, FIntVector2 InDestination, uint32 InTick)
 		: Actor(InActor)
 		, Destination(InDestination)
 		, Tick(InTick)
 		, TargetPawn(InTargetPawn)
 	{}
 
-	FMovement(ArogueyPawn* InActor, ArogueyItemActor* InTargetItem, uint32 InTick)
+	FMovement(TWeakObjectPtr<ArogueyPawn> InActor, TWeakObjectPtr<ArogueyItemActor> InTargetItem, uint32 InTick)
 		: Actor(InActor)
 		, Tick(InTick)
 		, TargetItem(InTargetItem)
 	{}
-
-	UPROPERTY()
-	ArogueyPawn* Actor = nullptr;
-
 	UPROPERTY()
 	FIntVector2 Destination = FIntVector2(-1, -1);
 	
@@ -35,8 +31,11 @@ struct FMovement
 	uint32 Tick = 0;
 
 	UPROPERTY()
-	ArogueyPawn* TargetPawn = nullptr;
+	TWeakObjectPtr<ArogueyPawn> Actor;
 
 	UPROPERTY()
-	ArogueyItemActor* TargetItem = nullptr;
+	TWeakObjectPtr<ArogueyPawn> TargetPawn;
+
+	UPROPERTY()
+	TWeakObjectPtr<ArogueyItemActor> TargetItem;
 };

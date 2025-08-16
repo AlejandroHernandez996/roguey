@@ -87,7 +87,7 @@ public:
 	TArray<FInteractTypeArray> InteractMenuEntries;
 	UPROPERTY(BlueprintReadWrite, Category = "Interact")
 	FVector InteractMenuLocation;
-	
+
 public:
 
 	ArogueyPlayerController();

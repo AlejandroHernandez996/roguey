@@ -21,11 +21,11 @@ void UrogueyMovementManager::RogueyTick(int32 TickIndex)
 
 void UrogueyMovementManager::HandleActivePaths(int32 TickIndex)
 {
-    TSet<ArogueyPawn*> FinishedPathActors;
+    TSet< TWeakObjectPtr<ArogueyPawn>> FinishedPathActors;
 
     for (auto& ActorAndPath : ActivePaths)
     {
-        ArogueyPawn* PathActor = ActorAndPath.Key;
+        TWeakObjectPtr<ArogueyPawn> PathActor = ActorAndPath.Key;
         FPath& Path = ActorAndPath.Value;
 
         if (PathActor->PawnState == EPawnState::DEAD)
@@ -33,9 +33,14 @@ void UrogueyMovementManager::HandleActivePaths(int32 TickIndex)
             FinishedPathActors.Add(PathActor);
             continue;
         }
-        if (Path.TargetPawn && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
+        if (Path.TargetPawn.Get() && Path.TargetPawn->PawnState == EPawnState::DEAD)
         {
-            EnqueueMovement(FMovement(PathActor, Path.TargetPawn, FIntVector2::ZeroValue, TickIndex));
+            FinishedPathActors.Add(PathActor);
+            continue;
+        }
+        if (Path.TargetPawn.Get() && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
+        {
+            EnqueueMovement(FMovement(PathActor.Get(), Path.TargetPawn.Get(), FIntVector2::ZeroValue, TickIndex));
             FinishedPathActors.Add(PathActor);
         }
     }
@@ -53,20 +58,20 @@ void UrogueyMovementManager::ProcessMovementQueue(int32 TickIndex)
         FMovement ProcessMovement;
         MovementQueue.Dequeue(ProcessMovement);
 
-        if (!ProcessMovement.Actor || ProcessMovement.Actor->PawnState == EPawnState::DEAD)
+        if (!ProcessMovement.Actor.Get() || ProcessMovement.Actor->PawnState == EPawnState::DEAD)
         {
             continue; 
         }
         
         FPath NewPath = GenerateNewPath(ProcessMovement);
-        bool bIsAttackPathAndInRange = ProcessMovement.TargetPawn && GridManager->IsPawnInRange(ProcessMovement.Actor, ProcessMovement.TargetPawn);
+        bool bIsAttackPathAndInRange = ProcessMovement.TargetPawn.Get() && GridManager->IsPawnInRange(ProcessMovement.Actor.Get(), ProcessMovement.TargetPawn.Get());
         if (NewPath.IsPathComplete() || bIsAttackPathAndInRange)
         {
-            if (ProcessMovement.TargetPawn)
+            if (ProcessMovement.TargetPawn.Get())
             {
-                CombatManager->EnqueueCombatEvent(FCombatEvent(ProcessMovement.Actor, ProcessMovement.TargetPawn, TickIndex));
+                CombatManager->EnqueueCombatEvent(FCombatEvent(ProcessMovement.Actor.Get(), ProcessMovement.TargetPawn.Get(), TickIndex));
             }
-            if (ProcessMovement.TargetItem)
+            if (ProcessMovement.TargetItem.Get())
             {
                 FInventoryEvent InventoryEvent;
                 InventoryEvent.EventType = EInventoryEventType::PICK_UP;
@@ -76,24 +81,24 @@ void UrogueyMovementManager::ProcessMovementQueue(int32 TickIndex)
             continue; 
         }
 
-        UpdateActivePath(ProcessMovement.Actor, NewPath);
+        UpdateActivePath(ProcessMovement.Actor.Get(), NewPath);
     }
 }
 
 FPath UrogueyMovementManager::GenerateNewPath(const FMovement& Movement)
 {
-    if (Movement.Actor && Movement.TargetPawn && Movement.TargetPawn->PawnState != EPawnState::DEAD)
+    if (Movement.Actor.Get() && Movement.TargetPawn.Get() && Movement.TargetPawn->PawnState != EPawnState::DEAD)
     {
         return UrogueyPathfinder::FindAndGeneratePathToPawn(Movement, GridManager->Grid);
     }
-    if (Movement.Actor && Movement.TargetItem)
+    if (Movement.Actor.Get() && Movement.TargetItem.Get())
     {
         return UrogueyPathfinder::FindAndGeneratePathToItem(Movement, GridManager->Grid);
     }
     return UrogueyPathfinder::FindAndGeneratePath(Movement, GridManager->Grid);
 }
 
-void UrogueyMovementManager::UpdateActivePath(ArogueyPawn* Actor, const FPath& NewPath)
+void UrogueyMovementManager::UpdateActivePath(TWeakObjectPtr<ArogueyPawn> Actor, const FPath& NewPath)
 {
     ActivePaths.Remove(Actor);
     ActivePaths.Add(Actor, NewPath);
@@ -110,24 +115,24 @@ void UrogueyMovementManager::ProcessActivePaths(int32 TickIndex)
     
     for (auto& ActorAndPath : ActivePaths)
     {
-        ArogueyPawn* PathActor = ActorAndPath.Key;
+        TWeakObjectPtr<ArogueyPawn> PathActor = ActorAndPath.Key;
         FPath& Path = ActorAndPath.Value;
 
-        if (PathActor->PawnState == EPawnState::DEAD)
+        if ((PathActor.Get() && PathActor->PawnState == EPawnState::DEAD) || (PathActor->TargetPawn.Get() && PathActor->TargetPawn->PawnState == EPawnState::DEAD))
         {
-            FinishedPathActors.Add(PathActor);
+            FinishedPathActors.Add(PathActor.Get());
             continue;
         }
 
-        if (Path.TargetPawn && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
+        if (Path.TargetPawn.Get() && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
         {
-            EnqueueMovement(FMovement(PathActor, Path.TargetPawn, FIntVector2::ZeroValue, TickIndex));
-            FinishedPathActors.Add(PathActor);
+            EnqueueMovement(FMovement(PathActor.Get(), Path.TargetPawn.Get(), FIntVector2::ZeroValue, TickIndex));
+            FinishedPathActors.Add(PathActor.Get());
             continue;
         }
 
         FIntVector2 NextPoint = Path.GetAndIncrementPath(PathActor->TileMoveSpeed);
-        FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor, EGridEventType::MOVE);
+        FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor.Get(), EGridEventType::MOVE);
         GridManager->EnqueueGridEvent(GridEvent);
         
         if (!ActorPaths.Contains(PathActor))
@@ -136,15 +141,15 @@ void UrogueyMovementManager::ProcessActivePaths(int32 TickIndex)
         }
         ActorPaths[PathActor].MovementPath.Add(NextPoint);
 
-        if (Path.IsPathComplete() || (Path.TargetPawn && GridManager->IsPawnInRangeOfPoint(PathActor, NextPoint, Path.TargetPawn)))
+        if (Path.IsPathComplete() || (Path.TargetPawn.Get() && GridManager->IsPawnInRangeOfPoint(PathActor.Get(), NextPoint, Path.TargetPawn.Get())))
         {
-            FinishedPathActors.Add(PathActor);
+            FinishedPathActors.Add(PathActor.Get());
 
-            if (Path.TargetPawn)
+            if (Path.TargetPawn.Get() && Path.TargetPawn->PawnState != EPawnState::DEAD)
             {
-                CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor, Path.TargetPawn, TickIndex));
+                CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor.Get(), Path.TargetPawn.Get(), TickIndex));
             }
-            if (Path.TargetItem)
+            if (Path.TargetItem.Get())
             {
                 FInventoryEvent InventoryEvent;
                 InventoryEvent.EventType = EInventoryEventType::PICK_UP;
@@ -165,7 +170,7 @@ void UrogueyMovementManager::EnqueueMovement(const FMovement& Movement)
 	MovementQueue.Enqueue(Movement);
 }
 
-void UrogueyMovementManager::RemoveActorFromActiveQueue(ArogueyPawn* Pawn)
+void UrogueyMovementManager::RemoveActorFromActiveQueue(TWeakObjectPtr<ArogueyPawn> Pawn)
 {
 	ActivePaths.Remove(Pawn);
 }

@@ -6,10 +6,10 @@
 
 void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent)
 {
-    ArogueyPawn* FromPawn = CombatEvent.FromActor;
-    ArogueyPawn* ToPawn = CombatEvent.ToActor;
+    TWeakObjectPtr<ArogueyPawn> FromPawn = CombatEvent.FromActor;
+    TWeakObjectPtr<ArogueyPawn> ToPawn = CombatEvent.ToActor;
 
-    if (!FromPawn || !ToPawn)
+    if (!FromPawn.Get() || !ToPawn.Get())
     {
         return;
     }
@@ -23,7 +23,7 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
            DamageDealt = CalculateDamage(FromPawn); // Only calculate damage if the attack hits
        }
 
-       ToPawn->UpdateCurrentStat(ErogueyStatType::HEALTH, -DamageDealt);
+        ToPawn->UpdateCurrentStat(ErogueyStatType::HEALTH, -DamageDealt);
        
         FromPawn->SetPawnState(EPawnState::ATTACKING, true);
         FromPawn->LastAttackTickIndex = TickIndex;
@@ -53,16 +53,16 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
     }
 }
 
-bool UrogueyDamageCalculator::CanHit(ArogueyPawn* FromPawn, ArogueyPawn* ToPawn)
+bool UrogueyDamageCalculator::CanHit(TWeakObjectPtr<ArogueyPawn> FromPawn, TWeakObjectPtr<ArogueyPawn> ToPawn)
 {
-    int32 AttackerAttackRoll = GetAttackRoll(FromPawn);
-    int32 DefenderDefenseRoll = GetDefenceRoll(ToPawn);
+    int32 AttackerAttackRoll = GetAttackRoll(FromPawn.Get());
+    int32 DefenderDefenseRoll = GetDefenceRoll(ToPawn.Get());
     
     // The attack hits if the attacker's roll is higher than the defender's roll
     return AttackerAttackRoll > DefenderDefenseRoll;
 }
 
-int32 UrogueyDamageCalculator::GetAttackRoll(ArogueyPawn* FromPawn)
+int32 UrogueyDamageCalculator::GetAttackRoll(TWeakObjectPtr<ArogueyPawn> FromPawn)
 {
     // A simplified attack roll formula based on the attacker's attack level
     int32 AttackLevel = FromPawn->StatPage.StatPage[ErogueyStatType::ATTACK].CurrentLevel;
@@ -71,7 +71,7 @@ int32 UrogueyDamageCalculator::GetAttackRoll(ArogueyPawn* FromPawn)
     return AttackRoll;
 }
 
-int32 UrogueyDamageCalculator::GetDefenceRoll(ArogueyPawn* ToPawn)
+int32 UrogueyDamageCalculator::GetDefenceRoll(TWeakObjectPtr<ArogueyPawn> ToPawn)
 {
     // A simplified defense roll formula based on the defender's defense level
     int32 DefenseLevel = ToPawn->StatPage.StatPage[ErogueyStatType::DEFENCE].CurrentLevel;
@@ -80,9 +80,9 @@ int32 UrogueyDamageCalculator::GetDefenceRoll(ArogueyPawn* ToPawn)
     return DefenseRoll;
 }
 
-int32 UrogueyDamageCalculator::CalculateDamage(ArogueyPawn* FromPawn)
+int32 UrogueyDamageCalculator::CalculateDamage(TWeakObjectPtr<ArogueyPawn> FromPawn)
 {
-    if (!FromPawn)
+    if (!FromPawn.Get())
     {
         return 0;
     }

@@ -13,7 +13,7 @@ struct FInteractTypeArray
 	UPROPERTY(BlueprintReadWrite, Category = "Interact")
 	FrogueyItem InventoryItem;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	AActor* InteractableActor;
+	TWeakObjectPtr<AActor> InteractableActor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<EInteractType> Array;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
