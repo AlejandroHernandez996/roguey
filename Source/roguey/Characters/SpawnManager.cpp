@@ -35,9 +35,9 @@ void USpawnManager::RogueyTick(int32 TickIndex)
 				FRotator SpawnRotation = FRotator::ZeroRotator;
 
 				TWeakObjectPtr<ArogueyItemActor> SpawnedActor = World->SpawnActorDeferred<ArogueyItemActor>(ItemActor.Get(), FTransform(SpawnRotation, SpawnLocation), nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-				if (SpawnedActor.Get() && ItemToSpawn.ItemMesh.Get())
+				if (SpawnedActor.Get() && ItemToSpawn.ItemMesh)
 				{
-					SpawnedActor->MeshComponent->SetStaticMesh(ItemToSpawn.ItemMesh.Get());
+					SpawnedActor->MeshComponent->SetStaticMesh(ItemToSpawn.ItemMesh);
 					SpawnedActor->MeshComponent->SetRelativeScale3D(ItemToSpawn.MeshRelativeScale);
 					SpawnedActor->MeshComponent->SetRelativeLocation(ItemToSpawn.MeshRelativeLocation);
 					SpawnedActor->MeshComponent->SetRelativeRotation(ItemToSpawn.MeshRelativeRotation);

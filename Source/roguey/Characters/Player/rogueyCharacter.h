@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Characters/rogueyPawn.h"
+#include "Inventory/EquipmentType.h"
 #include "rogueyCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FExperienceDropEvent, const int32&, ExperienceAmount, ErogueyStatType, StatType);
@@ -30,8 +31,12 @@ public:
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	void EquipItemMesh(const FrogueyItem EquipItem);
 
 	UPROPERTY(BlueprintAssignable, Category = "Combat")
 	FExperienceDropEvent OnExperienceDrop;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Equipment")
+	TMap<EEquipmentType, UStaticMeshComponent*> EquipmentMap;
 };
 

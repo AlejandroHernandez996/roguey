@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InteractTypeArray.h"
 #include "rogueyGameMode.h"
+#include "ViewportInteractionTypes.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -342,9 +343,31 @@ void ArogueyPlayerController::InventoryItemInput(int32 InventoryIndex)
 	RogueyGameMode->InventoryManager->EnqueueIventoryEvent(InventoryEvent);
 }
 
-void ArogueyPlayerController::InventoryItemMenuInput(int32 InventoryIndex)
+void ArogueyPlayerController::InventoryItemInputWithEventType(int32 InventoryIndex, EInventoryEventType InventoryEventType)
 {
 	FrogueyItem Item = RogueyGameMode->InventoryManager->GetItemAt(InventoryIndex);
+	if (Item.ItemId == -1) return;
+
+	FInventoryEvent InventoryEvent;
+	InventoryEvent.EventType = InventoryEventType;
+	InventoryEvent.FromIndex = InventoryIndex;
+	
+	RogueyGameMode->InventoryManager->EnqueueIventoryEvent(InventoryEvent);
+}
+
+void ArogueyPlayerController::InventoryItemMenuInput(int32 InventoryIndex)
+{
+	if (!RogueyGameMode->InventoryManager->Inventory.Items.Contains(InventoryIndex))
+	{
+		return;
+	}
+	bIsInteractMenuOpen = true;
+	FrogueyItem Item = RogueyGameMode->InventoryManager->GetItemAt(InventoryIndex);
 	InteractMenuEntries.Empty();
+	FInteractTypeArray InteractActorArray;
+	InteractActorArray.InventoryEvents = Item.Interacts;
+	InteractActorArray.Name = Item.ItemName;
+	InteractActorArray.InventoryIndex = InventoryIndex;
+	InteractMenuEntries.Add(InteractActorArray);
 	OnInteractInventoryMenuEvent.Broadcast();
 }

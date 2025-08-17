@@ -6,6 +6,7 @@
 #include "rogueyPathfinder.h"
 
 #include "Path.h"
+#include "Characters/Player/rogueyCharacter.h"
 #include "Combat/rogueyCombatManager.h"
 #include "Grid/rogueyGridManager.h"
 #include "Inventory/InventoryEvent.h"
@@ -111,28 +112,39 @@ void UrogueyMovementManager::UpdateActivePath(TWeakObjectPtr<ArogueyPawn> Actor,
 
 void UrogueyMovementManager::ProcessActivePaths(int32 TickIndex)
 {
-    TSet<ArogueyPawn*> FinishedPathActors;
+    TSet<TWeakObjectPtr<ArogueyPawn>> FinishedPathActors;
     
     for (auto& ActorAndPath : ActivePaths)
     {
         TWeakObjectPtr<ArogueyPawn> PathActor = ActorAndPath.Key;
         FPath& Path = ActorAndPath.Value;
 
-        if ((PathActor.Get() && PathActor->PawnState == EPawnState::DEAD) || (PathActor->TargetPawn.Get() && PathActor->TargetPawn->PawnState == EPawnState::DEAD))
+        if ((PathActor.IsValid() && PathActor->PawnState == EPawnState::DEAD) || (PathActor->TargetPawn.IsValid() && PathActor->TargetPawn->PawnState == EPawnState::DEAD))
         {
-            FinishedPathActors.Add(PathActor.Get());
+            FinishedPathActors.Add(PathActor);
             continue;
         }
 
-        if (Path.TargetPawn.Get() && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
+        if (Path.TargetPawn.IsValid() && Path.TargetPosition != GridManager->Grid.ActorMapLocation[Path.TargetPawn])
         {
-            EnqueueMovement(FMovement(PathActor.Get(), Path.TargetPawn.Get(), FIntVector2::ZeroValue, TickIndex));
-            FinishedPathActors.Add(PathActor.Get());
+            EnqueueMovement(FMovement(PathActor, Path.TargetPawn, FIntVector2::ZeroValue, TickIndex));
+            FinishedPathActors.Add(PathActor);
             continue;
+        }
+
+        if (Path.TargetPawn.IsValid() && Cast<ArogueyCharacter>(Path.TargetPawn.Get()))
+        {
+            FIntVector2 CurrentLocation = GridManager->Grid.ActorMapLocation[PathActor];
+            FIntVector2 TargetActorLocation = GridManager->Grid.ActorMapLocation[Path.TargetPawn];
+
+            if (Path.TargetPawn->TargetPawn == PathActor && CurrentLocation == TargetActorLocation)
+            {
+                continue;
+            }
         }
 
         FIntVector2 NextPoint = Path.GetAndIncrementPath(PathActor->TileMoveSpeed);
-        FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor.Get(), EGridEventType::MOVE);
+        FGridEvent GridEvent = FGridEvent(TickIndex, NextPoint, PathActor, EGridEventType::MOVE);
         GridManager->EnqueueGridEvent(GridEvent);
         
         if (!ActorPaths.Contains(PathActor))
@@ -141,15 +153,15 @@ void UrogueyMovementManager::ProcessActivePaths(int32 TickIndex)
         }
         ActorPaths[PathActor].MovementPath.Add(NextPoint);
 
-        if (Path.IsPathComplete() || (Path.TargetPawn.Get() && GridManager->IsPawnInRangeOfPoint(PathActor.Get(), NextPoint, Path.TargetPawn.Get())))
+        if (Path.IsPathComplete() || (Path.TargetPawn.IsValid() && GridManager->IsPawnInRangeOfPoint(PathActor, NextPoint, Path.TargetPawn)))
         {
-            FinishedPathActors.Add(PathActor.Get());
+            FinishedPathActors.Add(PathActor);
 
-            if (Path.TargetPawn.Get() && Path.TargetPawn->PawnState != EPawnState::DEAD)
+            if (Path.TargetPawn.IsValid() && Path.TargetPawn->PawnState != EPawnState::DEAD)
             {
-                CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor.Get(), Path.TargetPawn.Get(), TickIndex));
+                CombatManager->EnqueueCombatEvent(FCombatEvent(PathActor, Path.TargetPawn, TickIndex));
             }
-            if (Path.TargetItem.Get())
+            if (Path.TargetItem.IsValid())
             {
                 FInventoryEvent InventoryEvent;
                 InventoryEvent.EventType = EInventoryEventType::PICK_UP;

@@ -121,6 +121,8 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void InventoryItemInput(int32 InventoryIndex);
 	UFUNCTION(BlueprintCallable)
+	void InventoryItemInputWithEventType(int32 InventoryIndex, EInventoryEventType InventoryEventType);
+	UFUNCTION(BlueprintCallable)
 	void InventoryItemMenuInput(int32 InventoryIndex);
 
 	UPROPERTY(BlueprintReadWrite, Category = "PlayerInput")

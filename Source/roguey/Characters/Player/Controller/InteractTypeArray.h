@@ -10,12 +10,16 @@ struct FInteractTypeArray
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadWrite, Category = "Interact")
-	FrogueyItem InventoryItem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<EInventoryEventType> InventoryEvents;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 InventoryIndex = -1;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TWeakObjectPtr<AActor> InteractableActor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<EInteractType> Array;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Name;
 };

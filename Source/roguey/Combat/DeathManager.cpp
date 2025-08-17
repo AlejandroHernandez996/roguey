@@ -28,9 +28,13 @@ void UDeathManager::RogueyTick(int32 TickIndex)
 	{
 		TWeakObjectPtr<ArogueyPawn> DeadPawn;
 		DeathQueue.Dequeue(DeadPawn);
-		FrogueyItem LootItem = DeadPawn->LootTable.RollLoot();
+		if (!DeadPawn.IsValid() || DeadPawn->PawnState == EPawnState::DEAD)
+		{
+			continue;
+		}
 		if (GridManager->Grid.ActorMapLocation.Contains(DeadPawn) )
 		{
+			FrogueyItem LootItem = DeadPawn->LootTable.RollLoot();
 			LootItem.SpawnGridPosition = GridManager->Grid.ActorMapLocation[DeadPawn];
 			SpawnManager->EnqueueItem(LootItem);
 			PawnsToDestroy.Add(DeadPawn);

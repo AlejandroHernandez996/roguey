@@ -15,6 +15,10 @@ void UrogueyInputManager::RogueyTick(int32 TickIndex)
 	{
 		FInput ProcessInput;
 		InputQueue.Dequeue(ProcessInput);
+		if (!ProcessInput.InputActor.IsValid() || ProcessInput.InputActor->PawnState == EPawnState::DEAD)
+		{
+			continue;
+		}
 		MovementManager->RemoveActorFromActiveQueue(ProcessInput.InputActor);
 		CombatManager->RemoveActorFromActiveQueue(ProcessInput.InputActor);
 		switch (ProcessInput.InputType)
@@ -26,7 +30,7 @@ void UrogueyInputManager::RogueyTick(int32 TickIndex)
 		case EInputType::FOLLOW:
 			break;
 		case EInputType::ATTACK:
-			if (ProcessInput.TargetPawn.Get() && ProcessInput.TargetPawn->PawnState != EPawnState::DEAD)
+			if (ProcessInput.TargetPawn.IsValid() && ProcessInput.TargetPawn->PawnState != EPawnState::DEAD)
 			{
 				MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor, ProcessInput.TargetPawn, FIntVector2::ZeroValue, ProcessInput.InputTick));
 				ProcessInput.InputActor->SetTarget(ProcessInput.TargetPawn);

@@ -7,6 +7,7 @@
 #include "Items/rogueyItemActor.h"
 #include "InventoryEventType.h"
 #include "Characters/SpawnManager.h"
+#include "Characters/Player/rogueyCharacter.h"
 #include "Characters/Player/Controller/rogueyPlayerController.h"
 #include "Grid/rogueyGridManager.h"
 
@@ -17,6 +18,10 @@ void UrogueyInventoryManager::RogueyTick(int32 TickIndex)
 		FInventoryEvent InventoryEvent;
 		InventoryEventQueue.Dequeue(InventoryEvent);
 
+		if (InventoryEvent.EventType == EInventoryEventType::EQUIP)
+		{
+			EquipItem(InventoryEvent.FromIndex);
+		}
 		if (InventoryEvent.EventType == EInventoryEventType::PICK_UP)
 		{
 			PickUpItem(InventoryEvent.ItemActor);
@@ -65,6 +70,33 @@ void UrogueyInventoryManager::DropItem(int32 InventoryIndex)
 
 void UrogueyInventoryManager::EquipItem(int32 InventoryIndex)
 {
+	if (!Inventory.Items.Contains(InventoryIndex))
+	{
+		return;
+	}
+	
+	FrogueyItem ItemToEquip = Inventory.Items[InventoryIndex];
+	
+	if (ItemToEquip.EquipmentSlot == EEquipmentType::NONE)
+	{
+		return;
+	}
+	FrogueyItem PreviousEquippedItem = FrogueyItem();
+	if (Equipment.Equipment.Contains(ItemToEquip.EquipmentSlot))
+	{
+		PreviousEquippedItem = Equipment.Equipment[ItemToEquip.EquipmentSlot];
+	}
+	Equipment.Equipment.Add(ItemToEquip.EquipmentSlot, ItemToEquip);
+
+
+	Inventory.RemoveItem(InventoryIndex);
+	if (PreviousEquippedItem.ItemId != -1)
+	{
+		Inventory.Items.Add(InventoryIndex, PreviousEquippedItem);
+	}
+	
+	RogueyPlayerController->OnInventoryUpdate.Broadcast(Inventory);
+	Cast<ArogueyCharacter>(RogueyPlayerController->GetPawn())->EquipItemMesh(ItemToEquip);
 }
 
 void UrogueyInventoryManager::UnenquipItem(EEquipmentType EquipmentType)

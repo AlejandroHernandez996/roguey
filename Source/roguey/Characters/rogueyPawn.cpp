@@ -143,18 +143,13 @@ void ArogueyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void ArogueyPawn::ClearTarget()
 {
-	if (TargetPawn.Get())
-	{
-		TargetPawn->ThreatList.Remove(this);
-		TargetPawn = nullptr;
-		OnTargetPawn.Broadcast(nullptr);
-	}
+	TargetPawn.Reset();
+	OnTargetPawn.Broadcast(nullptr);
 }
 
 void ArogueyPawn::SetTarget(TWeakObjectPtr<ArogueyPawn> Target)
 {
-	ClearTarget();
-	if (Target.Get())
+	if (Target.IsValid())
 	{
 		TargetPawn = Target;
 		TargetPawn->ThreatList.Add(this);

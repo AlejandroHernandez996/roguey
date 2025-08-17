@@ -27,6 +27,17 @@ ArogueyCharacter::ArogueyCharacter()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false;
 
+	for (uint8 i = 0; i < (uint8)EEquipmentType::MAX; i++)
+	{
+		EEquipmentType EquipType = static_cast<EEquipmentType>(i);
+		if (EquipmentHasAMesh(EquipType))
+		{
+			FString CompName = UEnum::GetValueAsString(EquipType);
+			UStaticMeshComponent* EquipComp = CreateDefaultSubobject<UStaticMeshComponent>(*CompName);
+			EquipComp->SetupAttachment( Mesh, GetEquipmentSocketName(EquipType));
+			EquipmentMap.Add(EquipType, EquipComp);
+		}
+	}
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
@@ -39,4 +50,16 @@ void ArogueyCharacter::BeginPlay()
 void ArogueyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+}
+
+void ArogueyCharacter::EquipItemMesh(const FrogueyItem EquipItem)
+{
+	if (EquipmentMap.Contains(EquipItem.EquipmentSlot))
+	{
+		UStaticMeshComponent* EquipMesh = EquipmentMap[EquipItem.EquipmentSlot];
+		EquipMesh->SetStaticMesh(EquipItem.ItemMesh);
+		EquipMesh->SetRelativeLocation(EquipItem.EquipMeshRelativeLocation);
+		EquipMesh->SetRelativeRotation(EquipItem.EquipMeshRelativeRotation);
+		EquipMesh->SetRelativeScale3D(EquipItem.EquipMeshRelativeScale);
+	}
 }

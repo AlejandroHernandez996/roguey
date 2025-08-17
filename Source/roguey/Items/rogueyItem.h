@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "ItemStatPage.h"
 #include "Combat/Projectile/rogueyProjectile.h"
+#include "Inventory/EquipmentType.h"
 #include "Inventory/InventoryEventType.h"
 #include "rogueyItem.generated.h"
 
@@ -28,10 +29,10 @@ public:
 	FItemStatPage ItemStatPage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TWeakObjectPtr<UTexture2D> ItemIcon;
+	UTexture2D* ItemIcon = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TWeakObjectPtr<UStaticMesh> ItemMesh;
+	UStaticMesh* ItemMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ArogueyProjectile> ItemProjectileClass;
@@ -62,6 +63,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRotator MeshRelativeRotation = FRotator(0, 0, 0);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector EquipMeshRelativeScale = FVector(1, 1, 1);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector EquipMeshRelativeLocation = FVector(0, 0, 0);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FRotator EquipMeshRelativeRotation = FRotator(0, 0, 0);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EEquipmentType EquipmentSlot = EEquipmentType::NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<EInventoryEventType> Interacts  = {EInventoryEventType::DROP};
