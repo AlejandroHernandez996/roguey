@@ -6,6 +6,7 @@
 #include "PawnState.h"
 #include "rogueyGameMode.h"
 #include "Components/CapsuleComponent.h"
+#include "Grid/rogueyGridManager.h"
 #include "Grid/Util/GridUtils.h"
 #include "Items/rogueyItemCache.h"
 #include "Player/rogueyCharacter.h"
@@ -253,8 +254,7 @@ void ArogueyPawn::DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime)
 
 void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 {
-	if (State == EPawnState::DEAD) return;
-	if ((State == PawnState) && !bOverride) return;
+	if (State == PawnState && !bOverride) return;
 	PawnState = State;
 	switch (State)
 	{
@@ -276,8 +276,9 @@ void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 		if (DefaultAttack)
 		{
 			PlayAnimMontage(DefaultAttack);
-			FTimerHandle TimerHandle;
 		}
+	case EPawnState::DEAD:
+		PlayAnimMontage(DeathAnim);
 		break;
 	}
 }

@@ -2,6 +2,7 @@
 
 #include "rogueyGridManager.h"
 #include "DrawDebugHelpers.h"
+#include "Inventory/rogueyInventoryManager.h"
 
 void UrogueyGridManager::RogueyTick(int32 TickIndex)
 {
@@ -94,4 +95,24 @@ void UrogueyGridManager::Init()
 FIntVector2 UrogueyGridManager::GetPlayerTrueLocation()
 {
 	return Grid.ActorMapLocation[PlayerCharacter];
+}
+
+bool UrogueyGridManager::IsPawnInRange(TWeakObjectPtr<ArogueyPawn> From, TWeakObjectPtr<ArogueyPawn> To)
+{
+	{
+		if (!Grid.ActorMapLocation.Contains(From) || !Grid.ActorMapLocation.Contains(To))
+		{
+			return false;
+		}
+		FIntVector2 FromPoint = Grid.ActorMapLocation[From];
+		FIntVector2 ToPoint = Grid.ActorMapLocation[To];
+		int32 CurrentRange = From->StatPage.StatPage[ErogueyStatType::ATTACK_RANGE].CurrentLevel;
+		CurrentRange = FMath::Max(CurrentRange, Cast<ArogueyGameMode>(From->GetWorld()->GetAuthGameMode())->InventoryManager->GetTotalBonusByStat(EItemStatType::ATTACK_RANGE));
+		int32 Distance = GridUtils::GridDistance(FromPoint, ToPoint);
+		if (CurrentRange == 1)
+		{
+			return GridUtils::IsAdjacent(FromPoint, ToPoint);
+		}
+		return FromPoint != ToPoint && CurrentRange >= Distance;
+	}
 }

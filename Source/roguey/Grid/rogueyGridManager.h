@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Grid.h"
 #include "GridEvent.h"
+#include "rogueyGameMode.h"
 #include "Characters/rogueyPawn.h"
 #include "Core/Engine/Tickable.h"
 #include "UObject/Object.h"
@@ -63,22 +64,7 @@ private:
 	
 };
 
-inline bool UrogueyGridManager::IsPawnInRange(TWeakObjectPtr<ArogueyPawn> From, TWeakObjectPtr<ArogueyPawn> To)
-{
-	if (!Grid.ActorMapLocation.Contains(From) || !Grid.ActorMapLocation.Contains(To))
-	{
-		return false;
-	}
-	FIntVector2 FromPoint = Grid.ActorMapLocation[From];
-	FIntVector2 ToPoint = Grid.ActorMapLocation[To];
-	int32 CurrentRange = From->StatPage.StatPage[ErogueyStatType::ATTACK_RANGE].CurrentLevel;
-	int32 Distance = GridUtils::GridDistance(FromPoint, ToPoint);
-	if (CurrentRange == 1)
-	{
-		return GridUtils::IsAdjacent(FromPoint, ToPoint);
-	}
-	return FromPoint != ToPoint && CurrentRange >= Distance;
-}
+bool IsPawnInRange(TWeakObjectPtr<ArogueyPawn> From, TWeakObjectPtr<ArogueyPawn> To);
 
 inline bool UrogueyGridManager::IsPawnInAggroRange(TWeakObjectPtr<ArogueyPawn> From, TWeakObjectPtr<ArogueyPawn> To)
 {

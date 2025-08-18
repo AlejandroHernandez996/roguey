@@ -43,4 +43,7 @@ public:
 	class USpawnManager* SpawnManager;
 	UPROPERTY()
 	class UrogueyGridManager* GridManager;
+
+	UFUNCTION()
+	int32 GetTotalBonusByStat(EItemStatType ItemStatType);
 };

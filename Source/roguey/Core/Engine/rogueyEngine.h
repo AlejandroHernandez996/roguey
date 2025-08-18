@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "Processable.h"
 #include "Tickable.h"
-#include "Grid/rogueyGridManager.h"
 #include "UObject/Object.h"
 #include "rogueyEngine.generated.h"
 
+class UrogueyGridManager;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTickCount, const int32&, TickerCounter);
 
 UCLASS()

@@ -35,6 +35,15 @@ public:
 	UStaticMesh* ItemMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* WeaponAttackAnimation = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* WeaponWalkAnimation = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimMontage* WeaponRunAnimation = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<ArogueyProjectile> ItemProjectileClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -11,4 +11,5 @@ enum class EItemStatType : uint8
 	DEFENCE,
 	ATTACK_SPEED,
 	HEALTH,
+	ATTACK_RANGE
 };

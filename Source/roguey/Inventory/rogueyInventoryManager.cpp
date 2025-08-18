@@ -107,3 +107,17 @@ FrogueyItem UrogueyInventoryManager::GetItemAt(int32 Index)
 {
 	return Inventory.Items.Contains(Index) ? Inventory.Items[Index] : FrogueyItem();
 }
+
+int32 UrogueyInventoryManager::GetTotalBonusByStat(EItemStatType ItemStatType)
+{
+	int32 TotalBonus = 0;
+	for (auto& EquippedItem : Equipment.Equipment)
+	{
+		if (EquippedItem.Value.ItemStatPage.StatPage.Contains(ItemStatType))
+		{
+			TotalBonus += EquippedItem.Value.ItemStatPage.StatPage[ItemStatType].BaseStat;
+		}
+	}
+
+	return TotalBonus;
+}

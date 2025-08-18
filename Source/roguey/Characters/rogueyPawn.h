@@ -60,6 +60,7 @@ public:
 	int32 LastAttackTickIndex = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	int32 DefaultAttackCooldown = 3;
+	int32 LastAttackCooldown = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	int32 TileMoveSpeed = 1;
 	UFUNCTION()
@@ -87,6 +88,8 @@ public:
 	UAnimMontage* IdleMontage;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimMontage* DefaultAttack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* DeathAnim;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
 	class UCapsuleComponent* CollisionComponent;
