@@ -37,6 +37,9 @@ public:
 	UPROPERTY()
 	class UrogueyInventoryManager* InventoryManager;
 
+	UPROPERTY()
+	class URogueyInteractManager* InteractManager;
+
 	UFUNCTION()
 	void RemoveActorFromActiveQueue(TWeakObjectPtr<ArogueyPawn> Pawn);
 private:

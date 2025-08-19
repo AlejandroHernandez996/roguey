@@ -7,7 +7,9 @@
 #include "Inventory/EquipmentType.h"
 #include "rogueyCharacter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FExperienceDropEvent, const int32&, ExperienceAmount, ErogueyStatType, StatType);
+class UrogueyInventoryManager;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FExperienceDropEvent, const int32&, ExperienceAmount, ErogueyStatType,
+                                             StatType);
 
 UCLASS(abstract)
 class ArogueyCharacter : public ArogueyPawn
@@ -38,5 +40,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Equipment")
 	TMap<EEquipmentType, UStaticMeshComponent*> EquipmentMap;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Animation")
+	TMap<ErogueyStatType, UAnimMontage*> SkillingMontages;
+
+	virtual EAttackType GetAttackType() override;
+
+	UPROPERTY()
+	TWeakObjectPtr<UrogueyInventoryManager> InventoryManager;
+
+	UPROPERTY()
+	int32 LastSkillingTick = -1;
 };
 

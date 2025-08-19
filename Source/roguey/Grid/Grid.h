@@ -13,6 +13,9 @@ struct FGrid
 	TMap<FIntVector2, FTile> GridMap;
 	UPROPERTY()
 	TMap<TWeakObjectPtr<ArogueyPawn> , FIntVector2> ActorMapLocation;
+	UPROPERTY()
+	TMap<TWeakObjectPtr<AArogueyObject> , FIntVector2> ObjectMapLocation;
+
 
 	bool HasWall(const FIntVector2& TileCoordinate, const FIntVector2& Direction) const
 	{

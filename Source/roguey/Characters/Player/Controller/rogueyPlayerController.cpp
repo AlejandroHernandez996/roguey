@@ -20,6 +20,7 @@
 #include "Inventory/rogueyInventoryManager.h"
 #include "Items/rogueyItemActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objects/ArogueyObject.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -37,6 +38,7 @@ void ArogueyPlayerController::BeginPlay()
 	{
 		CameraBoom = GetPawn()->FindComponentByClass<USpringArmComponent>();
 		FollowCamera = GetPawn()->FindComponentByClass<UCameraComponent>();
+		Cast<ArogueyCharacter>(GetPawn())->InventoryManager = RogueyGameMode->InventoryManager;
 	}
 	RogueyGameMode->InventoryManager->RogueyPlayerController = this;
 }
@@ -145,16 +147,27 @@ void ArogueyPlayerController::OnInputStarted()
 			FInput Input;
 			ArogueyPawn* TargetPawn = Cast<ArogueyPawn>(HitActor);
 			ArogueyItemActor* TargetItem = Cast<ArogueyItemActor>(HitActor);
+			AArogueyObject* TargetObject = Cast<AArogueyObject>(HitActor);
+			if (TargetObject)
+			{
+				Input = FInput(RogueyGameMode->GetCurrentTick(), EInputType::INTERACT, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()));
+				Input.TargetObject = TargetObject;
+				RogueyGameMode->InputManager->EnqueueInput(Input);
+				OnClickEvent.Broadcast(false);
+				return;
+			}
 			if (TargetPawn && TargetPawn->PawnState != EPawnState::DEAD)
 			{
-				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()), TargetPawn);
+				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()));
+				Input.TargetPawn = TargetPawn;
 				RogueyGameMode->InputManager->EnqueueInput(Input);
 				OnClickEvent.Broadcast(false);
 				return;
 			}
 			if (TargetItem)
 			{
-				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, Cast<ArogueyPawn>(GetPawn()), TargetItem);
+				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()));
+				Input.TargetItem = TargetItem;
 				RogueyGameMode->InputManager->EnqueueInput(Input);
 				OnClickEvent.Broadcast(false);
 				return;
@@ -163,7 +176,7 @@ void ArogueyPlayerController::OnInputStarted()
 	}
 	if (bHitWorld)
 	{
-		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, WorldHit.Location, Cast<ArogueyPawn>(GetPawn()), nullptr);
+		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, WorldHit.Location, Cast<ArogueyPawn>(GetPawn()));
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 		OnClickEvent.Broadcast(true);
 	}
@@ -309,17 +322,25 @@ void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractTyp
 	}
 	if (InteractType == EInteractType::WALK)
 	{
-		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, InteractMenuLocation, Cast<ArogueyPawn>(GetPawn()), nullptr);
+		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::MOVE, InteractMenuLocation, Cast<ArogueyPawn>(GetPawn()));
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
-	if (InteractType == EInteractType::ATTACK)
+	else if (InteractType == EInteractType::ATTACK)
 	{
-		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyPawn>(InputActor));
+		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()));
+		Input.TargetPawn = Cast<ArogueyPawn>(InputActor);
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
-	if (InteractType == EInteractType::TAKE)
+	else if (InteractType == EInteractType::TAKE)
 	{
-		const FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, Cast<ArogueyPawn>(GetPawn()), Cast<ArogueyItemActor>(InputActor));
+		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()));
+		Input.TargetItem = Cast<ArogueyItemActor>(InputActor);
+		RogueyGameMode->InputManager->EnqueueInput(Input);
+	}
+	else if (Cast<AArogueyObject>(InputActor))
+	{
+		FInput Input(RogueyGameMode->GetCurrentTick(), EInputType::PICK_UP_ITEM, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()));
+		Input.TargetObject = Cast<AArogueyObject>(InputActor);
 		RogueyGameMode->InputManager->EnqueueInput(Input);
 	}
 }

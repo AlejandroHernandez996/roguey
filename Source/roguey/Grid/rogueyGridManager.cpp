@@ -2,6 +2,7 @@
 
 #include "rogueyGridManager.h"
 #include "DrawDebugHelpers.h"
+#include "rogueyGameMode.h"
 #include "Inventory/rogueyInventoryManager.h"
 
 void UrogueyGridManager::RogueyTick(int32 TickIndex)
@@ -80,7 +81,7 @@ bool UrogueyGridManager::GridContainsActor(TWeakObjectPtr<ArogueyPawn> Actor)
 	return Grid.ActorMapLocation.Contains(Actor);
 }
 
-void UrogueyGridManager::Init()
+void UrogueyGridManager::Init(TSet<AArogueyObject*> RogueyObjects)
 {
 	for (int i = 0; i < GridSize.X ; i++)
 	{
@@ -89,6 +90,21 @@ void UrogueyGridManager::Init()
 			FTile Tile = FTile();
 			Grid.GridMap.Add(FIntVector2(i, j), Tile);
 		}
+	}
+	
+	for (auto& RogueyObject : RogueyObjects)
+	{
+		AddRogueyObjectToGrid(RogueyObject);
+	}
+}
+
+void UrogueyGridManager::AddRogueyObjectToGrid(AArogueyObject* RogueyObject)
+{
+	if (RogueyObject)
+	{
+		FIntVector2 Location = GridUtils::WorldToGrid(RogueyObject->GetActorLocation());
+		Grid.ObjectMapLocation.Add(RogueyObject, Location);
+		Grid.GridMap[Location].TileType = ETileType::BLOCKED;
 	}
 }
 
@@ -116,3 +132,4 @@ bool UrogueyGridManager::IsPawnInRange(TWeakObjectPtr<ArogueyPawn> From, TWeakOb
 		return FromPoint != ToPoint && CurrentRange >= Distance;
 	}
 }
+

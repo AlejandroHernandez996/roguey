@@ -39,6 +39,8 @@ void UDeathManager::RogueyTick(int32 TickIndex)
 			SpawnManager->EnqueueItem(LootItem);
 			PawnsToDestroy.Add(DeadPawn);
 			DeadPawn->SetPawnState(EPawnState::DEAD, true);
+			DeadPawn->Die(TickIndex);
+
 		}
 	}
 }

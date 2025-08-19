@@ -4,6 +4,8 @@
 #include "Characters/rogueyPawn.h"
 #include "Movement.generated.h"
 
+class ArogueyItemActor;
+class AArogueyObject;
 class ArogueyPawn;
 
 USTRUCT(BlueprintType)
@@ -12,18 +14,12 @@ struct FMovement
 	GENERATED_BODY()
 	FMovement() {}
 	
-	FMovement(TWeakObjectPtr<ArogueyPawn> InActor, TWeakObjectPtr<ArogueyPawn>InTargetPawn, FIntVector2 InDestination, uint32 InTick)
-		: Actor(InActor)
-		, Destination(InDestination)
+	FMovement(TWeakObjectPtr<ArogueyPawn> InActor, FIntVector2 InDestination, uint32 InTick)
+		: Destination(InDestination)
 		, Tick(InTick)
-		, TargetPawn(InTargetPawn)
+		, Actor(InActor)
 	{}
 
-	FMovement(TWeakObjectPtr<ArogueyPawn> InActor, TWeakObjectPtr<ArogueyItemActor> InTargetItem, uint32 InTick)
-		: Actor(InActor)
-		, Tick(InTick)
-		, TargetItem(InTargetItem)
-	{}
 	UPROPERTY()
 	FIntVector2 Destination = FIntVector2(-1, -1);
 	
@@ -31,11 +27,14 @@ struct FMovement
 	uint32 Tick = 0;
 
 	UPROPERTY()
-	TWeakObjectPtr<ArogueyPawn> Actor;
+	TWeakObjectPtr<ArogueyPawn> Actor = nullptr;
 
 	UPROPERTY()
-	TWeakObjectPtr<ArogueyPawn> TargetPawn;
+	TWeakObjectPtr<ArogueyPawn> TargetPawn = nullptr;
 
 	UPROPERTY()
-	TWeakObjectPtr<ArogueyItemActor> TargetItem;
+	TWeakObjectPtr<ArogueyItemActor> TargetItem = nullptr;
+	
+	UPROPERTY()
+	TWeakObjectPtr<AArogueyObject> TargetObject = nullptr;
 };

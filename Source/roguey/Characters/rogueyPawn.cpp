@@ -98,7 +98,7 @@ void ArogueyPawn::Tick(float DeltaTime)
 
 	if (TrueTileQueue.IsEmpty())
 	{
-		if (PawnState != EPawnState::ATTACKING)
+		if (PawnState != EPawnState::ATTACKING && PawnState != EPawnState::SKILLING && PawnState != EPawnState::DEAD)
 		{
 			SetPawnState(EPawnState::IDLE, false);
 		}
@@ -122,7 +122,10 @@ void ArogueyPawn::Tick(float DeltaTime)
 		SetActorLocation(CurrentLocation + MovementStep);
 		bool bPrevIsWalking = bIsWalking;
 		bIsWalking = TargetTrueTile.Value < 2.0f;
-		SetPawnState(EPawnState::MOVING, bPrevIsWalking != bIsWalking);
+		if (PawnState != EPawnState::ATTACKING && PawnState != EPawnState::SKILLING && PawnState != EPawnState::DEAD)
+		{
+			SetPawnState(EPawnState::MOVING, bPrevIsWalking != bIsWalking);
+		}
 		FRotator NewRotation = Direction.Rotation();
 		SetActorRotation(NewRotation);
 	}
@@ -277,8 +280,14 @@ void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 		{
 			PlayAnimMontage(DefaultAttack);
 		}
+		break;
 	case EPawnState::DEAD:
 		PlayAnimMontage(DeathAnim);
 		break;
 	}
+}
+
+EAttackType ArogueyPawn::GetAttackType()
+{
+	return AttackType;
 }

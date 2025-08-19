@@ -5,10 +5,13 @@
 #include "Combat/Projectile/rogueyProjectile.h"
 #include "Inventory/EquipmentType.h"
 #include "Inventory/InventoryEventType.h"
+#include "Combat/AttackType.h"
 #include "rogueyItem.generated.h"
 
+enum class EItemAttribute : uint8;
 enum class EInventoryEventType : uint8;
 enum class EInteractType : uint8;
+enum class EAttackType : uint8;
 
 USTRUCT(BlueprintType)
 struct ROGUEY_API FrogueyItem
@@ -53,9 +56,6 @@ public:
 	FRotator ItemRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class ArogueyItemActor> ItemActor;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bIsStackable = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -86,5 +86,11 @@ public:
 	EEquipmentType EquipmentSlot = EEquipmentType::NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<EInventoryEventType> Interacts  = {EInventoryEventType::DROP};
+	TArray<EInventoryEventType> Interacts  = {EInventoryEventType::USE};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAttackType AttackType = EAttackType::MELEE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSet<EItemAttribute> ItemAttributes;
 };

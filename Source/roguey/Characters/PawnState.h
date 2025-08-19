@@ -10,5 +10,7 @@ enum class EPawnState : uint8
 	FOLLOWING = 2,
 	ATTACK_MOVING = 3,
 	ATTACKING = 4,
-	DEAD = 5
+	DEAD = 5,
+	SKILLING = 6,
+	SPAWNED = 7,
 };

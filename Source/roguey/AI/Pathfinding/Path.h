@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Path.generated.h"
 
+class ArogueyItemActor;
+
 USTRUCT(BlueprintType)
 struct FPath
 {
@@ -16,6 +18,8 @@ struct FPath
 	TWeakObjectPtr<ArogueyPawn> TargetPawn;
 	UPROPERTY()
 	TWeakObjectPtr<ArogueyItemActor> TargetItem;
+	UPROPERTY()
+	TWeakObjectPtr<AArogueyObject> TargetObject;
 	UPROPERTY()
 	FIntVector2 TargetPosition = FIntVector2(-1, -1);
 

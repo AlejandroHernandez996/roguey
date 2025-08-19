@@ -35,6 +35,10 @@ public:
 	class UDeathManager* DeathManager;
 	UPROPERTY()
 	class USpawnManager* SpawnManager;
+	UPROPERTY()
+	class URogueyInteractManager* InteractManager;
+	UPROPERTY()
+	class UURogueyResourceManager* ResourceManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Items")
 	class UrogueyItemCache* ItemCache;

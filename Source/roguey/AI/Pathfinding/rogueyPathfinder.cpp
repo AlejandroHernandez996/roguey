@@ -295,3 +295,123 @@ FPath UrogueyPathfinder::FindAndGeneratePathToItem(FMovement Movement, FGrid Gri
 
     return Path;
 }
+
+FPath UrogueyPathfinder::FindAndGeneratePathToObject(FMovement Movement, FGrid Grid)
+{
+    FPath Path;
+    TWeakObjectPtr<AArogueyObject> TargetObject = Movement.TargetObject;
+    TWeakObjectPtr<ArogueyPawn> ActorPawn = Movement.Actor;
+    if (!TargetObject.IsValid() || !ActorPawn.IsValid())
+    {
+        Path.PathIndex = -1;
+        return Path;
+    }
+    if (!Grid.ActorMapLocation.Contains(ActorPawn))
+    {
+        Path.PathIndex = -1;
+        return Path;
+    }
+    FIntVector2 Start = Grid.ActorMapLocation[ActorPawn];
+    FIntVector2 TargetLocation = Grid.ObjectMapLocation[TargetObject];
+
+    auto IsOrthogonallyAdjacent = [](const FIntVector2& A, const FIntVector2& B)
+    {
+        return (FMath::Abs(A.X - B.X) == 1 && A.Y == B.Y) ||
+               (FMath::Abs(A.Y - B.Y) == 1 && A.X == B.X);
+    };
+
+    if (IsOrthogonallyAdjacent(Start, TargetLocation))
+    {
+        Path.PathIndex = 0;
+        Path.TargetObject = TargetObject;
+        Path.TargetPosition = TargetLocation;
+        return Path;
+    }
+
+    if (Start == TargetLocation)
+    {
+        static const TArray<FIntVector2> OrthogonalDirs = {
+            { -1,  0 }, { 1,  0 }, { 0,  1 }, { 0, -1 }
+        };
+
+        for (const FIntVector2& Dir : OrthogonalDirs)
+        {
+            FIntVector2 Candidate = Start + Dir;
+            if (Grid.CanMove(Start, Candidate))
+            {
+                Path.MovementPath = { Start, Candidate };
+                Path.PathIndex = 0;
+                Path.TargetObject = TargetObject;
+                Path.TargetPosition = TargetLocation;
+                return Path;
+            }
+        }
+
+        Path.PathIndex = 0;
+        return Path;
+    }
+
+    static const TArray<FIntVector2> NeighborOrder = {
+        { -1,  0 }, { 1,  0 }, { 0,  1 }, { 0, -1 },
+        { -1,  1 }, { 1,  1 }, { -1, -1 }, { 1, -1 }
+    };
+
+    TQueue<FIntVector2> Open;
+    TMap<FIntVector2, FIntVector2> CameFrom;
+    TSet<FIntVector2> Visited;
+
+    Open.Enqueue(Start);
+    Visited.Add(Start);
+
+    bool PathFound = false;
+    FIntVector2 ClosestTile;
+
+    while (!Open.IsEmpty())
+    {
+        FIntVector2 Current;
+        Open.Dequeue(Current);
+
+        if (IsOrthogonallyAdjacent(Current, TargetLocation))
+        {
+            ClosestTile = Current;
+            PathFound = true;
+            break;
+        }
+
+        for (const FIntVector2& Dir : NeighborOrder)
+        {
+            FIntVector2 Neighbor = Current + Dir;
+            if (Visited.Contains(Neighbor))
+                continue;
+            if (!Grid.CanMove(Current, Neighbor))
+                continue;
+
+            Open.Enqueue(Neighbor);
+            Visited.Add(Neighbor);
+            CameFrom.Add(Neighbor, Current);
+        }
+    }
+
+    if (!PathFound)
+    {
+        Path.PathIndex = -1;
+        return Path;
+    }
+
+    TArray<FIntVector2> ReversePath;
+    FIntVector2 Step = ClosestTile;
+    while (Step != Start)
+    {
+        ReversePath.Add(Step);
+        Step = CameFrom[Step];
+    }
+    ReversePath.Add(Start);
+    Algo::Reverse(ReversePath);
+
+    Path.MovementPath = ReversePath;
+    Path.PathIndex = 0;
+    Path.TargetObject = TargetObject;
+    Path.TargetPosition = TargetLocation;
+
+    return Path;
+}

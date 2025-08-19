@@ -27,5 +27,7 @@ public:
 	class UrogueyMovementManager* MovementManager;
 	UPROPERTY()
 	class UrogueyCombatManager* CombatManager;
+	UPROPERTY()
+	class URogueyInteractManager* InteractManager;
 
 };

@@ -15,6 +15,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Items")
 	TMap<int32, FrogueyItem> Items;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ArogueyItemActor> ItemActor;
+	
 	UFUNCTION()
 	void InitLootTable(ArogueyPawn* Pawn);
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "PawnState.h"
 #include "AI/DecisionMaking/Behavior.h"
+#include "Combat/AttackType.h"
 #include "Core/Engine/Interactable.h"
 #include "Core/Engine/InteractType.h"
 #include "Enemies/rogueyLootTable.h"
@@ -12,9 +13,11 @@
 #include "Stats/rogueyStatPage.h"
 #include "rogueyPawn.generated.h"
 
+enum class EAttackType : uint8;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCombatDamageEvent, const int32&, DamageAmount, ArogueyPawn*, OwningPawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCombatBlockEvent, ArogueyPawn*, OwningPawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTargetPawnEvent, ArogueyPawn*, CurrentTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPawnDeath, int32, TickIndex);
 
 UCLASS()
 class ROGUEY_API ArogueyPawn : public APawn, public IInteractable
@@ -35,6 +38,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void ClearTarget();
 	void SetTarget(TWeakObjectPtr<ArogueyPawn> Target);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 NpcId = -1;
+	
 	UPROPERTY(BlueprintAssignable, Category = "Target")
 	FTargetPawnEvent OnTargetPawn;
 
@@ -70,7 +77,7 @@ public:
 	void DrawTrueTile(FIntVector2 TrueTileLocation, float DecayTime);
 
 	UPROPERTY()
-	EPawnState PawnState = EPawnState::IDLE;
+	EPawnState PawnState = EPawnState::SPAWNED;
 	UPROPERTY()
 	bool bIsWalking;
 	
@@ -127,4 +134,16 @@ public:
 		return ExamineText;
 	}
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	EAttackType AttackType = EAttackType::MELEE;
+
+	virtual EAttackType GetAttackType();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPawnDeath OnPawnDeath;
+
+	void Die(int32 TickIndex)
+	{
+		OnPawnDeath.Broadcast(TickIndex);
+	}
 };

@@ -23,14 +23,16 @@ void UrogueyBehaviorManager::RogueyTick(int32 TickIndex)
 		case EBehaviorType::AGGRESSIVE:
 			if (GridManager->IsPawnInAggroRange(Pawn, PlayerPawn))
 			{
-				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get(), PlayerPawn);
+				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get());
+				Input.TargetPawn = PlayerPawn;
 				InputManager->EnqueueInput(Input);
 			}
 			break;
 		case EBehaviorType::PASSIVE:
 			if (!Pawn->ThreatList.IsEmpty())
 			{
-				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get(), Pawn->ThreatList.Array()[0].Get());
+				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get());
+				Input.TargetPawn = Pawn->ThreatList.Array()[0].Get();
 				InputManager->EnqueueInput(Input);
 			}
 			break;

@@ -7,6 +7,7 @@
 #include "UObject/Object.h"
 #include "Path.h"
 #include "Grid/Grid.h"
+#include "Grid/rogueyGridManager.h"
 #include "rogueyPathfinder.generated.h"
 
 /**
@@ -20,4 +21,5 @@ class ROGUEY_API UrogueyPathfinder : public UObject
 	static FPath FindAndGeneratePath(FMovement Movement, FGrid Grid);
 	static FPath FindAndGeneratePathToPawn(FMovement Movement, FGrid Grid);
 	static FPath FindAndGeneratePathToItem(FMovement Movement, FGrid Grid);
+	static FPath FindAndGeneratePathToObject(FMovement Movement, FGrid Grid);
 };

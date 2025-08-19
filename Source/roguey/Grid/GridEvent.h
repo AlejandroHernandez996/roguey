@@ -22,9 +22,9 @@ struct FGridEvent
 	}
 
 	FGridEvent(int32 InTick,const FIntVector2& InLocation, TWeakObjectPtr<ArogueyPawn> InInputActor, EGridEventType InEventType)
-		: Tick(InTick)
+		: Actor(InInputActor)
 		, Location(InLocation)
-		, Actor(InInputActor)
+		, Tick(InTick)
 		, EventType(InEventType)
 	{}
 };

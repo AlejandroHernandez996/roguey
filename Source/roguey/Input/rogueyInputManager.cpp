@@ -8,6 +8,7 @@
 #include "AI/Pathfinding/rogueyMovementManager.h"
 #include "Combat/rogueyCombatManager.h"
 #include "Grid/Util/GridUtils.h"
+#include "Interactions/RogueyInteractManager.h"
 
 void UrogueyInputManager::RogueyTick(int32 TickIndex)
 {
@@ -21,30 +22,36 @@ void UrogueyInputManager::RogueyTick(int32 TickIndex)
 		}
 		MovementManager->RemoveActorFromActiveQueue(ProcessInput.InputActor);
 		CombatManager->RemoveActorFromActiveQueue(ProcessInput.InputActor);
+		InteractManager->RemoveActorFromActive(ProcessInput.InputActor);
+		FMovement Movement = FMovement(ProcessInput.InputActor, GridUtils::WorldToGrid(ProcessInput.InputWorldLocation), ProcessInput.InputTick);
 		switch (ProcessInput.InputType)
 		{
 		case EInputType::MOVE:
-			MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor,nullptr, GridUtils::WorldToGrid(ProcessInput.InputWorldLocation),ProcessInput.InputTick));
+			MovementManager->EnqueueMovement(Movement);
 			ProcessInput.InputActor->ClearTarget();
-			break;
-		case EInputType::FOLLOW:
 			break;
 		case EInputType::ATTACK:
 			if (ProcessInput.TargetPawn.IsValid() && ProcessInput.TargetPawn->PawnState != EPawnState::DEAD)
 			{
-				MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor, ProcessInput.TargetPawn, FIntVector2::ZeroValue, ProcessInput.InputTick));
+				Movement.TargetPawn = ProcessInput.TargetPawn;
+				MovementManager->EnqueueMovement(Movement);
 				ProcessInput.InputActor->SetTarget(ProcessInput.TargetPawn);
 			}
-			break;
-		case EInputType::EQUIP:
-			break;
-		case EInputType::ABILITY:
 			break;
 		case EInputType::PICK_UP_ITEM:
 			if (ProcessInput.TargetItem.Get())
 			{
-				MovementManager->EnqueueMovement(FMovement(ProcessInput.InputActor, ProcessInput.TargetItem, ProcessInput.InputTick));
+				Movement.TargetItem = ProcessInput.TargetItem;
+				MovementManager->EnqueueMovement(Movement);
 			}
+			break;
+		case EInputType::INTERACT:
+			if (ProcessInput.TargetObject.Get())
+			{
+				Movement.TargetObject = ProcessInput.TargetObject;
+				MovementManager->EnqueueMovement(Movement);
+			}
+			break;
 		case EInputType::NONE:
 			break;
 		default: ;

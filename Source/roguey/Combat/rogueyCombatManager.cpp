@@ -52,7 +52,9 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		{
 			if (!bIsInRange)
 			{
-				InputManager->EnqueueInput(FInput(TickIndex, EInputType::ATTACK,FVector::Zero(),FromActor.Get(), CombatEvent.ToActor.Get()));
+				FInput Input = FInput(TickIndex, EInputType::ATTACK,FVector::Zero(),FromActor.Get());
+				Input.TargetPawn = CombatEvent.ToActor.Get();
+				InputManager->EnqueueInput(Input);
 			}
 			FinishedCombatActors.Add(FromActor.Get());
 		}
@@ -70,6 +72,10 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 	for (auto& FinishedActor : FinishedCombatActors)
 	{
 		ActiveCombats.Remove(FinishedActor);
+		if (FinishedActor)
+		{
+			FinishedActor->SetPawnState(EPawnState::IDLE, false);
+			}
 	}
 }
 

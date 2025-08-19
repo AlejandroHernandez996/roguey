@@ -6,6 +6,7 @@
 
 class ArogueyPawn;
 class ArogueyItemActor;
+class AArogueyObject;
 
 USTRUCT(BlueprintType)
 struct FInput
@@ -29,20 +30,15 @@ struct FInput
 	UPROPERTY()
 	TWeakObjectPtr<ArogueyItemActor> TargetItem = nullptr;
 
+	UPROPERTY()
+	TWeakObjectPtr<AArogueyObject> TargetObject = nullptr;
+
 	FInput() {}
 
-	FInput(int32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, TWeakObjectPtr<ArogueyPawn> InInputActor, TWeakObjectPtr<ArogueyPawn> InTargetPawn)
+	FInput(int32 InInputTick, EInputType InInputType, const FVector& InInputWorldLocation, TWeakObjectPtr<ArogueyPawn> InInputActor)
 		: InputTick(InInputTick)
 		, InputType(InInputType)
 		, InputWorldLocation(InInputWorldLocation)
 		, InputActor(InInputActor)
-		, TargetPawn(InTargetPawn)
-	{}
-	
-	FInput(int32 InInputTick, EInputType InInputType, TWeakObjectPtr<ArogueyPawn> InInputActor, TWeakObjectPtr<ArogueyItemActor> InTargetItem)
-		: InputTick(InInputTick)
-		, InputType(InInputType)
-		, InputActor(InInputActor)
-		, TargetItem(InTargetItem)
 	{}
 };

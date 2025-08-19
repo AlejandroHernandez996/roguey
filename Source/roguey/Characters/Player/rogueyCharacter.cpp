@@ -10,6 +10,7 @@
 #include "DrawDebugHelpers.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
+#include "Inventory/rogueyInventoryManager.h"
 
 ArogueyCharacter::ArogueyCharacter()
 {
@@ -50,6 +51,7 @@ void ArogueyCharacter::BeginPlay()
 void ArogueyCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	
 }
 
 void ArogueyCharacter::EquipItemMesh(const FrogueyItem EquipItem)
@@ -62,4 +64,16 @@ void ArogueyCharacter::EquipItemMesh(const FrogueyItem EquipItem)
 		EquipMesh->SetRelativeRotation(EquipItem.EquipMeshRelativeRotation);
 		EquipMesh->SetRelativeScale3D(EquipItem.EquipMeshRelativeScale);
 	}
+}
+
+EAttackType ArogueyCharacter::GetAttackType()
+{
+	if (InventoryManager.IsValid())
+	{
+		if (InventoryManager->Equipment.Equipment.Contains(EEquipmentType::WEAPON))
+		{
+			return InventoryManager->Equipment.Equipment[EEquipmentType::WEAPON].AttackType;
+		}
+	}
+	return AttackType;
 }

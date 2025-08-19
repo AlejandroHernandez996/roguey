@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/Engine/Interactable.h"
-#include "Core/Engine/InteractType.h"
+#include "Characters/rogueyPawn.h"
+#include "Items/ItemAtrribute.h"
 #include "UObject/Object.h"
 #include "ArogueyObject.generated.h"
 
@@ -12,22 +12,43 @@
  * 
  */
 UCLASS()
-class ROGUEY_API AArogueyObject : public AActor, public IInteractable
+class ROGUEY_API AArogueyObject : public ArogueyPawn
 {
 	GENERATED_BODY()
 public:
+	AArogueyObject();
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FString ObjectName;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int32 ObjectId;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FString ExamineText;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interactable", meta = (AllowPrivateAccess = "true"))
-	TArray<EInteractType> InteractList {EInteractType::ATTACK};
-	virtual const TArray<EInteractType>& GetInteractList() const override
-	{
-		return InteractList;
-	}
+	EItemAttribute RequiredAttribute = EItemAttribute::NONE;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 RewardResourceId = -1;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float ResourceSkillingMultiplier = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 RequiredLevel = 1;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int32 ExperienceReward = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsDepleted = false;
+	UPROPERTY(EditAnywhere, BLueprintReadWrite)
+	int32 RespawnTicks = 16;
+	UPROPERTY(EditAnywhere, BLueprintReadWrite)
+	int32 DepletedOnTick = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* DepletedMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* ResourceMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ResourceHP = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MaxResourceHP = 3;
+
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void BeginPlay() override;	
 
 	virtual const FString GetRogueyName() const override
 	{
@@ -37,4 +58,6 @@ public:
 	{
 		return ExamineText;
 	}
+
+	void RespawnResource();
 };

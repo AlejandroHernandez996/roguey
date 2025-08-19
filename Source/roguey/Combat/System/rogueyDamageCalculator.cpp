@@ -1,6 +1,5 @@
 ﻿#include "rogueyDamageCalculator.h"
 
-#include "rogueyGameMode.h"
 #include "Characters/Player/rogueyCharacter.h"
 #include "Characters/Player/Controller/rogueyPlayerController.h"
 #include "Combat/CombatEvent.h"
@@ -22,7 +21,7 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
        
         if (CanHit(FromPawn, ToPawn))
         {
-           DamageDealt = CalculateDamage(FromPawn);
+           DamageDealt = FMath::Min(CalculateDamage(FromPawn), ToPawn->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentLevel);
         }
 
         ToPawn->UpdateCurrentStat(ErogueyStatType::HEALTH, -DamageDealt);
@@ -33,8 +32,7 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
         int32 AttackCooldown = FromPawn->DefaultAttackCooldown;
         if (ArogueyCharacter* PlayerCharacter = Cast<ArogueyCharacter>(FromPawn))
         {
-            ArogueyGameMode* RogueyGameMode = Cast<ArogueyGameMode>(PlayerCharacter->GetWorld()->GetAuthGameMode());
-            AttackCooldown = RogueyGameMode->InventoryManager->GetTotalBonusByStat(EItemStatType::ATTACK_SPEED);
+            AttackCooldown = PlayerCharacter->InventoryManager->GetTotalBonusByStat(EItemStatType::ATTACK_SPEED);
         }
         FromPawn->LastAttackCooldown = AttackCooldown;
         
@@ -53,14 +51,6 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
             }
         }
        
-       if (DamageDealt > 0)
-       {
-           UE_LOG(LogTemp, Warning, TEXT("%s attacked %s for %d damage."), *FromPawn->GetName(), *ToPawn->GetName(), DamageDealt);
-       }
-       else
-       {
-           UE_LOG(LogTemp, Warning, TEXT("%s attacked %s but missed."), *FromPawn->GetName(), *ToPawn->GetName());
-       }
     }
 }
 
@@ -99,11 +89,10 @@ int32 UrogueyDamageCalculator::CalculateDamage(TWeakObjectPtr<ArogueyPawn> FromP
     int32 EquippedItemStrengthBonus = 0;
     if (ArogueyCharacter* PlayerCharacter = Cast<ArogueyCharacter>(FromPawn))
     {
-        ArogueyGameMode* RogueyGameMode = Cast<ArogueyGameMode>(PlayerCharacter->GetWorld()->GetAuthGameMode());
-        EquippedItemStrengthBonus = RogueyGameMode->InventoryManager->GetTotalBonusByStat(EItemStatType::STRENGTH);
+        EquippedItemStrengthBonus = PlayerCharacter->InventoryManager->GetTotalBonusByStat(EItemStatType::STRENGTH);
     }
-    AttackerStrengthLevel  += EquippedItemStrengthBonus;
-    int32 MaxHit = GetDamageBonusFromStrength(EquippedItemStrengthBonus);
+    AttackerStrengthLevel += EquippedItemStrengthBonus;
+    int32 MaxHit = GetDamageBonusFromStrength(AttackerStrengthLevel);
     
     return FMath::RandRange(1, MaxHit);
 }

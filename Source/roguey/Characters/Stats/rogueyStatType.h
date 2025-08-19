@@ -14,4 +14,8 @@ enum class ErogueyStatType : uint8
 	DEFENCE,
 	ATTACK_RANGE,
 	ATTACK_SPEED,
+	RANGING,
+	MAGIC,
+	WOODCUTTING,
+	MINING
 };

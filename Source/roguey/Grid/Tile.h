@@ -17,8 +17,6 @@ struct FTile
 	TSet<TWeakObjectPtr<AActor>> ActorsInTile;
 	TMultiMap<int32, TWeakObjectPtr<ArogueyItemActor>> ItemMapInTile;
 	UPROPERTY()
-	TSet<TWeakObjectPtr<AArogueyObject>> ObjectsInTile;
-	UPROPERTY()
 	ETileType TileType = ETileType::FREE;
 
 	bool IsBlocked() const
