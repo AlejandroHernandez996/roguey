@@ -21,11 +21,20 @@ void UrogueyBehaviorManager::RogueyTick(int32 TickIndex)
 		switch (Behavior.BehaviorType)
 		{
 		case EBehaviorType::AGGRESSIVE:
-			if (GridManager->IsPawnInAggroRange(Pawn, PlayerPawn))
+			if (!Pawn->TargetPawn.IsValid() && GridManager->IsPawnInAggroRange(Pawn, PlayerPawn))
 			{
 				FInput Input(TickIndex, EInputType::ATTACK, PlayerPawn->GetActorLocation(), Pawn.Get());
 				Input.TargetPawn = PlayerPawn;
 				InputManager->EnqueueInput(Input);
+			}else
+			{
+				bool bShouldRoam = FMath::RandRange(1,7) == 1;
+				if (bShouldRoam)
+				{
+					FIntVector2 RoamTile = GridManager->FindRandomTileInRangeOfPawn(Pawn, 5);
+					FInput Input(TickIndex, EInputType::MOVE, GridUtils::GridToWorld(RoamTile), Pawn);
+					InputManager->EnqueueInput(Input);
+				}
 			}
 			break;
 		case EBehaviorType::PASSIVE:

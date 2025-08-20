@@ -39,6 +39,8 @@ public:
 	class URogueyInteractManager* InteractManager;
 	UPROPERTY()
 	class UURogueyResourceManager* ResourceManager;
+	UPROPERTY()
+	class URogueyProjectileManager* ProjectileManager;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Items")
 	class UrogueyItemCache* ItemCache;

@@ -22,6 +22,7 @@ class ROGUEY_API UrogueyGridManager : public UObject, public ITickable
 
 public:
 	virtual void RogueyTick(int32 TickIndex) override;
+
 	UPROPERTY()
 	FGrid Grid;
 
@@ -49,7 +50,8 @@ public:
 	bool IsPawnInRange(TWeakObjectPtr<ArogueyPawn> From,TWeakObjectPtr<ArogueyPawn> To);
 	bool IsPawnInAggroRange(TWeakObjectPtr<ArogueyPawn> From, TWeakObjectPtr<ArogueyPawn> To);
 	bool IsPawnInRangeOfPoint(TWeakObjectPtr<ArogueyPawn> FromActor, FIntVector2 FromPoint, TWeakObjectPtr<ArogueyPawn> To);
-
+	FIntVector2 FindRandomTileInRangeOfPawn(TWeakObjectPtr<ArogueyPawn> Pawn, int Range);
+	
 	void AddRogueyObjectToGrid(AArogueyObject* RogueyObject);
 	
 	UFUNCTION()

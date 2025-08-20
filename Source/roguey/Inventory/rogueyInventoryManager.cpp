@@ -87,7 +87,10 @@ void UrogueyInventoryManager::EquipItem(int32 InventoryIndex)
 		PreviousEquippedItem = Equipment.Equipment[ItemToEquip.EquipmentSlot];
 	}
 	Equipment.Equipment.Add(ItemToEquip.EquipmentSlot, ItemToEquip);
-
+	if (ItemToEquip.WeaponAttackAnimation)
+	{
+		RogueyPlayerController->GetCharacter()->AttackMontage = ItemToEquip.WeaponAttackAnimation;
+	}
 
 	Inventory.RemoveItem(InventoryIndex);
 	if (PreviousEquippedItem.ItemId != -1)
@@ -120,4 +123,13 @@ int32 UrogueyInventoryManager::GetTotalBonusByStat(EItemStatType ItemStatType)
 	}
 
 	return TotalBonus;
+}
+
+TSubclassOf<ArogueyProjectile> UrogueyInventoryManager::GetProjectileClass()
+{
+	if (Equipment.Equipment.Contains(EEquipmentType::WEAPON))
+	{
+		return Equipment.Equipment[EEquipmentType::WEAPON].ItemProjectileClass;
+	}
+	return nullptr;
 }

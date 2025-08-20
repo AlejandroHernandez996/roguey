@@ -9,6 +9,7 @@
 #include "UObject/Object.h"
 #include "rogueyInventoryManager.generated.h"
 
+class ArogueyItemActor;
 class ArogueyPlayerController;
 struct FInventoryEvent;
 class ArogueyCharacter;
@@ -44,6 +45,9 @@ public:
 	UPROPERTY()
 	class UrogueyGridManager* GridManager;
 
+	UFUNCTION()
+	TSubclassOf<ArogueyProjectile> GetProjectileClass();
+	
 	UFUNCTION()
 	int32 GetTotalBonusByStat(EItemStatType ItemStatType);
 };

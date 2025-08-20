@@ -10,6 +10,7 @@
 #include "Inventory/rogueyInventory.h"
 #include "rogueyPlayerController.generated.h"
 
+class ArogueyCharacter;
 struct FrogueyInventory;
 struct FInteractTypeArray;
 enum class EInteractType : uint8;
@@ -49,6 +50,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* MouseMoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* PrimaryModifier;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsPrimaryModifier = false;
 
 	UPROPERTY()
 	class ArogueyGameMode* RogueyGameMode;
@@ -92,6 +98,9 @@ public:
 
 	ArogueyPlayerController();
 
+	UFUNCTION()
+	ArogueyCharacter* GetCharacter();
+
 protected:
 	virtual void SetupInputComponent() override;
 	
@@ -107,6 +116,8 @@ protected:
 	void OnMouseScrollReleased();
 	void OnMouseMove(const FInputActionInstance& Instance);
 	void DrawHoveredTile(const FVector& HoveredPosition);
+	void OnPrimaryModifierStarted();
+	void OnPrimaryModifierCompleted();
 
 	UFUNCTION(BlueprintCallable)
 	FString InteractTypeToString(EInteractType InteractType)

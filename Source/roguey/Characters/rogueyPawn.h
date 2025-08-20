@@ -96,6 +96,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimMontage* DefaultAttack;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
+	UAnimMontage* AttackMontage;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UAnimMontage* DeathAnim;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
@@ -146,4 +148,7 @@ public:
 	{
 		OnPawnDeath.Broadcast(TickIndex);
 	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ArogueyProjectile> ProjectileClass;
 };

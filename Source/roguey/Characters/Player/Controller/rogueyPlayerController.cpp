@@ -30,6 +30,11 @@ ArogueyPlayerController::ArogueyPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 }
 
+ArogueyCharacter* ArogueyPlayerController::GetCharacter()
+{
+	return Cast<ArogueyCharacter>(GetPawn());
+}
+
 void ArogueyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -73,9 +78,21 @@ void ArogueyPlayerController::Tick(float DeltaSeconds)
 	}
 
 	AActor* HitActor = InteractHit.GetActor();
+	if (bIsPrimaryModifier && !Cast<ArogueyItemActor>(HitActor))
+	{
+		if (GetHitResultUnderCursor(ECC_WorldStatic, true, Hit))
+		{
+			OnHoverEvent.Broadcast("Walk Here", "");
+		}else
+		{
+			OnHoverEvent.Broadcast("", "");
+		}
+		return;
+	}
 	if (HitActor && HitActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 	{
 		IInteractable* Interactable = Cast<IInteractable>(HitActor);
+		
 		if (Interactable && !Interactable->GetInteractList().IsEmpty())
 		{
 			OnHoverEvent.Broadcast(EInteractTypeToString(Interactable->GetInteractList()[0]), "<Yellow>"+Interactable->GetRogueyName()+"</>");
@@ -112,6 +129,9 @@ void ArogueyPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MouseScrollClickAction, ETriggerEvent::Completed, this, &ArogueyPlayerController::OnMouseScrollReleased);
 		EnhancedInputComponent->BindAction(MouseScrollClickAction, ETriggerEvent::Canceled, this, &ArogueyPlayerController::OnMouseScrollReleased);
 		EnhancedInputComponent->BindAction(MouseMoveAction, ETriggerEvent::Triggered, this, &ArogueyPlayerController::OnMouseMove);
+		EnhancedInputComponent->BindAction(PrimaryModifier, ETriggerEvent::Started, this, &ArogueyPlayerController::OnPrimaryModifierStarted);
+		EnhancedInputComponent->BindAction(PrimaryModifier, ETriggerEvent::Canceled, this, &ArogueyPlayerController::OnPrimaryModifierCompleted);
+		EnhancedInputComponent->BindAction(PrimaryModifier, ETriggerEvent::Completed, this, &ArogueyPlayerController::OnPrimaryModifierCompleted);
 	}
 }
 
@@ -148,7 +168,7 @@ void ArogueyPlayerController::OnInputStarted()
 			ArogueyPawn* TargetPawn = Cast<ArogueyPawn>(HitActor);
 			ArogueyItemActor* TargetItem = Cast<ArogueyItemActor>(HitActor);
 			AArogueyObject* TargetObject = Cast<AArogueyObject>(HitActor);
-			if (TargetObject)
+			if (!bIsPrimaryModifier && TargetObject)
 			{
 				Input = FInput(RogueyGameMode->GetCurrentTick(), EInputType::INTERACT, FVector::Zero(), Cast<ArogueyPawn>(GetPawn()));
 				Input.TargetObject = TargetObject;
@@ -156,7 +176,7 @@ void ArogueyPlayerController::OnInputStarted()
 				OnClickEvent.Broadcast(false);
 				return;
 			}
-			if (TargetPawn && TargetPawn->PawnState != EPawnState::DEAD)
+			if (!bIsPrimaryModifier && TargetPawn && TargetPawn->PawnState != EPawnState::DEAD)
 			{
 				Input= FInput(RogueyGameMode->GetCurrentTick(), EInputType::ATTACK, InteractHit.Location, Cast<ArogueyPawn>(GetPawn()));
 				Input.TargetPawn = TargetPawn;
@@ -310,6 +330,16 @@ void ArogueyPlayerController::DrawHoveredTile(const FVector& HoveredPosition)
 	DrawDebugLine(GetWorld(), CornerHeights[2], CornerHeights[0], FColor::White, false, .05f, 0, 2.0f);
 }
 
+void ArogueyPlayerController::OnPrimaryModifierStarted()
+{
+	bIsPrimaryModifier = true;
+}
+
+void ArogueyPlayerController::OnPrimaryModifierCompleted()
+{
+	bIsPrimaryModifier = false;
+}
+
 void ArogueyPlayerController::InteractMenuInput(AActor* InputActor, EInteractType InteractType)
 {
 	if (InteractType == EInteractType::EXAMINE)
@@ -349,7 +379,7 @@ void ArogueyPlayerController::InventoryItemHoverAction(int32 InventoryIndex)
 {
 	FrogueyItem Item = RogueyGameMode->InventoryManager->GetItemAt(InventoryIndex);
 	if (Item.ItemId == -1) return;
-	OnHoverEvent.Broadcast(EInventoryEventTypeToString(Item.Interacts[0]), "<Yellow>"+ Item.ItemName + "</>");
+	OnHoverEvent.Broadcast(EInventoryEventTypeToString(Item.Interacts[bIsPrimaryModifier ? 1 : 0]), "<Yellow>"+ Item.ItemName + "</>");
 }
 
 void ArogueyPlayerController::InventoryItemInput(int32 InventoryIndex)
@@ -358,7 +388,7 @@ void ArogueyPlayerController::InventoryItemInput(int32 InventoryIndex)
 	if (Item.ItemId == -1) return;
 
 	FInventoryEvent InventoryEvent;
-	InventoryEvent.EventType = Item.Interacts[0];
+	InventoryEvent.EventType = Item.Interacts[bIsPrimaryModifier ? 1 : 0];
 	InventoryEvent.FromIndex = InventoryIndex;
 	
 	RogueyGameMode->InventoryManager->EnqueueIventoryEvent(InventoryEvent);
@@ -372,7 +402,7 @@ void ArogueyPlayerController::InventoryItemInputWithEventType(int32 InventoryInd
 	FInventoryEvent InventoryEvent;
 	InventoryEvent.EventType = InventoryEventType;
 	InventoryEvent.FromIndex = InventoryIndex;
-	
+
 	RogueyGameMode->InventoryManager->EnqueueIventoryEvent(InventoryEvent);
 }
 

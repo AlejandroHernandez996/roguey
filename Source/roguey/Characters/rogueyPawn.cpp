@@ -276,7 +276,10 @@ void ArogueyPawn::SetPawnState(EPawnState State, bool bOverride = false)
 		}
 		break;
 	case EPawnState::ATTACKING:
-		if (DefaultAttack)
+		if (AttackMontage)
+		{
+			PlayAnimMontage(AttackMontage);
+		}else
 		{
 			PlayAnimMontage(DefaultAttack);
 		}

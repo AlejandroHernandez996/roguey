@@ -9,6 +9,7 @@
 #include "Characters/SpawnManager.h"
 #include "Combat/DeathManager.h"
 #include "Combat/rogueyCombatManager.h"
+#include "Combat/Projectile/RogueyProjectileManager.h"
 #include "Grid/rogueyGridManager.h"
 #include "Input/rogueyInputManager.h"
 #include "Interactions/RogueyInteractManager.h"
@@ -36,6 +37,7 @@ void ArogueyGameMode::BeginPlay()
 	SpawnManager = NewObject<USpawnManager>(this, USpawnManager::StaticClass(), "Spawn Manager");
 	InteractManager = NewObject<URogueyInteractManager>(this, URogueyInteractManager::StaticClass(), "Interact Manager");
 	ResourceManager = NewObject<UURogueyResourceManager>(this, UURogueyResourceManager::StaticClass(), "Resource Manager");
+	ProjectileManager = NewObject<URogueyProjectileManager>(this, URogueyProjectileManager::StaticClass(), "Projectile Manager");
 	
 	InputManager->MovementManager = MovementManager;
 	InputManager->CombatManager = CombatManager;
@@ -49,6 +51,7 @@ void ArogueyGameMode::BeginPlay()
 	CombatManager->GridManager = GridManager;
 	CombatManager->InputManager = InputManager;
 	CombatManager->DeathManager = DeathManager;
+	CombatManager->ProjectileManager = ProjectileManager;
 	
 	BehaviorManager->GridManager = GridManager;
 	BehaviorManager->InputManager = InputManager;
@@ -63,6 +66,8 @@ void ArogueyGameMode::BeginPlay()
 	InventoryManager->GridManager = GridManager;
 
 	ResourceManager->GridManager = GridManager;
+
+	ProjectileManager->GridManager = GridManager;
 
 	InteractManager->Init(ItemCache);
 
@@ -99,6 +104,7 @@ void ArogueyGameMode::BeginPlay()
 		InteractManager,
 		ResourceManager,
 		CombatManager,
+		ProjectileManager,
 		DeathManager,
 		SpawnManager,
 	});

@@ -98,6 +98,68 @@ void UrogueyGridManager::Init(TSet<AArogueyObject*> RogueyObjects)
 	}
 }
 
+FIntVector2 UrogueyGridManager::FindRandomTileInRangeOfPawn(TWeakObjectPtr<ArogueyPawn> Pawn, int Range)
+{
+    if (!Pawn.IsValid() || !Grid.ActorMapLocation.Contains(Pawn))
+    {
+        return FIntVector2(); 
+    }
+
+    const FIntVector2 Origin = Grid.ActorMapLocation[Pawn];
+
+    if (Range <= 0)
+    {
+        return Origin;
+    }
+
+    TSet<FIntVector2> Occupied;
+    Occupied.Reserve(Grid.ActorMapLocation.Num());
+    for (const TPair<TWeakObjectPtr<ArogueyPawn>, FIntVector2>& Pair : Grid.ActorMapLocation)
+    {
+        Occupied.Add(Pair.Value);
+    }
+
+    TArray<FIntVector2> Candidates;
+    Candidates.Reserve((Range * 2 + 1) * (Range * 2 + 1));
+
+    const int32 MinX = Origin.X - Range;
+    const int32 MaxX = Origin.X + Range;
+    const int32 MinY = Origin.Y - Range;
+    const int32 MaxY = Origin.Y + Range;
+
+    for (int32 X = MinX; X <= MaxX; ++X)
+    {
+        for (int32 Y = MinY; Y <= MaxY; ++Y)
+        {
+            const FIntVector2 P(X, Y);
+
+            if (P == Origin)
+            {
+                continue;
+            }
+
+            if (GridUtils::GridDistance(Origin, P) > Range)
+            {
+                continue;
+            }
+            if (Occupied.Contains(P))
+            {
+                continue;
+            }
+
+            Candidates.Add(P);
+        }
+    }
+
+    if (Candidates.Num() == 0)
+    {
+        return Origin;
+    }
+
+    const int32 Index = FMath::RandHelper(Candidates.Num());
+    return Candidates[Index];
+}
+
 void UrogueyGridManager::AddRogueyObjectToGrid(AArogueyObject* RogueyObject)
 {
 	if (RogueyObject)

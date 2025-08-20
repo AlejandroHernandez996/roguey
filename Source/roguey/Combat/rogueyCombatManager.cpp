@@ -60,7 +60,7 @@ void UrogueyCombatManager::RogueyTick(int32 TickIndex)
 		}
 		else if (FromActor.Get())
 		{
-			UrogueyDamageCalculator::CalculateCombat(TickIndex, CombatEvent);
+			UrogueyDamageCalculator::CalculateCombat(TickIndex, CombatEvent, ProjectileManager);
 			FromActor->RotateAtPawn(CombatEvent.ToActor.Get());
 			if (CombatEvent.ToActor->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentLevel <= 0 && !Cast<ArogueyCharacter>(CombatEvent.ToActor))
 			{

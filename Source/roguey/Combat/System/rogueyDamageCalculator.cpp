@@ -3,9 +3,11 @@
 #include "Characters/Player/rogueyCharacter.h"
 #include "Characters/Player/Controller/rogueyPlayerController.h"
 #include "Combat/CombatEvent.h"
+#include "Combat/Projectile/RogueyProjectileEvent.h"
+#include "Combat/Projectile/RogueyProjectileManager.h"
 #include "Inventory/rogueyInventoryManager.h"
 
-void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent)
+void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent, URogueyProjectileManager* ProjectileManager)
 {
     TWeakObjectPtr<ArogueyPawn> FromPawn = CombatEvent.FromActor;
     TWeakObjectPtr<ArogueyPawn> ToPawn = CombatEvent.ToActor;
@@ -23,14 +25,31 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
         {
            DamageDealt = FMath::Min(CalculateDamage(FromPawn), ToPawn->StatPage.StatPage[ErogueyStatType::HEALTH].CurrentLevel);
         }
+        TWeakObjectPtr<ArogueyCharacter> PlayerCharacter = Cast<ArogueyCharacter>(FromPawn);
+        TSubclassOf<ArogueyProjectile> ProjectileClass;
+        if (FromPawn->ProjectileClass)
+        {
+            ProjectileClass = FromPawn->ProjectileClass;
+        }
+        if (PlayerCharacter.IsValid())
+        {
+            ProjectileClass = PlayerCharacter->InventoryManager->GetProjectileClass();
+        }
 
-        ToPawn->UpdateCurrentStat(ErogueyStatType::HEALTH, -DamageDealt);
+        if (!ProjectileClass)
+        {
+            ToPawn->UpdateCurrentStat(ErogueyStatType::HEALTH, -DamageDealt);
+        }else
+        {
+            FRogueyProjectileEvent ProjectileEvent = FRogueyProjectileEvent(FromPawn, ToPawn,TickIndex, ProjectileClass, DamageDealt);
+            ProjectileManager->EnqueueProjectileEvent(ProjectileEvent);
+        }
        
         FromPawn->SetPawnState(EPawnState::ATTACKING, true);
         FromPawn->LastAttackTickIndex = TickIndex;
 
         int32 AttackCooldown = FromPawn->DefaultAttackCooldown;
-        if (ArogueyCharacter* PlayerCharacter = Cast<ArogueyCharacter>(FromPawn))
+        if (PlayerCharacter.IsValid())
         {
             AttackCooldown = PlayerCharacter->InventoryManager->GetTotalBonusByStat(EItemStatType::ATTACK_SPEED);
         }
@@ -38,16 +57,15 @@ void UrogueyDamageCalculator::CalculateCombat(int32 TickIndex, FCombatEvent Comb
         
         int32 ExperienceAmount = DamageDealt * 4;
         bool bLeveledUp = FromPawn->StatPage.StatPage[ErogueyStatType::STRENGTH].IncrementExperience(ExperienceAmount);
-        ArogueyCharacter* Character = Cast<ArogueyCharacter>(FromPawn);
-        if (Character)
+        if (PlayerCharacter.IsValid())
         {
             if (bLeveledUp)
             {
-               Cast<ArogueyPlayerController>(Character->GetController())->OnChatMessage.Broadcast("Leveled Up!");
+               Cast<ArogueyPlayerController>(PlayerCharacter->GetController())->OnChatMessage.Broadcast("Leveled Up!");
             }
             if (DamageDealt > 0)
             {
-                Character->OnExperienceDrop.Broadcast(ExperienceAmount, ErogueyStatType::STRENGTH);
+                PlayerCharacter->OnExperienceDrop.Broadcast(ExperienceAmount, ErogueyStatType::STRENGTH);
             }
         }
        

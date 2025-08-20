@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "rogueyDamageCalculator.generated.h"
 
+class URogueyProjectileManager;
 class ArogueyPawn;
 struct FCombatEvent;
 
@@ -14,7 +15,7 @@ class ROGUEY_API UrogueyDamageCalculator : public UObject
 	GENERATED_BODY()
 
 public:
-	static void CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent);
+	static void CalculateCombat(int32 TickIndex, FCombatEvent CombatEvent, URogueyProjectileManager* ProjectileManager);
 
 protected:
 	static int32 CalculateDamage(TWeakObjectPtr<ArogueyPawn> FromPawn);
